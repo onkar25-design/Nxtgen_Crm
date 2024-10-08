@@ -42,9 +42,9 @@ const SignupPage = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
-            role: 'client' // Default role
+            role: 'staff' // Changed default role to 'staff'
           },
-          emailRedirectTo: `${window.location.origin}/login` // Redirect to login page after email confirmation
+          emailRedirectTo: `${window.location.origin}/login`
         }
       });
 
@@ -52,9 +52,22 @@ const SignupPage = () => {
 
       if (data.user) {
         console.log('Sign-up initiated:', data.user);
+        // Insert user details into the users table
+        const { error: insertError } = await supabase
+          .from('users') // Ensure this matches your table name
+          .insert([
+            {
+              id: data.user.id, // Use the user's ID from Supabase
+              email: data.user.email,
+              role: 'staff', // Default role
+              first_name: firstName,
+              last_name: lastName
+            }
+          ]);
+
+        if (insertError) throw insertError;
+
         setError('Please check your email to confirm your account before logging in.');
-        // Optionally, you can redirect to login page after a delay
-        // setTimeout(() => navigate('/login'), 5000);
       }
     } catch (error) {
       console.error('Sign-up error:', error);
