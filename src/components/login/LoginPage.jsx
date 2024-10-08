@@ -33,41 +33,23 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      console.log('Attempting to log in with email:', email);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      const { data: user, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
+      if (error) throw error;
 
-      console.log('Query result:', { user, fetchError });
-
-      if (fetchError) {
-        if (fetchError.code === 'PGRST116') {
-          setError('User not found');
-        } else {
-          throw fetchError;
-        }
+      if (data.user && !data.user.email_confirmed_at) {
+        setError('Please confirm your email before logging in.');
         return;
       }
 
-      if (!user) {
-        setError('User not found');
-        return;
-      }
+      console.log('Login successful:', data);
 
-      // Compare the provided password with the stored hash
-      const passwordMatch = await bcrypt.compare(password, user.password);
+      const userRole = data.user.user_metadata.role;
 
-      if (!passwordMatch) {
-        setError('Invalid password');
-        return;
-      }
-
-      console.log('Login successful:', user);
-
-      switch(user.role) {
+      switch(userRole) {
         case 'admin':
           navigate('/admin');
           break;
@@ -126,15 +108,14 @@ const LoginPage = () => {
             >
               Sign In
             </Button>
-            <Button
-              component={Link}
-              to="/signup"
-              fullWidth
-              variant="outlined"
-              className="signup-button"
-            >
-              Create an Account
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <Link to="/forgot-password" className="forgot-password-link">
+                Forgot Password?
+              </Link>
+              <Link to="/signup" className="signup-link">
+                Create an Account
+              </Link>
+            </Box>
             {error && (
               <Typography className="login-error">
                 {error}

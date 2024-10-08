@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "../../../supabaseClient";
-import bcrypt from 'bcryptjs';
 import { 
   TextField, 
   Button, 
@@ -36,41 +35,27 @@ const SignupPage = () => {
     setError(null);
 
     try {
-      const { data: existingUser, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-
-      if (existingUser) {
-        setError('User already exists');
-        return;
-      }
-
-      // Hash the password before storing
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      const { data: newUser, error: insertError } = await supabase
-        .from('users')
-        .insert([
-          { 
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
             first_name: firstName,
             last_name: lastName,
-            email: email,
-            password: hashedPassword, // Store the hashed password
             role: 'client' // Default role
-          }
-        ])
-        .single();
+          },
+          emailRedirectTo: `${window.location.origin}/login` // Redirect to login page after email confirmation
+        }
+      });
 
-      if (insertError) throw insertError;
+      if (error) throw error;
 
-      console.log('Sign-up successful:', newUser);
-      navigate('/login'); // Redirect to login page after successful signup
-
+      if (data.user) {
+        console.log('Sign-up initiated:', data.user);
+        setError('Please check your email to confirm your account before logging in.');
+        // Optionally, you can redirect to login page after a delay
+        // setTimeout(() => navigate('/login'), 5000);
+      }
     } catch (error) {
       console.error('Sign-up error:', error);
       setError(error.message);
