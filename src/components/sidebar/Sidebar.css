@@ -1,0 +1,97 @@
+.nxtgen-sidebar {
+    width: 250px; /* Width of the sidebar */
+    background-color: #388E3C; /* Green background for the sidebar */
+    color: white;
+    padding: 0; /* Remove padding to control sections separately */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed; /* Fixed position to keep it in place */
+    left: 0;
+    top: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+}
+
+.nxtgen-logo-space {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: white; /* White background for the logo area */
+    border-radius: 0; /* Rounded corners on top */
+}
+
+.nxtgen-company-logo {
+    max-width: 80%; /* Adjust width to fit better */
+    max-height: 80px; /* Adjust height as needed */
+}
+
+.nxtgen-sidebar nav {
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: #388E3C; /* Keep the rest of the sidebar green */
+}
+
+.nxtgen-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 4px; /* Add rounded corners */
+    transition: background-color 0.3s; /* Smooth background transition */
+}
+
+.nxtgen-nav-item:hover {
+    background-color: #4CAF50; /* Change background on hover */
+}
+
+.nxtgen-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.nxtgen-icon-arrow {
+    font-size: 16px; /* Adjust size for visibility */
+}
+
+.nxtgen-sub-menu {
+    margin-left: 20px;
+}
+
+.nxtgen-sub-item {
+    padding: 5px 10px;
+    position: relative;
+}
+
+.nxtgen-bullet {
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.nxtgen-logout-btn {
+    margin-top: auto;
+    background-color: #81C784;
+    color: white;
+    border: none;
+    padding: 12px; 
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%; 
+    text-align: center; 
+    font-weight: bold; 
+    border-radius: 4px; 
+}
+
+.nxtgen-logout-btn:hover {
+    background-color: #4CAF50; 
+}

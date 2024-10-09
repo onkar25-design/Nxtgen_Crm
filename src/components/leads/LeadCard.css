@@ -1,0 +1,46 @@
+.lead-card {
+    background-color: #FFFFFF;
+    border: 1px solid #81C784;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: move;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .lead-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .lead-card.dragging {
+    opacity: 0.5;
+  }
+  
+  .lead-card h3 {
+    margin: 0 0 5px 0;
+    font-size: 1em;
+  }
+  
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .tag {
+    display: inline-block;
+    background-color: #81C784;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.8em;
+  }
+  
+  .card-details {
+    margin-top: 10px;
+    font-size: 0.9em;
+  }
+  
+  .card-details p {
+    margin: 5px 0;
+  }

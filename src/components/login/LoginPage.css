@@ -1,4 +1,5 @@
 body {
+    background-color: #4CAF50; /* Green background for the login page */
     margin: 0;
     padding: 0;
     height: 100vh;
@@ -6,10 +7,10 @@ body {
   }
   
   .login-container {
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh; /* Full height for centering */
     background: linear-gradient(314deg, #1b8b00 0%, #a2d240 74%);
   }
   

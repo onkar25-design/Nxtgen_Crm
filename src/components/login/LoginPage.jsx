@@ -47,21 +47,8 @@ const LoginPage = () => {
 
       console.log('Login successful:', data);
 
-      const userRole = data.user.user_metadata.role;
-
-      switch(userRole) {
-        case 'admin':
-          navigate('/admin');
-          break;
-        case 'staff':
-          navigate('/staff');
-          break;
-        case 'client':
-          navigate('/customer');
-          break;
-        default:
-          setError('Invalid user role');
-      }
+      // Simplified navigation logic: redirect to sidebar for any user
+      navigate('/sidebar'); // Remove role check
 
     } catch (error) {
       console.error('Login error:', error);

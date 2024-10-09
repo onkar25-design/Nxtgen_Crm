@@ -1,0 +1,180 @@
+.leads-pipeline {
+  min-width: 800px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.pipeline-header {
+  display: grid; /* Use grid layout */
+  grid-template-columns: 1fr auto auto; /* Three columns: title, search, and buttons */
+  align-items: center; /* Center items vertically */
+  background-color: white; /* White background for the header */
+  padding: 15px; /* Padding around the header */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  margin-bottom: 20px; /* Space below the header */
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.react-select-container {
+  width: 400px;
+  margin-right: 20px;
+}
+
+.react-select__control {
+  background-color: #ffffff;
+  border-color: #81C784;
+  border-radius: 4px; /* Rounded corners */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.react-select__option--is-focused {
+  background-color: #81C784;
+}
+
+.react-select__option--is-selected {
+  background-color: #4CAF50;
+  color: white; /* White text for selected option */
+}
+
+.icon-btn {
+  background: #4CAF50; /* Green background */
+  border: none;
+  cursor: pointer;
+  color: white; /* White text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px; /* Increased padding */
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Added transform */
+  width: 40px; /* Set a fixed width for the button */
+  height: 40px; /* Set a fixed height for the button */
+}
+
+.icon-btn:hover {
+  background-color: #388E3C; /* Darker green on hover */
+  transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.icon-btn svg {
+  width: 20px; /* Adjust icon size */
+  height: 20px; /* Adjust icon size */
+}
+
+.delete-column-btn {
+  background: #F44336; /* Red background */
+  color: white; /* White text */
+}
+
+.delete-column-btn:hover {
+  background-color: #D32F2F; /* Darker red on hover */
+}
+
+.columns-container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+
+.column {
+  background-color: #ffffff; /* White background for columns */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px; /* Padding inside columns */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  flex: 1; /* Allow columns to grow */
+}
+
+.column-header {
+  border-bottom: 2px solid #4CAF50; /* Green border for column header */
+  margin-bottom: 10px; /* Space below header */
+  padding-bottom: 5px; /* Padding below header */
+}
+
+.modal {
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  position: fixed; /* Fixed position */
+  top: 0; /* Align to top */
+  left: 0; /* Align to left */
+  right: 0; /* Align to right */
+  bottom: 0; /* Align to bottom */
+  display: flex; /* Flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.modal-content {
+  background-color: white; 
+  border-radius: 8px; 
+  padding: 20px; 
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+  width: 500px; 
+  max-width: 90%; 
+  overflow: hidden; 
+}
+
+.modal-input {
+  width: 100%; /* Full width to match the dropdown */
+  padding: 10px; /* Padding inside input */
+  margin-bottom: 15px; /* Space below input */
+  border: 1px solid #ccc; /* Border for input */
+  border-radius: 4px; /* Rounded corners */
+  box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+.modal-select {
+  width: 100%; /* Full width for dropdown */
+  padding: 10px; /* Padding inside select */
+  margin-bottom: 15px; /* Space below select */
+  border: 1px solid #ccc; /* Border for select */
+  border-radius: 4px; /* Rounded corners */
+  box-sizing: border-box;
+   /* Ensure padding and border are included in width */
+}
+
+.modal-btn {
+  background: #4CAF50; 
+  color: white; 
+  border: none; 
+  padding: 10px 20px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+}
+
+.modal-btn:hover {
+  background-color: #388E3C; /* Darker green on hover */
+}
+
+/* Dropdown menu for delete button */
+.dropdown-menu {
+  position: absolute; /* Positioning for dropdown */
+  background-color: white; /* White background */
+  border: 1px solid #ccc; /* Border for dropdown */
+  border-radius: 4px; /* Rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  z-index: 1000; /* Ensure dropdown is above other elements */
+}
+
+.dropdown-menu button {
+  display: block; 
+  width: 100%; 
+  padding: 10px; 
+  border: none; 
+  background: none; 
+  text-align: left;
+  cursor: pointer; 
+}
+
+.dropdown-menu button:hover {
+  background-color: #f0f0f0; 
+}
+

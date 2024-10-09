@@ -1,0 +1,26 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  background-color: #F5F5F5;
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex-grow: 1;
+  margin-left: 270px; /* Match the width of the sidebar */
+  padding: 20px;
+  box-sizing: border-box; /* Ensure padding is included in width */
+  overflow-x: auto; /* Allow horizontal scrolling if needed */
+}
+
+/* Styles for login-related pages */
+.login-content {
+  margin-left: 0; /* Remove left margin */
+  padding: 0; /* Remove padding */
+}
