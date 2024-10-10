@@ -6,41 +6,84 @@
     margin-bottom: 10px;
     cursor: move;
     transition: box-shadow 0.3s ease;
-  }
-  
-  .lead-card:hover {
+    position: relative; /* Added to position child elements absolutely */
+}
+
+.lead-card:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .lead-card.dragging {
+}
+
+.lead-card.dragging {
     opacity: 0.5;
-  }
-  
-  .lead-card h3 {
+}
+
+.header {
+    display: flex;
+    justify-content: space-between; /* Space between title and button */
+    align-items: center; /* Center vertically */
+}
+
+.edit-button {
+    background: none; /* Remove default button background */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor */
+    color: #4CAF50; /* Change color to match theme */
+    font-size: 1.2em; /* Adjust size */
+}
+
+.lead-card h3 {
     margin: 0 0 5px 0;
     font-size: 1em;
-  }
-  
-  .tags {
+}
+
+.tags {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-  }
-  
-  .tag {
+}
+
+.tag {
     display: inline-block;
     background-color: #81C784;
     color: white;
     padding: 2px 5px;
     border-radius: 3px;
     font-size: 0.8em;
-  }
-  
-  .card-details {
+}
+
+.card-details {
     margin-top: 10px;
     font-size: 0.9em;
-  }
-  
-  .card-details p {
+}
+
+.card-details p {
     margin: 5px 0;
-  }
+}
+
+.lead-score {
+    display: flex;
+    margin-top: 5px;
+}
+
+.star {
+    color: lightgray; /* Default star color */
+    font-size: 1.2em; /* Adjust star size */
+}
+
+.star.filled {
+    color: green; /* Filled star color */
+}
+
+.delete-button {
+    background: none; /* Remove default button background */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor */
+    color: #F44336; /* Change color to red for delete */
+    font-size: 1.2em; /* Adjust size */
+    margin-left: 1px; /* Space between edit and delete buttons */
+}
+
+.card-details strong {
+    font-weight: bold; /* Ensure titles are bold */
+    color: #333; /* Optional: Change color if needed */
+}

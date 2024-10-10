@@ -27,22 +27,6 @@
   margin-right: 20px;
 }
 
-.react-select__control {
-  background-color: #ffffff;
-  border-color: #81C784;
-  border-radius: 4px; /* Rounded corners */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-}
-
-.react-select__option--is-focused {
-  background-color: #81C784;
-}
-
-.react-select__option--is-selected {
-  background-color: #4CAF50;
-  color: white; /* White text for selected option */
-}
-
 .icon-btn {
   background: #4CAF50; /* Green background */
   border: none;
@@ -51,11 +35,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px; /* Increased padding */
+  padding: 5px; /* Decreased padding for smaller button */
   border-radius: 50%;
   transition: background-color 0.3s ease, transform 0.2s ease; /* Added transform */
-  width: 40px; /* Set a fixed width for the button */
-  height: 40px; /* Set a fixed height for the button */
+  width: 30px; /* Set a smaller fixed width for the button */
+  height: 30px; /* Set a smaller fixed height for the button */
+  margin-left: 20px;
 }
 
 .icon-btn:hover {
@@ -64,8 +49,8 @@
 }
 
 .icon-btn svg {
-  width: 20px; /* Adjust icon size */
-  height: 20px; /* Adjust icon size */
+  width: 16px; /* Adjust icon size */
+  height: 16px; /* Adjust icon size */
 }
 
 .delete-column-btn {
@@ -93,6 +78,9 @@
 }
 
 .column-header {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: space-between; /* Space between title and button */
+  align-items: center; /* Center items vertically */
   border-bottom: 2px solid #4CAF50; /* Green border for column header */
   margin-bottom: 10px; /* Space below header */
   padding-bottom: 5px; /* Padding below header */
@@ -129,14 +117,14 @@
   box-sizing: border-box; /* Ensure padding and border are included in width */
 }
 
+
 .modal-select {
   width: 100%; /* Full width for dropdown */
   padding: 10px; /* Padding inside select */
   margin-bottom: 15px; /* Space below select */
   border: 1px solid #ccc; /* Border for select */
   border-radius: 4px; /* Rounded corners */
-  box-sizing: border-box;
-   /* Ensure padding and border are included in width */
+  box-sizing: border-box; /* Ensure padding and border are included in width */
 }
 
 .modal-btn {
@@ -177,4 +165,3 @@
 .dropdown-menu button:hover {
   background-color: #f0f0f0; 
 }
-
