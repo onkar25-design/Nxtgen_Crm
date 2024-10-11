@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import './NewLeadForm.css';
+import { supabase } from '../../../supabaseClient'; // Supabase client import
 
 const NewLeadForm = ({ onSubmit, onCancel, initialData }) => {
   const [formData, setFormData] = useState({
     title: '',
-    budget: 0, // Keep only budget
+    budget: 0, 
     company: '',
     tags: [],
     name: '',
@@ -30,9 +31,42 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData); // Ensure all data is passed
+    const result = await submitLeadToSupabase(formData);
+    if (result) {
+      onSubmit(formData); // Trigger the parent component's submission
+    }
+  };
+
+  const submitLeadToSupabase = async (leadData) => {
+    const { data, error } = await supabase
+      .from('leads')  // Ensure the 'leads' table exists
+      .insert([
+        {
+          title: leadData.title,
+          budget: leadData.budget,
+          company: leadData.company,
+          tags: leadData.tags,
+          name: leadData.name,
+          email: leadData.email,
+          phone: leadData.phone,
+          lead_source: leadData.leadSource,
+          lead_score: leadData.leadScore,
+          interested_products: leadData.interestedProducts,
+          assigned_to: leadData.assignedTo,
+          status: leadData.status,
+          notes: leadData.notes,
+        }
+      ]);
+
+    if (error) {
+      console.error('Error inserting data:', error);
+      return false; // Return false to indicate failure
+    } else {
+      console.log('Lead added successfully:', data);
+      return true; // Return true to indicate success
+    }
   };
 
   const tagOptions = [
@@ -64,7 +98,7 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData }) => {
               <input type="text" name="title" value={formData.title} onChange={handleChange} required />
             </div>
             <div>
-              <label>Budget</label> {/* Keep only Budget */}
+              <label>Budget</label>
               <input type="number" name="budget" value={formData.budget} onChange={handleChange} required />
             </div>
             <div>

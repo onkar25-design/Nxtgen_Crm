@@ -3,6 +3,7 @@ import { useDrag } from 'react-dnd';
 import './LeadCard.css';
 import { FaEdit, FaTrash } from 'react-icons/fa'; // Importing edit and delete icons
 import NewLeadForm from './NewLeadForm'; // Import the NewLeadForm component
+import { supabase } from '../../../supabaseClient'; // Use named import
 
 function LeadCard({ card, columnId, onEdit, onDelete }) { // Ensure onDelete is passed
   const [isExpanded, setIsExpanded] = useState(false);
@@ -21,9 +22,16 @@ function LeadCard({ card, columnId, onEdit, onDelete }) { // Ensure onDelete is 
     return 'green';
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => { // Make the function async
     if (window.confirm('Are you sure you want to delete this lead?')) {
-      onDelete(card.id); // Call the onDelete function with the card ID
+      try {
+        // Remove the line below if you don't need it
+        // await deleteCardFromDatabase(card.id); // Call your API or function to delete the card
+        await supabase.from('leads').delete().eq('id', card.id); // Delete from Supabase
+        onDelete(card.id); // Call the onDelete function with the card ID
+      } catch (error) {
+        console.error('Error deleting the card:', error); // Handle any errors
+      }
     }
   };
 
@@ -31,9 +39,18 @@ function LeadCard({ card, columnId, onEdit, onDelete }) { // Ensure onDelete is 
     setIsEditing(true); // Open the edit form
   };
 
-  const handleFormSubmit = (updatedData) => {
-    onEdit(updatedData); // Call the onEdit function with updated data
-    setIsEditing(false); // Close the edit form
+  const handleFormSubmit = async (updatedData) => {
+    try {
+      // Update the card in Supabase
+      const { error } = await supabase.from('leads').update(updatedData).eq('id', card.id);
+      if (error) throw error; // Handle any errors from Supabase
+
+      // Call the onEdit function with updated data
+      onEdit({ ...card, ...updatedData }); // Update the existing card with new data
+      setIsEditing(false); // Close the edit form
+    } catch (error) {
+      console.error('Error updating the card:', error); // Handle any errors
+    }
   };
 
   return (

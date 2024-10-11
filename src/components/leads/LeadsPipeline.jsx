@@ -1,51 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import LeadCard from './LeadCard';
 import Select from 'react-select';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faThList } from '@fortawesome/free-solid-svg-icons'; // Import new icon
 import './LeadsPipeline.css';
-import { useEffect } from 'react'; // Import useEffect for managing modal state
 import NewLeadForm from './NewLeadForm'; // Import the NewLeadForm component
+import { supabase } from '../../../supabaseClient'; // Import Supabase client
 
 const initialColumns = [
   {
     id: 'new',
     title: 'New',
-    cards: [
-      {
-        id: 1,
-        title: 'Office Design Project',
-        budget: 24000,
-        company: 'Deco Addict',
-        tags: ['Design'],
-        leadSource: 'Website',
-        leadScore: 4,
-        interestedProducts: ['Office Furniture', 'Design Services'],
-        assignedTo: 'Alice',
-        status: 'New',
-        notes: 'Follow up next week.',
-        name: 'Alice Johnson',
-        email: 'alice.johnson@example.com',
-        phone: '123-456-7890',
-      },
-      {
-        id: 2,
-        title: 'Quote for 150 carpets',
-        budget: 40000,
-        company: 'Ready Mat',
-        tags: ['Product'],
-        leadSource: 'Email',
-        leadScore: 2, // Lead score below 3
-        interestedProducts: ['Carpets'],
-        assignedTo: 'Bob',
-        status: 'New',
-        notes: 'Check stock availability.',
-        name: 'Bob Smith',
-        email: 'bob.smith@example.com',
-        phone: '987-654-3210',
-      },
-    ],
+    cards: [],
   },
   {
     id: 'qualified',
@@ -181,6 +148,42 @@ function LeadsPipeline() {
     { value: 'amount', label: 'Amount' },
     { value: 'tags', label: 'Tags' },
   ];
+
+  useEffect(() => {
+    const fetchLeads = async () => { // New function to fetch leads
+      const { data, error } = await supabase.from('leads').select('*');
+      if (error) {
+        console.error('Error fetching leads:', error);
+      } else {
+        const newColumn = {
+          id: 'new',
+          title: 'New',
+          cards: data.map(lead => ({
+            id: lead.id, // Ensure unique ID
+            title: lead.title,
+            budget: lead.budget,
+            company: lead.company,
+            tags: lead.tags,
+            leadSource: lead.lead_source, // Ensure correct mapping
+            leadScore: lead.lead_score, // Ensure correct mapping
+            interestedProducts: lead.interested_products, // Ensure correct mapping
+            assignedTo: lead.assigned_to, // Ensure correct mapping
+            status: lead.status,
+            notes: lead.notes,
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone,
+          })),
+        };
+        setColumns(prevColumns => {
+          const updatedColumns = prevColumns.map(col => col.id === 'new' ? newColumn : col);
+          return updatedColumns;
+        });
+      }
+    };
+
+    fetchLeads(); // Call the fetch function on component mount
+  }, []);
 
   const moveCard = (cardId, fromColumn, toColumn) => {
     setColumns(prevColumns => {
