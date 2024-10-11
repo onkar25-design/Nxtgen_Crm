@@ -12,105 +12,22 @@ const initialColumns = [
   {
     id: 'new',
     title: 'New',
-    cards: [],
+    cards: [], // All columns have the same structure
   },
   {
     id: 'qualified',
     title: 'Qualified',
-    cards: [
-      {
-        id: 3,
-        title: 'Interest in your products',
-        budget: 2000,
-        company: 'The Jackson Group',
-        tags: ['Product', 'Information'],
-        leadSource: 'Referral',
-        leadScore: 5,
-        interestedProducts: ['Office Supplies'],
-        assignedTo: 'Charlie',
-        status: 'Qualified',
-        notes: 'Schedule a meeting.',
-        name: 'Charlie Brown',
-        email: 'charlie.brown@example.com',
-        phone: '555-123-4567',
-      },
-      {
-        id: 4,
-        title: 'DeltaPC: 10 Computer Desks',
-        budget: 35000,
-        company: 'Ready Mat',
-        tags: ['Information', 'Training'],
-        leadSource: 'Trade Show',
-        leadScore: 2,
-        interestedProducts: ['Computer Desks'],
-        assignedTo: 'Diana',
-        status: 'Qualified',
-        notes: 'Send proposal.',
-        name: 'Diana Prince',
-        email: 'diana.prince@example.com',
-        phone: '555-765-4321',
-      },
-    ],
+    cards: [], // All columns have the same structure
   },
   {
     id: 'proposition',
     title: 'Proposition',
-    cards: [
-      {
-        id: 5,
-        title: 'Open Space Design',
-        budget: 11000,
-        company: 'Deco Addict',
-        tags: ['Design'],
-        leadSource: 'Website',
-        leadScore: 4,
-        interestedProducts: ['Interior Design'],
-        assignedTo: 'Eve',
-        status: 'Proposition',
-        notes: 'Awaiting client feedback.',
-        name: 'Eve Adams',
-        email: 'eve.adams@example.com',
-        phone: '555-111-2222',
-      },
-      {
-        id: 6,
-        title: 'Office Design and Architecture',
-        budget: 9000,
-        company: 'Ready Mat',
-        tags: ['Design', 'Consulting'],
-        leadSource: 'Email',
-        leadScore: 3, // Lead score below 3
-        interestedProducts: ['Consulting Services'],
-        assignedTo: 'Frank',
-        status: 'Proposition',
-        notes: 'Prepare final designs.',
-        name: 'Frank Castle',
-        email: 'frank.castle@example.com',
-        phone: '555-333-4444',
-      },
-    ],
+    cards: [], // All columns have the same structure
   },
   {
     id: 'won',
     title: 'Won',
-    cards: [
-      {
-        id: 7,
-        title: 'Distributor Contract',
-        budget: 19800,
-        company: 'Gemini Furniture',
-        tags: ['Information', 'Other'],
-        leadSource: 'Direct Contact',
-        leadScore: 3,
-        interestedProducts: ['Furniture'],
-        assignedTo: 'Grace',
-        status: 'Won',
-        notes: 'Contract signed.',
-        name: 'Grace Hopper',
-        email: 'grace.hopper@example.com',
-        phone: '555-555-5555',
-      },
-    ],
+    cards: [], // All columns have the same structure
   },
 ];
 
@@ -150,42 +67,49 @@ function LeadsPipeline() {
   ];
 
   useEffect(() => {
-    const fetchLeads = async () => { // New function to fetch leads
+    const fetchLeads = async () => {
       const { data, error } = await supabase.from('leads').select('*');
       if (error) {
         console.error('Error fetching leads:', error);
       } else {
-        const newColumn = {
-          id: 'new',
-          title: 'New',
-          cards: data.map(lead => ({
-            id: lead.id, // Ensure unique ID
-            title: lead.title,
-            budget: lead.budget,
-            company: lead.company,
-            tags: lead.tags,
-            leadSource: lead.lead_source, // Ensure correct mapping
-            leadScore: lead.lead_score, // Ensure correct mapping
-            interestedProducts: lead.interested_products, // Ensure correct mapping
-            assignedTo: lead.assigned_to, // Ensure correct mapping
-            status: lead.status,
-            notes: lead.notes,
-            name: lead.name,
-            email: lead.email,
-            phone: lead.phone,
-          })),
-        };
-        setColumns(prevColumns => {
-          const updatedColumns = prevColumns.map(col => col.id === 'new' ? newColumn : col);
-          return updatedColumns;
+        // Create a mapping of columns based on their IDs
+        const columnMap = {};
+        initialColumns.forEach(col => {
+          columnMap[col.id] = { ...col, cards: [] }; // Initialize each column with an empty cards array
         });
+
+        // Populate the columns with the fetched leads based on their stage
+        data.forEach(lead => {
+          const stage = lead.stage || 'new'; // Default to 'new' if stage is not set
+          if (columnMap[stage]) {
+            columnMap[stage].cards.push({
+              id: lead.id,
+              title: lead.title,
+              budget: lead.budget,
+              company: lead.company,
+              tags: lead.tags,
+              leadSource: lead.lead_source,
+              leadScore: lead.lead_score,
+              interestedProducts: lead.interested_products,
+              assignedTo: lead.assigned_to,
+              status: lead.status,
+              notes: lead.notes,
+              name: lead.name,
+              email: lead.email,
+              phone: lead.phone,
+            });
+          }
+        });
+
+        // Set the columns state with the updated columns
+        setColumns(Object.values(columnMap));
       }
     };
 
     fetchLeads(); // Call the fetch function on component mount
   }, []);
 
-  const moveCard = (cardId, fromColumn, toColumn) => {
+  const moveCard = async (cardId, fromColumn, toColumn) => {
     setColumns(prevColumns => {
       const updatedColumns = prevColumns.map(col => {
         if (col.id === fromColumn) {
@@ -193,7 +117,21 @@ function LeadsPipeline() {
         }
         if (col.id === toColumn) {
           const [movedCard] = prevColumns.find(c => c.id === fromColumn).cards.filter(card => card.id === cardId);
-          return { ...col, cards: [...col.cards, movedCard] };
+          // Update the stage of the moved card
+          const updatedCard = { ...movedCard, stage: toColumn }; // Update stage field
+
+          // Update the card in Supabase
+          supabase.from('leads').update({ stage: toColumn }).eq('id', cardId)
+            .then(({ data, error }) => {
+              if (error) {
+                console.error('Error updating lead stage:', error);
+              }
+            });
+
+          return { 
+            ...col, 
+            cards: [...col.cards, updatedCard] // Add updated card to the new column
+          };
         }
         return col;
       });
@@ -229,28 +167,36 @@ function LeadsPipeline() {
     }
   };
 
-  const addLead = (leadData) => {
-    setColumns(prevColumns => {
-      const updatedColumns = [...prevColumns];
-      const newLeadData = {
-        id: Date.now(), // Unique ID for the lead
-        title: leadData.title,
-        budget: leadData.budget,
-        company: leadData.company,
-        tags: leadData.tags,
-        name: leadData.name, // Ensure name is included
-        email: leadData.email, // Ensure email is included
-        phone: leadData.phone, // Ensure phone is included
-        leadSource: leadData.leadSource,
-        leadScore: leadData.leadScore,
-        interestedProducts: leadData.interestedProducts,
-        assignedTo: leadData.assignedTo,
-        status: leadData.status,
-        notes: leadData.notes,
-      };
-      updatedColumns[0].cards.push(newLeadData); // Add to the "New" column
-      return updatedColumns;
-    });
+  const addLead = async (leadData) => {
+    const newLeadData = {
+      id: Date.now(), // Unique ID for the lead
+      title: leadData.title,
+      budget: leadData.budget,
+      company: leadData.company,
+      tags: leadData.tags,
+      name: leadData.name,
+      email: leadData.email,
+      phone: leadData.phone,
+      leadSource: leadData.leadSource,
+      leadScore: leadData.leadScore,
+      interestedProducts: leadData.interestedProducts,
+      assignedTo: leadData.assignedTo,
+      status: leadData.status,
+      notes: leadData.notes,
+      stage: 'new', // Set initial stage to 'new'
+    };
+
+    // Insert the new lead into Supabase
+    const { data, error } = await supabase.from('leads').insert([newLeadData]);
+    if (error) {
+      console.error('Error adding lead:', error);
+    } else {
+      setColumns(prevColumns => {
+        const updatedColumns = [...prevColumns];
+        updatedColumns[0].cards.push(newLeadData); // Add to the "New" column
+        return updatedColumns;
+      });
+    }
     setShowAddLeadModal(false);
   };
 
