@@ -57,7 +57,7 @@ function LeadCard({ card, columnId, onEdit, onDelete }) { // Ensure onDelete is 
     <div
       ref={drag}
       className={`lead-card ${isDragging ? 'dragging' : ''}`}
-      style={{ borderLeftColor: getBorderColor(card.leadScore), borderLeftWidth: '5px', borderLeftStyle: 'solid' }} // Thicker left border
+      style={{ borderLeftColor: getBorderColor(card.lead_score), borderLeftWidth: '5px', borderLeftStyle: 'solid' }} // Thicker left border
       onClick={() => setIsExpanded(!isExpanded)}
     >
       <div className="header">
@@ -78,7 +78,7 @@ function LeadCard({ card, columnId, onEdit, onDelete }) { // Ensure onDelete is 
       </div>
       <div className="lead-score">
         {[...Array(5)].map((_, index) => (
-          <span key={index} className={`star ${index < card.leadScore ? 'filled' : ''}`}>★</span>
+          <span key={index} className={`star ${index < card.lead_score ? 'filled' : ''}`}>★</span>
         ))}
       </div>
       {isExpanded && (
@@ -88,10 +88,10 @@ function LeadCard({ card, columnId, onEdit, onDelete }) { // Ensure onDelete is 
           <p><strong>Name:</strong> {card.name}</p>
           <p><strong>Email:</strong> {card.email}</p>
           <p><strong>Phone:</strong> {card.phone}</p> {/* Display phone */}
-          <p><strong>Lead Source:</strong> {card.leadSource}</p> {/* Display lead source */}
-          <p><strong>Lead Score:</strong> {card.leadScore}</p> {/* Display lead score */}
-          <p><strong>Interested Products:</strong> {(card.interestedProducts || []).join(', ')}</p> {/* Display interested products */}
-          <p><strong>Assigned To:</strong> {card.assignedTo}</p> {/* Display assigned to */}
+          <p><strong>Lead Source:</strong> {card.lead_source}</p> {/* Ensure this matches the fetched field */}
+          <p><strong>Lead Score:</strong> {card.lead_score}</p> {/* Ensure this matches the fetched field */}
+          <p><strong>Interested Products:</strong> {(card.interested_products || []).join(', ')}</p> {/* Ensure this matches the fetched field */}
+          <p><strong>Assigned To:</strong> {card.assigned_to}</p> {/* Ensure this matches the fetched field */}
           <p><strong>Status:</strong> {card.status}</p> {/* Display status */}
           <p><strong>Notes:</strong> {card.notes}</p> {/* Display notes */}
         </div>

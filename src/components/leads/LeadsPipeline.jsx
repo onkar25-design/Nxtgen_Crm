@@ -67,46 +67,43 @@ function LeadsPipeline() {
   ];
 
   useEffect(() => {
-    const fetchLeads = async () => {
-      const { data, error } = await supabase.from('leads').select('*');
-      if (error) {
-        console.error('Error fetching leads:', error);
-      } else {
-        // Create a mapping of columns based on their IDs
-        const columnMap = {};
-        initialColumns.forEach(col => {
-          columnMap[col.id] = { ...col, cards: [] }; // Initialize each column with an empty cards array
-        });
-
-        // Populate the columns with the fetched leads based on their stage
-        data.forEach(lead => {
-          const stage = lead.stage || 'new'; // Default to 'new' if stage is not set
-          if (columnMap[stage]) {
-            columnMap[stage].cards.push({
-              id: lead.id,
-              title: lead.title,
-              budget: lead.budget,
-              company: lead.company,
-              tags: lead.tags,
-              leadSource: lead.lead_source,
-              leadScore: lead.lead_score,
-              interestedProducts: lead.interested_products,
-              assignedTo: lead.assigned_to,
-              status: lead.status,
-              notes: lead.notes,
-              name: lead.name,
-              email: lead.email,
-              phone: lead.phone,
-            });
-          }
-        });
-
-        // Set the columns state with the updated columns
-        setColumns(Object.values(columnMap));
+    const fetchLeadsAndColumns = async () => {
+      // Fetch columns
+      const { data: columnsData, error: columnsError } = await supabase.from('columns').select('*');
+      if (columnsError) {
+        console.error('Error fetching columns:', columnsError);
+        return; // Exit if there's an error
       }
+
+      // Initialize column map
+      const columnMap = {};
+      columnsData.forEach(col => {
+        columnMap[col.id] = { ...col, cards: [] }; // Ensure cards is initialized as an empty array
+      });
+
+      // Fetch leads with required fields
+      const { data: leadsData, error: leadsError } = await supabase
+        .from('leads')
+        .select('id, title, budget, company, tags, name, email, phone, lead_source, lead_score, interested_products, assigned_to, status, notes, stage');
+      
+      if (leadsError) {
+        console.error('Error fetching leads:', leadsError);
+        return; // Exit if there's an error
+      }
+
+      // Populate the columns with the fetched leads based on their stage
+      leadsData.forEach(lead => {
+        const stage = lead.stage || 'new'; // Default to 'new' if stage is not set
+        if (columnMap[stage]) {
+          columnMap[stage].cards.push(lead); // Add the lead to the corresponding column
+        }
+      });
+
+      // Set the columns state with the updated columns
+      setColumns(Object.values(columnMap));
     };
 
-    fetchLeads(); // Call the fetch function on component mount
+    fetchLeadsAndColumns(); // Call the fetch function on component mount
   }, []);
 
   const moveCard = async (cardId, fromColumn, toColumn) => {
@@ -139,31 +136,40 @@ function LeadsPipeline() {
     });
   };
 
-  const addColumn = () => {
+  const addColumn = async () => {
     if (newColumnTitle.trim() === '') return;
+
     const newColumn = {
       id: newColumnTitle.toLowerCase().replace(/\s+/g, '-'),
       title: newColumnTitle,
-      cards: [],
     };
-    setColumns(prevColumns => {
-      if (selectedColumnToInsertAfter === '') {
-        return [...prevColumns, newColumn];
-      } else {
-        const index = prevColumns.findIndex(col => col.id === selectedColumnToInsertAfter);
-        return [...prevColumns.slice(0, index + 1), newColumn, ...prevColumns.slice(index + 1)];
-      }
-    });
+
+    // Insert the new column into Supabase
+    const { data, error } = await supabase.from('columns').insert([newColumn]);
+    if (error) {
+      console.error('Error adding column:', error);
+    } else {
+      // Update the local state to include the new column
+      setColumns(prevColumns => [...prevColumns, newColumn]);
+    }
+
     setNewColumnTitle('');
     setSelectedColumnToInsertAfter('');
     setShowAddColumnModal(false);
   };
 
-  const deleteColumn = (columnId) => {
+  const deleteColumn = async (columnId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this column?");
     if (confirmDelete) {
+      // Delete the column from Supabase
+      const { data, error } = await supabase.from('columns').delete().eq('id', columnId);
+      if (error) {
+        console.error('Error deleting column:', error);
+        return; // Exit if there's an error
+      }
+
+      // Update the local state to remove the deleted column
       setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
-      setShowDeleteColumnDropdown(false);
     }
   };
 
@@ -292,7 +298,7 @@ function LeadsPipeline() {
   );
 }
 
-function Column({ column, moveCard, onEdit, onDelete, onAddLead }) { // Accept onAddLead as a prop
+function Column({ column, moveCard, onEdit, onDelete, onAddLead }) {
   const [, drop] = useDrop({
     accept: 'card',
     drop: (item) => moveCard(item.id, item.columnId, column.id),
@@ -302,16 +308,19 @@ function Column({ column, moveCard, onEdit, onDelete, onAddLead }) { // Accept o
     <div ref={drop} className="column">
       <div className="column-header">
         <h2>{column.title}</h2>
-        {/* Only show the Add New Lead button for the "New" column */}
         {column.id === 'new' && (
           <button className="icon-btn add-lead-btn" onClick={onAddLead}>
             <FontAwesomeIcon icon={faPlus} />
           </button>
         )}
       </div>
-      {column.cards.map(card => (
-        <LeadCard key={card.id} card={card} columnId={column.id} onEdit={onEdit} onDelete={onDelete} />
-      ))}
+      {column.cards && column.cards.length > 0 ? (
+        column.cards.map(card => (
+          <LeadCard key={card.id} card={card} columnId={column.id} onEdit={onEdit} onDelete={onDelete} />
+        ))
+      ) : (
+        <p>No leads in this column.</p> // Handle empty state
+      )}
     </div>
   );
 }
