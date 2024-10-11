@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd'; // Import DndProvider
 import { HTML5Backend } from 'react-dnd-html5-backend'; // Import HTML5Backend
 import LoginPage from './components/login/LoginPage';
@@ -25,7 +25,7 @@ const App = () => {
         {!isLoginPage && <Sidebar />} {/* Sidebar on every page except login-related pages */}
         <div className={`content ${isLoginPage ? 'login-content' : ''}`}> {/* Main content area with class for styling */}
           <Routes>
-            <Route path="/" element={<LoginPage />} />
+            <Route path="/" element={<Navigate to="/login" />} /> {/* Redirect root path to login page */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
