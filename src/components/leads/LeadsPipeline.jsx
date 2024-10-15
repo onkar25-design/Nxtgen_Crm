@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import LeadCard from './LeadCard';
-import Select from 'react-select';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faThList } from '@fortawesome/free-solid-svg-icons'; // Import new icon
 import './LeadsPipeline.css';
@@ -58,6 +57,7 @@ function LeadsPipeline() {
     status: 'New',
     notes: '',
   });
+  const [searchInput, setSearchInput] = useState(''); // New state for search input
 
   const searchOptions = [
     { value: 'title', label: 'Title' },
@@ -69,7 +69,10 @@ function LeadsPipeline() {
   useEffect(() => {
     const fetchLeadsAndColumns = async () => {
       // Fetch columns
-      const { data: columnsData, error: columnsError } = await supabase.from('columns').select('*');
+      const { data: columnsData, error: columnsError } = await supabase
+        .from('columns')
+        .select('*')
+        .order('order', { ascending: true });
       if (columnsError) {
         console.error('Error fetching columns:', columnsError);
         return; // Exit if there's an error
@@ -142,6 +145,9 @@ function LeadsPipeline() {
     const newColumn = {
       id: newColumnTitle.toLowerCase().replace(/\s+/g, '-'),
       title: newColumnTitle,
+      order: selectedColumnToInsertAfter ? 
+        columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
+        columns.length + 1, // Set order based on position
     };
 
     // Insert the new column into Supabase
@@ -149,8 +155,16 @@ function LeadsPipeline() {
     if (error) {
       console.error('Error adding column:', error);
     } else {
-      // Update the local state to include the new column
-      setColumns(prevColumns => [...prevColumns, newColumn]);
+      // Update the local state to include the new column at the selected position
+      const insertIndex = selectedColumnToInsertAfter ? 
+        columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
+        columns.length; // Add to end if no column is selected
+
+      setColumns(prevColumns => {
+        const updatedColumns = [...prevColumns];
+        updatedColumns.splice(insertIndex, 0, newColumn); // Insert at the specified index
+        return updatedColumns;
+      });
     }
 
     setNewColumnTitle('');
@@ -217,6 +231,15 @@ function LeadsPipeline() {
     });
   };
 
+  // Filter leads based on search input
+  const filteredColumns = columns.map(column => ({
+    ...column,
+    cards: column.cards.filter(card => 
+      card.title.toLowerCase().includes(searchInput.toLowerCase()) || 
+      card.company.toLowerCase().includes(searchInput.toLowerCase())
+    )
+  }));
+
   return (
     <div className="leads-pipeline">
       <div className="pipeline-header">
@@ -224,14 +247,14 @@ function LeadsPipeline() {
           <FontAwesomeIcon icon={faThList} style={{ color: '#4CAF50', marginRight: '8px' }} />
           Leads Pipeline
         </h1>
-        <Select
-          options={searchOptions}
-          isMulti
-          placeholder="Search leads..."
-          className="react-select-container"
-          classNamePrefix="react-select"
-        />
         <div className="header-actions">
+          <input
+            type="text"
+            placeholder="Search by title or company"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)} // Update search input
+            className="search-input" // Add a class for styling
+          />
           <button className="icon-btn add-column-btn" onClick={() => setShowAddColumnModal(true)}>
             <FontAwesomeIcon icon={faPlus} />
           </button>
@@ -252,7 +275,7 @@ function LeadsPipeline() {
         </div>
       </div>
       <div className="columns-container">
-        {columns.map(column => (
+        {filteredColumns.map(column => (
           <Column
             key={column.id}
             column={column}
