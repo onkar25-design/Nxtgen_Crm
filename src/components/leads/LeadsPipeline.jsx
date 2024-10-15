@@ -112,8 +112,11 @@ function LeadsPipeline() {
   const moveCard = async (cardId, fromColumn, toColumn) => {
     setColumns(prevColumns => {
       const updatedColumns = prevColumns.map(col => {
+        // Ensure cards is initialized as an empty array if undefined
+        const cards = col.cards || []; 
+
         if (col.id === fromColumn) {
-          return { ...col, cards: col.cards.filter(card => card.id !== cardId) };
+          return { ...col, cards: cards.filter(card => card.id !== cardId) };
         }
         if (col.id === toColumn) {
           const [movedCard] = prevColumns.find(c => c.id === fromColumn).cards.filter(card => card.id === cardId);
@@ -130,7 +133,7 @@ function LeadsPipeline() {
 
           return { 
             ...col, 
-            cards: [...col.cards, updatedCard] // Add updated card to the new column
+            cards: [...cards, updatedCard] // Add updated card to the new column
           };
         }
         return col;
@@ -234,10 +237,10 @@ function LeadsPipeline() {
   // Filter leads based on search input
   const filteredColumns = columns.map(column => ({
     ...column,
-    cards: column.cards.filter(card => 
+    cards: column.cards ? column.cards.filter(card => 
       card.title.toLowerCase().includes(searchInput.toLowerCase()) || 
       card.company.toLowerCase().includes(searchInput.toLowerCase())
-    )
+    ) : [] // Ensure cards is an empty array if undefined
   }));
 
   return (
