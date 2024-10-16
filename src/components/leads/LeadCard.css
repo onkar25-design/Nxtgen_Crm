@@ -1,12 +1,13 @@
 .lead-card {
-    background-color: #FFFFFF;
+    background-color: #FFFFFF; /* Default background */
     border: 1px solid #81C784;
-    border-radius: 5px;
+    border-radius: 0;
     padding: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     cursor: move;
     transition: box-shadow 0.3s ease;
     position: relative; /* Added to position child elements absolutely */
+    
 }
 
 .lead-card:hover {
@@ -34,6 +35,7 @@
 .lead-card h3 {
     margin: 0 0 5px 0;
     font-size: 1em;
+    font-family:Arial, Helvetica, sans-serif;
 }
 
 .tags {
@@ -86,4 +88,44 @@
 .card-details strong {
     font-weight: bold; /* Ensure titles are bold */
     color: #333; /* Optional: Change color if needed */
+}
+
+.dropdown {
+    position: relative; /* Position relative for absolute positioning of dropdown */
+}
+
+.dropdown-button {
+    background: none; /* Remove default button background */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor */
+    color: #4CAF50; /* Change color to match theme */
+    font-size: 1.2em; /* Adjust size */
+}
+
+.dropdown-menu {
+    position: absolute; /* Position dropdown menu */
+    right: 0; /* Align to the right */
+    background-color: white; /* Background color */
+    border: 1px solid #ccc; /* Border */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Shadow */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.dropdown-item {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    padding: 10px; /* Padding */
+    cursor: pointer; /* Pointer cursor */
+    color: #333; /* Text color */
+    text-align: left; /* Align text */
+}
+
+.dropdown-item svg {
+    margin-right: 8px; /* Space between icon and text */
+    font-size: 1.2em; /* Adjust icon size if needed */
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0; /* Hover effect */
 }

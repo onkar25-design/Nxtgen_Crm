@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import './LeadCard.css';
-import { FaEdit, FaTrash } from 'react-icons/fa'; // Importing edit and delete icons
+import { FaEdit, FaTrash, FaEllipsisV } from 'react-icons/fa'; // Ensure icons are imported
 import EditLeadForm from './EditLeadForm'; // Import the EditLeadForm component
 import { supabase } from '../../../supabaseClient'; // Use named import
 
 function LeadCard({ card, columnId, onEdit, onDelete }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // State to manage editing
+  const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown
 
   // Drag functionality
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -24,6 +25,12 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
     return 'green';
   };
 
+  const getBackgroundColor = (score) => {
+    if (score < 3) return 'rgba(255, 99, 71, 0.1)'; // Light red
+    if (score < 4) return 'rgba(255, 165, 0, 0.1)'; // Light orange
+    return 'rgba(76, 175, 80, 0.1)'; // Light green
+  };
+
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this lead?')) {
       try {
@@ -37,6 +44,11 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
 
   const handleEdit = () => {
     setIsEditing(true); // Open the edit form
+    setDropdownOpen(false); // Close dropdown on edit
+  };
+
+  const handleDropdownToggle = () => {
+    setDropdownOpen(!dropdownOpen);
   };
 
   const handleFormSubmit = async (updatedData) => {
@@ -55,18 +67,34 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
     <div
       ref={drag} // Attach the drag ref to the card
       className={`lead-card ${isDragging ? 'dragging' : ''}`}
-      style={{ borderLeftColor: getBorderColor(card.lead_score), borderLeftWidth: '5px', borderLeftStyle: 'solid' }} // Thicker left border
+      style={{
+        borderLeftColor: getBorderColor(card.lead_score),
+        borderLeftWidth: '5px',
+        borderLeftStyle: 'solid',
+        backgroundColor: getBackgroundColor(card.lead_score), // Set background color based on score
+      }} // Thicker left border
       onClick={() => setIsExpanded(!isExpanded)}
     >
       <div className="header">
         <h3>{card.title}</h3>
-        <div>
-          <button onClick={(e) => { e.stopPropagation(); handleEdit(); }} className="edit-button">
-            <FaEdit /> {/* Edit icon */}
+        <div className="dropdown">
+          <button onClick={handleDropdownToggle} className="dropdown-button">
+            <FaEllipsisV /> {/* Dropdown icon */}
           </button>
-          <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="delete-button">
-            <FaTrash /> {/* Delete icon */}
-          </button>
+          {dropdownOpen && (
+            <div className="dropdown-menu">
+              <button onClick={(e) => { e.stopPropagation(); handleEdit(); }} className="dropdown-item">
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FaEdit style={{ marginRight: '8px' }} /> Edit
+                </div>
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="dropdown-item">
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <FaTrash style={{ marginRight: '8px' }} /> Delete
+                </div>
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <div className="tags">

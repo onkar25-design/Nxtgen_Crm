@@ -1,4 +1,5 @@
 .leads-pipeline {
+  background-color: #e8f5e9; /* Light green background */
   min-width: 800px;
   height: 100%;
   overflow-y: auto;
@@ -64,7 +65,7 @@
 
 .columns-container {
   display: flex;
-  gap: 20px;
+  gap: 10px; /* Reduced gap between columns */
   overflow-x: auto;
   padding-bottom: 20px;
 }
@@ -72,7 +73,7 @@
 .column {
   background-color: #ffffff; /* White background for columns */
   border-radius: 8px; /* Rounded corners */
-  padding: 15px; /* Padding inside columns */
+  padding: 10px; /* Reduced padding inside columns */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   flex: 1; /* Allow columns to grow */
 }
@@ -172,4 +173,16 @@
   border-radius: 4px;
   margin-right: 10px; /* Space between input and buttons */
   width: 200px; /* Set a width for the input */
+}
+
+.lead-card {
+  margin-bottom: 0; /* Reduced margin between cards */
+  padding: 10px; /* Adjust padding for cards */
+  border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+  border-radius: 0; /* Rounded corners for cards */
+  transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.lead-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Shadow on hover */
 }
