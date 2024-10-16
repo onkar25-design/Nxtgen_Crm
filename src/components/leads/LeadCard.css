@@ -2,12 +2,12 @@
     background-color: #FFFFFF; /* Default background */
     border: 1px solid #81C784;
     border-radius: 0;
-    padding: 10px;
-    margin-bottom: 5px;
+    padding: 15px; /* Increased padding for better spacing */
+    margin-bottom: 10px; /* Increased margin for separation between cards */
     cursor: move;
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.2s ease; /* Add transition for smooth animation */
     position: relative; /* Added to position child elements absolutely */
-    
+    font-family: 'Roboto', sans-serif; /* Use the new font family */
 }
 
 .lead-card:hover {
@@ -16,12 +16,14 @@
 
 .lead-card.dragging {
     opacity: 0.5;
+    transform: scale(1.05); /* Slightly enlarge the card when dragging */
 }
 
 .header {
     display: flex;
     justify-content: space-between; /* Space between title and button */
     align-items: center; /* Center vertically */
+    margin-bottom: 10px; /* Added margin below header */
 }
 
 .edit-button {
@@ -34,23 +36,35 @@
 
 .lead-card h3 {
     margin: 0 0 5px 0;
-    font-size: 1em;
-    font-family:Arial, Helvetica, sans-serif;
+    font-size: 1.2em; /* Slightly increased font size for better visibility */
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 8px; /* Increased gap between tags */
+    margin-bottom: 10px; /* Added margin below tags */
 }
 
 .tag {
     display: inline-block;
     background-color: #81C784;
     color: white;
-    padding: 2px 5px;
+    padding: 4px 8px; /* Increased padding for tags */
     border-radius: 3px;
-    font-size: 0.8em;
+    font-size: 0.9em; /* Slightly increased font size for better readability */
+    font-family: 'Roboto', sans-serif; /* Ensure tags use the same font */
+}
+
+.card-summary {
+    margin-top: 10px; /* Added margin above summary */
+    font-size: 0.9em; /* Adjust font size */
+}
+
+.card-summary p {
+    display: flex;
+    align-items: center; /* Center icons and text vertically */
 }
 
 .card-details {
@@ -59,21 +73,21 @@
 }
 
 .card-details p {
-    margin: 5px 0;
+    margin: 5px 0; /* Maintain spacing between details */
 }
 
 .lead-score {
     display: flex;
-    margin-top: 5px;
+    margin-top: 5px; /* Space between summary and stars */
 }
 
 .star {
     color: lightgray; /* Default star color */
-    font-size: 1.2em; /* Adjust star size */
+    font-size: 1em; /* Adjust star size */
 }
 
 .star.filled {
-    color: green; /* Filled star color */
+    color: orange; /* Filled star color */
 }
 
 .delete-button {
@@ -82,7 +96,7 @@
     cursor: pointer; /* Pointer cursor */
     color: #F44336; /* Change color to red for delete */
     font-size: 1.2em; /* Adjust size */
-    margin-left: 1px; /* Space between edit and delete buttons */
+    margin-left: 5px; /* Increased space between edit and delete buttons */
 }
 
 .card-details strong {
@@ -126,6 +140,25 @@
     font-size: 1.2em; /* Adjust icon size if needed */
 }
 
+/* New styles for edit and delete icons */
+.edit-icon {
+    color: #4CAF50; /* Green color for edit icon */
+}
+
+.delete-icon {
+    color: #F44336; /* Red color for delete icon */
+}
+
 .dropdown-item:hover {
     background-color: #f0f0f0; /* Hover effect */
+}
+
+.triangle-icon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent; /* Adjust size as needed */
+    border-right: 5px solid transparent; /* Adjust size as needed */
+    border-top: 10px solid #4CAF50; /* Color of the triangle */
+    margin-left: 5px; /* Space between title and icon */
 }

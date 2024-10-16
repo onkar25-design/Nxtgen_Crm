@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import './LeadCard.css';
-import { FaEdit, FaTrash, FaEllipsisV } from 'react-icons/fa'; // Ensure icons are imported
+import { FaEdit, FaTrash, FaEllipsisV, FaStar } from 'react-icons/fa'; // Import star icon
 import EditLeadForm from './EditLeadForm'; // Import the EditLeadForm component
 import { supabase } from '../../../supabaseClient'; // Use named import
 
@@ -79,18 +79,19 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
         <h3>{card.title}</h3>
         <div className="dropdown">
           <button onClick={handleDropdownToggle} className="dropdown-button">
-            <FaEllipsisV /> {/* Dropdown icon */}
+            {/* Downward triangle icon using CSS */}
+            <span className="triangle-icon"></span>
           </button>
           {dropdownOpen && (
             <div className="dropdown-menu">
               <button onClick={(e) => { e.stopPropagation(); handleEdit(); }} className="dropdown-item">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaEdit style={{ marginRight: '8px' }} /> Edit
+                  <FaEdit className="edit-icon" style={{ marginRight: '8px' }} /> Edit
                 </div>
               </button>
               <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="dropdown-item">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaTrash style={{ marginRight: '8px' }} /> Delete
+                  <FaTrash className="delete-icon" style={{ marginRight: '8px' }} /> Delete
                 </div>
               </button>
             </div>
@@ -102,11 +103,20 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
           <span key={index} className="tag">{tag}</span>
         ))}
       </div>
-      <div className="lead-score">
-        {[...Array(5)].map((_, index) => (
-          <span key={index} className={`star ${index < card.lead_score ? 'filled' : ''}`}>★</span>
-        ))}
-      </div>
+      {/* Display amount, company name, and stars when card is closed */}
+      {!isExpanded && (
+        <div className="card-summary">
+          <p style={{ fontSize: '0.9em', margin: 0 }}> {/* Adjust font size and margin */}
+            <span>$ {card.budget.toLocaleString()}, </span> {/* Add dollar sign and format amount */}
+            {card.company}
+          </p>
+          <div className="lead-score">
+            {Array.from({ length: 5 }, (_, index) => (
+              <FaStar key={index} className={index < card.lead_score ? 'star filled' : 'star'} />
+            ))}
+          </div>
+        </div>
+      )}
       {isExpanded && (
         <div className="card-details">
           <p><strong>Budget:</strong> ${card.budget}</p>
