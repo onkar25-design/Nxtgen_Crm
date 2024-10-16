@@ -20,26 +20,25 @@ function Sidebar() {
         <img src={companyLogo} alt="Company Logo" className="nxtgen-company-logo" />
       </div>
       <nav>
-        <div className="nxtgen-nav-item">
+        <Link className="nxtgen-nav-item">
           <FontAwesomeIcon icon={faHome} className="nxtgen-icon" />
-          Home
-        </div>
+          <span className="nxtgen-nav-text">Home</span>
+        </Link>
         <div className="nxtgen-nav-item" onClick={() => setIsManagementOpen(!isManagementOpen)}>
           <FontAwesomeIcon icon={faUsersCog} className="nxtgen-icon" />
-          Management
+          <span className="nxtgen-nav-text">Management</span>
           <FontAwesomeIcon icon={faChevronDown} className="nxtgen-icon-arrow" style={{ marginLeft: 'auto' }} />
         </div>
         {isManagementOpen && (
           <div className="nxtgen-sub-menu">
             <Link to="/management/leads-pipeline" className="nxtgen-nav-item nxtgen-sub-item">
-              <span className="nxtgen-bullet"></span>
-              Leads Pipeline
+              <span className="nxtgen-nav-text">Leads Pipeline</span>
             </Link>
           </div>
         )}
         <div className="nxtgen-nav-item" onClick={handleLogout}>
           <FontAwesomeIcon icon={faSignOutAlt} className="nxtgen-icon" />
-          Logout
+          <span className="nxtgen-nav-text">Logout</span>
         </div>
       </nav>
     </div>
