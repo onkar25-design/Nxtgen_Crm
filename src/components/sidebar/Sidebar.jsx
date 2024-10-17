@@ -34,6 +34,9 @@ function Sidebar() {
             <Link to="/management/leads-pipeline" className="nxtgen-nav-item nxtgen-sub-item">
               <span className="nxtgen-nav-text">Leads Pipeline</span>
             </Link>
+            <Link to="/management/clients" className="nxtgen-nav-item nxtgen-sub-item">
+              <span className="nxtgen-nav-text">Clients</span>
+            </Link>
           </div>
         )}
         <div className="nxtgen-nav-item" onClick={handleLogout}>

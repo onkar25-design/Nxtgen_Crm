@@ -1,0 +1,173 @@
+.client-management {
+    background-color: #f0f0f0; /* Set background to light gray */
+    min-height: 100vh;
+    padding: 1rem;
+    margin: 0; /* Remove any default margin */
+    /* Ensure full width */
+}
+
+.client-management-pipeline-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    background-color: white; /* Keep header background white */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.client-management-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.client-management-search-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px; 
+    width: 200px; 
+}
+
+.client-management-icon-btn {
+    background: #4CAF50;
+    border: none;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 30px;
+    height: 30px;
+}
+
+.client-management-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.client-management-dashboard-item {
+    background-color: #ffffff; /* White background */
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s;
+}
+
+.client-management-dashboard-item:hover {
+    transform: translateY(-2px); /* Lift effect on hover */
+}
+
+.client-management-dashboard-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-right: 1rem;
+    color: #ffffff; /* White color for icons */
+}
+
+/* Icon colors */
+.client-management-dashboard-icon.users {
+    background-color: #4caf50; /* Green color for Total Clients */
+}
+
+.client-management-dashboard-icon.pie-chart {
+    background-color: #2196f3; /* Blue color for Active Deals */
+}
+
+.client-management-dashboard-icon.calendar {
+    background-color: #fbc02d; /* Darker yellow color for Appointments Today */
+}
+
+.client-management-dashboard-icon.phone {
+    background-color: #f44336; /* Red color for Assigned Calls */
+}
+
+.client-management-client-details {
+    background-color: #ffffff; /* White background */
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.client-management-client-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.client-management-client-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.client-management-info-item {
+    margin-bottom: 0.5rem;
+}
+
+.client-management-info-label {
+    font-size: 1rem; /* Increased label size */
+    color: #6b7280; /* Gray color */
+    margin-bottom: 0.25rem;
+}
+
+.client-management-info-value {
+    font-size: 1rem; /* Increased value size */
+    color: #111827; /* Dark text color */
+}
+
+.client-management-tabs {
+    display: flex;
+    border-bottom: 2px solid #e5e7eb; /* Slightly thicker border */
+    margin-bottom: 1rem;
+    font-size: 1rem; /* Increased tab font size */
+    background-color: #f0f0f0; /* Light gray background for tabs */
+}
+
+.client-management-tab {
+    padding: 0.5rem 1rem;
+    font-size: 1rem; /* Increased tab font size */
+    font-weight: 500;
+    color: #6b7280; /* Gray color */
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.3s, border-bottom-color 0.3s;
+}
+
+.client-management-tab:hover {
+    color: #111827; /* Dark text color on hover */
+}
+
+.client-management-tab.active {
+    color: #ffffff; /* White text color for better visibility */
+    background-color: #4CAF50;/* Darker green color for active tab */
+    border-bottom-color: #4CAF50; /* Darker green border for active tab */
+}
+
+.client-management-tab-content {
+    background-color: white; /* White background */
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.client-management-divider {
+    border: none; /* Remove default border */
+    border-top: 1px solid #e5e7eb; /* Light gray color for the line */
+    margin: 1rem 0; /* Space above and below the line */
+}

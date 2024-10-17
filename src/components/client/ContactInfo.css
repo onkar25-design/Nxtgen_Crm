@@ -1,0 +1,148 @@
+.contact-info-container {
+    padding: 15px;
+}
+
+.contact-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.contact-info-title {
+    margin-bottom: 10px;
+}
+
+.contact-info-divider {
+    border: none;
+    border-top: 1px solid #e0e0e0; /* Light gray color for the divider */
+    margin: 10px 0; /* Space above and below the divider */
+}
+
+.contact-info-text {
+    color: #555;
+}
+
+.contact-info-add-btn {
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.contact-info-add-btn:hover {
+    background-color: #388E3C; /* Darker green on hover */
+}
+
+.contact-info-card {
+    background-color: #ffffff; /* White background for the card */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin-bottom: 15px; /* Space between cards */
+}
+
+.contact-info-edit-btn,
+.contact-info-delete-btn {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin-left: 5px; /* Space between buttons */
+    padding: 5px; /* Increased padding for larger button size */
+    font-size: 16px; /* Increased font size */
+    transition: transform 0.2s; /* Smooth scaling on hover */
+    
+}
+
+.contact-info-edit-btn {
+    color: #4CAF50; /* Green color for edit icon */
+}
+
+.contact-info-delete-btn {
+    color: #f44336; /* Red color for delete icon */
+}
+
+.contact-info-edit-btn:hover,
+.contact-info-delete-btn:hover {
+    transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.contact-info-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-info-modal-content {
+    background: white;
+    padding: 30px; /* Increased padding for better spacing */
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+    width: 90%; /* Set a width for the modal */
+    max-width: 500px; /* Max width for larger screens */
+}
+
+.contact-info-modal-title {
+    margin-bottom: 10px; /* Space below the heading */
+    font-size: 24px; /* Increased title text size */
+}
+
+/* Divider below the title */
+.contact-info-modal-divider {
+    border: none;
+    border-top: 1px solid #e0e0e0; /* Light gray color for the divider */
+    margin: 10px 0; /* Space above and below the divider */
+}
+
+.contact-info-modal-content input {
+    margin-bottom: 10px; /* Space below inputs */
+    padding: 10px; /* Padding for inputs */
+    border: 1px solid #ccc; /* Border for inputs */
+    border-radius: 4px; /* Rounded corners for inputs */
+    width: calc(100% - 20px); /* Full width for inputs with padding adjustment */
+}
+
+/* Button styles in modal */
+.contact-info-modal-buttons {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px; /* Space between buttons */
+}
+
+.contact-info-submit-btn {
+    background: #4CAF50; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease;
+}
+
+.contact-info-submit-btn:hover {
+    background-color: #388E3C;  
+}
+
+.contact-info-cancel-btn {
+    background-color: #f44336; 
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px; 
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.contact-info-cancel-btn:hover {
+    background-color: #e53935; /* Darker red on hover */
+}

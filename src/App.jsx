@@ -8,6 +8,7 @@ import ForgotPasswordPage from './components/login/ForgotPasswordPage';
 import ResetPasswordPage from './components/login/ResetPasswordPage';
 import Sidebar from './components/sidebar/Sidebar'; // Import the Sidebar component
 import LeadsPipeline from './components/leads/LeadsPipeline'; // Import the LeadsPipeline component
+import ClientManagement from './components/client/ClientManagement';
 
 const App = () => {
   const location = useLocation(); // Get the current location
@@ -31,6 +32,7 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/management/leads-pipeline" element={<LeadsPipeline />} /> {/* Add this line */}
+            <Route path="/management/clients" element={<ClientManagement />} />
           </Routes>
         </div>
       </div>
