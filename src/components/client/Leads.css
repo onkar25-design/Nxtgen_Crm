@@ -1,14 +1,74 @@
 .leads {
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 5px;
+}
+
+.leads-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .leads h2 {
-    margin-bottom: 10px;
+    margin: 0; /* Remove margin for better alignment */
+}
+
+.leads-divider {
+    margin: 10px 0; /* Space above and below the divider */
 }
 
 .leads p {
     color: #555;
+}
+
+.lead-card {
+    background-color: #ffffff; /* White background for the lead card */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin-bottom: 15px; /* Space between lead cards */
+}
+
+.lead-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lead-modal-content {
+    background: white;
+    padding: 30px; /* Increased padding for better spacing */
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+    width: 90%; /* Set a width for the modal */
+    max-width: 500px; /* Max width for larger screens */
+}
+
+.lead-modal-content input {
+    margin-bottom: 10px; /* Space below inputs */
+    padding: 10px; /* Padding for inputs */
+    border: 1px solid #ccc; /* Border for inputs */
+    border-radius: 4px; /* Rounded corners for inputs */
+    width: calc(100% - 20px); /* Full width for inputs with padding adjustment */
+}
+
+.lead-info-add-btn {
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.lead-info-add-btn:hover {
+    background-color: #388E3C; /* Darker green on hover */
 }

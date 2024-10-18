@@ -171,3 +171,16 @@
     border-top: 1px solid #e5e7eb; /* Light gray color for the line */
     margin: 1rem 0; /* Space above and below the line */
 }
+
+.client-management-edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4CAF50; /* Green color for the icon */
+    font-size: 1.5rem; /* Adjust size as needed */
+    margin-left: 10px; /* Space between title and button */
+}
+
+.client-management-edit-btn:hover {
+    color: #388E3C; /* Darker green on hover */
+}

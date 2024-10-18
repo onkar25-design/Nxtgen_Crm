@@ -6,10 +6,36 @@ import Appointments from './Appointments'
 import Notes from './Notes'
 import ContactInfo from './ContactInfo'
 import './ClientManagement.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit } from '@fortawesome/free-solid-svg-icons'; // Import the edit icon
 
 export default function ClientManagement() {
-  const [activeTab, setActiveTab] = useState('notes')
+  const [activeTab, setActiveTab] = useState('contact-info') // Default to contact-info
   const [searchInput, setSearchInput] = useState('')
+  const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false)
+  const [isEditClientModalOpen, setIsEditClientModalOpen] = useState(false) // New state for edit modal
+  const [clientInfo, setClientInfo] = useState({
+    companyName: '',
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: '',
+    email: '',
+    phone: ''
+  })
+
+  // Static data for client details
+  const staticClientDetails = {
+    companyName: 'TechCorp',
+    email: 'contact@techcorp.com',
+    phone: '+123-456-7890',
+    street: '123 Tech Lane',
+    city: 'Tech City',
+    state: 'Tech State',
+    zipCode: '12345',
+    country: 'Tech Country'
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -27,6 +53,18 @@ export default function ClientManagement() {
     }
   }
 
+  const handleAddClient = () => {
+    // Logic to add client (you can customize this)
+    console.log(clientInfo);
+    setIsAddClientModalOpen(false);
+  };
+
+  const handleEditClient = () => {
+    // Logic to edit client (you can customize this)
+    console.log(clientInfo);
+    setIsEditClientModalOpen(false);
+  };
+
   return (
     <div className="client-management">
       <div className="client-management-pipeline-header">
@@ -42,7 +80,7 @@ export default function ClientManagement() {
             onChange={(e) => setSearchInput(e.target.value)}
             className="client-management-search-input"
           />
-          <button className="client-management-icon-btn add-client-btn">
+          <button className="client-management-icon-btn add-client-btn" onClick={() => setIsAddClientModalOpen(true)}>
             <Plus />
           </button>
         </div>
@@ -82,24 +120,32 @@ export default function ClientManagement() {
       <div className="client-management-client-details">
         <div className="client-management-client-header">
           <h2>Client Details</h2>
+          <button className="client-management-edit-btn" onClick={() => {
+            setClientInfo(staticClientDetails); // Set static data to clientInfo for editing
+            setIsEditClientModalOpen(true);
+          }}>
+            <FontAwesomeIcon icon={faEdit} />
+          </button>
         </div>
         <hr className="client-management-divider" />
         <div className="client-management-client-info">
           <div className="client-management-info-item">
             <p className="client-management-info-label">Company</p>
-            <p className="client-management-info-value">TechCorp</p>
+            <p className="client-management-info-value">{staticClientDetails.companyName}</p>
           </div>
           <div className="client-management-info-item">
-            <p className="client-management-info-label">Contact Person's Name</p>
-            <p className="client-management-info-value">John Doe</p>
+            <p className="client-management-info-label">Email</p>
+            <p className="client-management-info-value">{staticClientDetails.email}</p>
           </div>
           <div className="client-management-info-item">
-            <p className="client-management-info-label">Email address</p>
-            <p className="client-management-info-value">john.doe@techcorp.com</p>
+            <p className="client-management-info-label">Phone</p>
+            <p className="client-management-info-value">{staticClientDetails.phone}</p>
           </div>
           <div className="client-management-info-item">
-            <p className="client-management-info-label">Phone number</p>
-            <p className="client-management-info-value">+123-4567-89</p>
+            <p className="client-management-info-label">Address</p>
+            <p className="client-management-info-value">
+              {`${staticClientDetails.street}, ${staticClientDetails.city}, ${staticClientDetails.state}, ${staticClientDetails.zipCode}, ${staticClientDetails.country}`}
+            </p>
           </div>
         </div>
       </div>
@@ -141,6 +187,150 @@ export default function ClientManagement() {
       <div className="client-management-tab-content">
         {renderContent()}
       </div>
+
+      {/* Add Client Modal */}
+      {isAddClientModalOpen && (
+        <div className="contact-info-modal">
+          <div className="contact-info-modal-content">
+            <h3 className="contact-info-modal-title">Add Client Information</h3>
+            <hr className="contact-info-modal-divider" />
+            <form onSubmit={(e) => { e.preventDefault(); handleAddClient(); }}>
+              <input
+                type="text"
+                placeholder="Company Name"
+                value={clientInfo.companyName}
+                onChange={(e) => setClientInfo({ ...clientInfo, companyName: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Email"
+                value={clientInfo.email}
+                onChange={(e) => setClientInfo({ ...clientInfo, email: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Phone"
+                value={clientInfo.phone}
+                onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Street"
+                value={clientInfo.street}
+                onChange={(e) => setClientInfo({ ...clientInfo, street: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="City"
+                value={clientInfo.city}
+                onChange={(e) => setClientInfo({ ...clientInfo, city: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="State"
+                value={clientInfo.state}
+                onChange={(e) => setClientInfo({ ...clientInfo, state: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Zip Code"
+                value={clientInfo.zipCode}
+                onChange={(e) => setClientInfo({ ...clientInfo, zipCode: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Country"
+                value={clientInfo.country}
+                onChange={(e) => setClientInfo({ ...clientInfo, country: e.target.value })}
+                required
+              />
+              <div className="contact-info-modal-buttons">
+                <button type="submit" className="contact-info-submit-btn">Submit</button>
+                <button type="button" className="contact-info-cancel-btn" onClick={() => setIsAddClientModalOpen(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Client Modal */}
+      {isEditClientModalOpen && (
+        <div className="contact-info-modal">
+          <div className="contact-info-modal-content">
+            <h3 className="contact-info-modal-title">Edit Client Information</h3>
+            <hr className="contact-info-modal-divider" />
+            <form onSubmit={(e) => { e.preventDefault(); handleEditClient(); }}>
+              <input
+                type="text"
+                placeholder="Company Name"
+                value={clientInfo.companyName}
+                onChange={(e) => setClientInfo({ ...clientInfo, companyName: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Email"
+                value={clientInfo.email}
+                onChange={(e) => setClientInfo({ ...clientInfo, email: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Phone"
+                value={clientInfo.phone}
+                onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Street"
+                value={clientInfo.street}
+                onChange={(e) => setClientInfo({ ...clientInfo, street: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="City"
+                value={clientInfo.city}
+                onChange={(e) => setClientInfo({ ...clientInfo, city: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="State"
+                value={clientInfo.state}
+                onChange={(e) => setClientInfo({ ...clientInfo, state: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Zip Code"
+                value={clientInfo.zipCode}
+                onChange={(e) => setClientInfo({ ...clientInfo, zipCode: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Country"
+                value={clientInfo.country}
+                onChange={(e) => setClientInfo({ ...clientInfo, country: e.target.value })}
+                required
+              />
+              <div className="contact-info-modal-buttons">
+                <button type="submit" className="contact-info-submit-btn">Update</button>
+                <button type="button" className="contact-info-cancel-btn" onClick={() => setIsEditClientModalOpen(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
