@@ -57,6 +57,11 @@
     width: calc(100% - 20px); /* Full width for inputs with padding adjustment */
 }
 
+.lead-modal-buttons {
+    display: flex;
+    justify-content: space-between; /* Space between buttons */
+}
+
 .lead-info-add-btn {
     background-color: #4CAF50; 
     color: white;

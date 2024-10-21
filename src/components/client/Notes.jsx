@@ -1,15 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons'; // Import the Font Awesome trash icon
+import { supabase } from '../../../supabaseClient'; // Import the Supabase client
 import './Notes.css'; // Create a CSS file for styling
 
-function Notes() {
-  const [notes, setNotes] = useState([
-    { id: 1, date: '2024-07-18', text: 'Client interested in new product line' },
-    { id: 2, date: '2024-09-12', text: 'Follow up on pricing inquiry' },
-  ]);
+function Notes({ clientId }) { // Accept clientId as a prop
+  const [notes, setNotes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentNote, setCurrentNote] = useState({ id: null, date: '', text: '' });
+
+  // Fetch notes from Supabase when the component mounts or clientId changes
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('client_id', clientId) // Filter notes by client_id
+        .order('date', { ascending: false }); // Order by date in descending order
+
+      if (error) {
+        console.error('Error fetching notes:', error);
+      } else {
+        setNotes(data);
+      }
+    };
+
+    if (clientId) {
+      fetchNotes();
+    }
+  }, [clientId]);
 
   const handleAddNote = () => {
     setCurrentNote({ id: null, date: '', text: '' });
@@ -21,21 +40,54 @@ function Notes() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteNote = (id) => {
+  const handleDeleteNote = async (id) => {
     if (window.confirm('Are you sure you want to delete this note?')) {
-      setNotes(notes.filter(note => note.id !== id));
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting note:', error);
+      } else {
+        setNotes(notes.filter(note => note.id !== id));
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (currentNote.id) {
-      setNotes(notes.map(note => (note.id === currentNote.id ? currentNote : note)));
+      // Update existing note
+      const { error } = await supabase
+        .from('notes')
+        .update({
+          date: currentNote.date,
+          text: currentNote.text,
+        })
+        .eq('id', currentNote.id);
+
+      if (error) {
+        console.error('Error updating note:', error);
+      } else {
+        setNotes(notes.map(note => (note.id === currentNote.id ? currentNote : note)));
+      }
     } else {
-      setNotes([{ ...currentNote, id: Date.now() }, ...notes]); // Add new note to the top
+      // Insert new note
+      const { error } = await supabase
+        .from('notes')
+        .insert([{ client_id: clientId, date: currentNote.date, text: currentNote.text }]); // Corrected insert
+
+      if (error) {
+        console.error('Error adding note:', error);
+      } else {
+        setNotes([{ ...currentNote, id: Date.now() }, ...notes]); // Add new note to the top
+      }
     }
     setIsModalOpen(false);
   };
+
+  console.log('Client ID:', clientId);
 
   return (
     <div className="notes">
@@ -58,7 +110,7 @@ function Notes() {
         <div className="notes-modal">
           <div className="notes-modal-content">
             <h3>{currentNote.id ? 'Edit Note' : 'Add Note'}</h3>
-            <hr className="notes-modal-divider" /> {/* Divider added here */}
+            <hr className="notes-modal-divider" />
             <form onSubmit={handleSubmit}>
               <input
                 type="text"

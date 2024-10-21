@@ -1,42 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import './Appointments.css'; // Ensure you have appropriate styles
+import { supabase } from '../../../supabaseClient'; // Import Supabase client
 
-function Appointments() {
+function Appointments({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [appointments, setAppointments] = useState([]);
   const [appointmentInfo, setAppointmentInfo] = useState({
     date: '',
     time: '',
-    description: '', // Default description will be set when adding
-    with: '',
+    description: '',
+    appointment_with: '', // Updated to appointment_with
     subject: '',
-    clientName: '', // Field for client name
   });
 
-  const initialAppointments = [
-    {
-      date: '2024-07-18',
-      time: '10:00',
-      description: `Dear Client,\n\nThis is a courteous reminder of your upcoming appointment scheduled on 2024-07-18 at 10:00 with Manager.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nWe look forward to meeting you.\n\nBest regards,\n\nNxtGen Innovation`,
-      with: 'Manager',
-      subject: 'Meeting with Manager',
-      clientName: 'Client',
-    },
-  ];
-
+  // Fetch appointments from Supabase when the component mounts or clientId changes
   useEffect(() => {
-    setAppointments(initialAppointments);
-  }, []);
+    const fetchAppointments = async () => {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('client_id', clientId); // Fetch appointments for the specific client
+
+      if (error) {
+        console.error('Error fetching appointments:', error);
+      } else {
+        setAppointments(data); // Update state with fetched appointments
+      }
+    };
+
+    if (clientId) {
+      fetchAppointments();
+    }
+  }, [clientId]);
 
   const handleAddAppointment = () => {
     setAppointmentInfo({
       date: '',
       time: '',
-      description: `Dear {CLIENT_NAME},\n\nThis is a courteous reminder of your upcoming appointment scheduled on {APPOINTMENT_DATE} at {APPOINTMENT_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nWe look forward to meeting you.\n\nBest regards,\n\nNxtGen Innovation`, // Default description
-      with: '',
+      description: `Dear Client,\n\nThis is a courteous reminder of your upcoming appointment scheduled on {APPOINTMENT_DATE} at {APPOINTMENT_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nWe look forward to meeting you.\n\nBest regards,\n\nNxtGen Innovation`, // Default description
+      appointment_with: '', // Updated to appointment_with
       subject: '',
-      clientName: '', // Reset client name
     });
     setIsAddModalOpen(true);
   };
@@ -46,23 +50,42 @@ function Appointments() {
     setIsViewModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Replace placeholders in the description with actual values
     const filledDescription = appointmentInfo.description
-      .replace('{CLIENT_NAME}', appointmentInfo.clientName) // Use client name
+      .replace('{CLIENT_NAME}', '') // Removed client name
       .replace('{APPOINTMENT_DATE}', appointmentInfo.date)
       .replace('{APPOINTMENT_TIME}', appointmentInfo.time)
-      .replace('{MANAGER_NAME}', appointmentInfo.with) // Assuming the manager is the same as the appointment with
+      .replace('{MANAGER_NAME}', appointmentInfo.appointment_with) // Updated to appointment_with
       .replace('{COMPANY_NAME}', 'NxtGen Innovation'); // Set company name
 
     const newAppointment = {
       ...appointmentInfo,
       description: filledDescription,
+      client_id: clientId, // Include client_id when inserting
     };
 
-    setAppointments([...appointments, newAppointment]);
-    setIsAddModalOpen(false);
+    const { error } = await supabase
+      .from('appointments')
+      .insert([newAppointment]); // Insert new appointment into the database
+
+    if (error) {
+      console.error('Error adding appointment:', error);
+    } else {
+      // Fetch updated appointments after adding a new one
+      const { data: updatedData, error: fetchError } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('client_id', clientId); // Fetch appointments for the specific client
+
+      if (fetchError) {
+        console.error('Error fetching updated appointments:', fetchError);
+      } else {
+        setAppointments(updatedData); // Update state with fetched appointments
+      }
+      setIsAddModalOpen(false);
+    }
   };
 
   const handleCloseViewModal = () => {
@@ -107,19 +130,10 @@ function Appointments() {
             <hr />
             <form onSubmit={handleSubmit}>
               <label>
-                Client Name:
-                <input
-                  type="text"
-                  value={appointmentInfo.clientName} // Input for client name
-                  onChange={(e) => setAppointmentInfo({ ...appointmentInfo, clientName: e.target.value })}
-                  required
-                />
-              </label>
-              <label>
                 Appointment With:
                 <select
-                  value={appointmentInfo.with}
-                  onChange={(e) => setAppointmentInfo({ ...appointmentInfo, with: e.target.value })}
+                  value={appointmentInfo.appointment_with} // Updated to appointment_with
+                  onChange={(e) => setAppointmentInfo({ ...appointmentInfo, appointment_with: e.target.value })}
                   required
                 >
                   <option value="">Select...</option>
@@ -181,7 +195,7 @@ function Appointments() {
             <h3>View Appointment</h3>
             <hr />
             <div>
-              <p><strong>Appointment With:</strong> {appointmentInfo.with}</p>
+              <p><strong>Appointment With:</strong> {appointmentInfo.appointment_with}</p>
               <p>{formatDateTime(appointmentInfo.date, appointmentInfo.time)}</p> {/* Display formatted date and time */}
               <p><strong>Subject:</strong> {appointmentInfo.subject}</p>
               <p>{appointmentInfo.description.split('\n').map((line, index) => (

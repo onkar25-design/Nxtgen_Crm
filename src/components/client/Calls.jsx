@@ -1,42 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import './Calls.css'; // Ensure you have appropriate styles
+import { supabase } from '../../../supabaseClient'; // Import Supabase client
 
-function Calls() {
+function Calls({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [calls, setCalls] = useState([]);
   const [callInfo, setCallInfo] = useState({
     date: '',
     time: '',
-    description: '', // Default description will be set when adding
-    with: '',
+    description: '',
+    call_with: '', // Updated to call_with
     subject: '',
-    clientName: '', // Field for client name
   });
 
-  const initialCalls = [
-    {
-      date: '2024-07-18',
-      time: '10:00',
-      description: `Dear Client,\n\nThis is a reminder for your upcoming call scheduled on 2024-07-18 at 10:00 with Manager.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nBest regards,\n\nNxtGen Innovation`,
-      with: 'Manager',
-      subject: 'Call with Manager',
-      clientName: 'Client',
-    },
-  ];
-
+  // Fetch calls from Supabase when the component mounts or clientId changes
   useEffect(() => {
-    setCalls(initialCalls);
-  }, []);
+    const fetchCalls = async () => {
+      const { data, error } = await supabase
+        .from('calls')
+        .select('*')
+        .eq('client_id', clientId); // Filter calls by client_id
+
+      if (error) {
+        console.error('Error fetching calls:', error);
+      } else {
+        setCalls(data);
+      }
+    };
+
+    if (clientId) {
+      fetchCalls();
+    }
+  }, [clientId]);
 
   const handleAddCall = () => {
     setCallInfo({
       date: '',
       time: '',
-      description: `Dear {CLIENT_NAME},\n\nThis is a reminder for your upcoming call scheduled on {CALL_DATE} at {CALL_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nBest regards,\n\nNxtGen Innovation`, // Default description
-      with: '',
+      description: `Dear Client,\n\nThis is a reminder for your upcoming call scheduled on {CALL_DATE} at {CALL_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nBest regards,\n\nNxtGen Innovation`,
+      call_with: '', // Updated to call_with
       subject: '',
-      clientName: '', // Reset client name
     });
     setIsAddModalOpen(true);
   };
@@ -46,22 +50,31 @@ function Calls() {
     setIsViewModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Replace placeholders in the description with actual values
     const filledDescription = callInfo.description
       .replace('{CLIENT_NAME}', callInfo.clientName) // Use client name
       .replace('{CALL_DATE}', callInfo.date)
       .replace('{CALL_TIME}', callInfo.time)
-      .replace('{MANAGER_NAME}', callInfo.with) // Assuming the manager is the same as the call with
+      .replace('{MANAGER_NAME}', callInfo.call_with); // Updated to call_with
 
     const newCall = {
       ...callInfo,
       description: filledDescription,
+      client_id: clientId, // Include client_id when inserting
     };
 
-    setCalls([...calls, newCall]);
-    setIsAddModalOpen(false);
+    const { error } = await supabase
+      .from('calls')
+      .insert([newCall]); // Insert new call into the database
+
+    if (error) {
+      console.error('Error adding call:', error);
+    } else {
+      setCalls([...calls, newCall]); // Add new call to the state
+      setIsAddModalOpen(false);
+    }
   };
 
   const handleCloseViewModal = () => {
@@ -106,19 +119,10 @@ function Calls() {
             <hr />
             <form onSubmit={handleSubmit}>
               <label>
-                Client Name:
-                <input
-                  type="text"
-                  value={callInfo.clientName} // Input for client name
-                  onChange={(e) => setCallInfo({ ...callInfo, clientName: e.target.value })}
-                  required
-                />
-              </label>
-              <label>
                 Call With:
                 <select
-                  value={callInfo.with}
-                  onChange={(e) => setCallInfo({ ...callInfo, with: e.target.value })}
+                  value={callInfo.call_with} // Updated to call_with
+                  onChange={(e) => setCallInfo({ ...callInfo, call_with: e.target.value })}
                   required
                 >
                   <option value="">Select...</option>
@@ -180,7 +184,7 @@ function Calls() {
             <h3>View Call</h3>
             <hr />
             <div>
-              <p><strong>Call With:</strong> {callInfo.with}</p>
+              <p><strong>Call With:</strong> {callInfo.call_with}</p> {/* Updated to call_with */}
               <p>{formatDateTime(callInfo.date, callInfo.time)}</p> {/* Display formatted date and time */}
               <p><strong>Subject:</strong> {callInfo.subject}</p>
               <p>{callInfo.description.split('\n').map((line, index) => (

@@ -1,38 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ContactInfo.css'; // Create a CSS file for styling
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faEdit} from '@fortawesome/free-solid-svg-icons'; // Import icons
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import icons
+import { supabase } from '../../../supabaseClient'; // Import Supabase client
 
-function ContactInfo() {
+function ContactInfo({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [contacts, setContacts] = useState([
-    {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: '+123-456-7890',
-      companyName: 'TechCorp',
-      companyAddress: '123 Tech Lane',
-      designation: 'Software Engineer',
-    },
-  ]);
+  const [contacts, setContacts] = useState([]);
   const [contactInfo, setContactInfo] = useState({
     name: '',
     email: '',
     phone: '',
-    companyName: '',
-    companyAddress: '',
     designation: '',
   });
   const [editIndex, setEditIndex] = useState(null);
+
+  // Fetch contacts from Supabase when the component mounts or clientId changes
+  useEffect(() => {
+    const fetchContacts = async () => {
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('client_id', clientId); // Filter contacts by client_id
+
+      if (error) {
+        console.error('Error fetching contacts:', error);
+      } else {
+        setContacts(data);
+      }
+    };
+
+    if (clientId) {
+      fetchContacts();
+    }
+  }, [clientId]);
 
   const handleAddContact = () => {
     setContactInfo({
       name: '',
       email: '',
       phone: '',
-      companyName: '',
-      companyAddress: '',
       designation: '',
     });
     setIsAddModalOpen(true);
@@ -44,27 +52,56 @@ function ContactInfo() {
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteContact = (index) => {
+  const handleDeleteContact = async (index) => {
     if (window.confirm('Are you sure you want to delete this contact?')) {
-      const updatedContacts = contacts.filter((_, i) => i !== index);
-      setContacts(updatedContacts);
-      alert('Contact deleted successfully.');
+      const { error } = await supabase
+        .from('contacts')
+        .delete()
+        .eq('id', contacts[index].id); // Delete contact by ID
+
+      if (error) {
+        console.error('Error deleting contact:', error);
+      } else {
+        const updatedContacts = contacts.filter((_, i) => i !== index);
+        setContacts(updatedContacts);
+        alert('Contact deleted successfully.');
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setContacts([...contacts, contactInfo]);
-    setIsAddModalOpen(false);
+    const { error } = await supabase
+      .from('contacts')
+      .insert([{ 
+          ...contactInfo, 
+          client_id: clientId 
+      }]); // Insert new contact with client_id
+
+    if (error) {
+      console.error('Error adding contact:', error);
+    } else {
+      setContacts([...contacts, { ...contactInfo, client_id: clientId }]); // Add new contact to the state
+      setIsAddModalOpen(false);
+    }
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    const updatedContacts = contacts.map((contact, index) =>
-      index === editIndex ? contactInfo : contact
-    );
-    setContacts(updatedContacts);
-    setIsEditModalOpen(false);
+    const { error } = await supabase
+      .from('contacts')
+      .update(contactInfo)
+      .eq('id', contacts[editIndex].id); // Update contact by ID
+
+    if (error) {
+      console.error('Error updating contact:', error);
+    } else {
+      const updatedContacts = contacts.map((contact, index) =>
+        index === editIndex ? contactInfo : contact
+      );
+      setContacts(updatedContacts);
+      setIsEditModalOpen(false);
+    }
   };
 
   return (
@@ -79,7 +116,7 @@ function ContactInfo() {
 
       {contacts.length > 0 ? (
         contacts.map((contact, index) => (
-          <div key={index} className="contact-info-card">
+          <div key={contact.id} className="contact-info-card">
             <div className="contact-info-header">
               <h3>{contact.name || 'Contact Name'}</h3>
               <div>
@@ -93,8 +130,6 @@ function ContactInfo() {
             </div>
             <p className="contact-info-text">Email: {contact.email || 'example@example.com'}</p>
             <p className="contact-info-text">Phone: {contact.phone || '123-456-7890'}</p>
-            <p className="contact-info-text">Company: {contact.companyName || 'Company Name'}</p>
-            <p className="contact-info-text">Address: {contact.companyAddress || 'Company Address'}</p>
             <p className="contact-info-text">Designation: {contact.designation || 'Designation'}</p>
           </div>
         ))
@@ -128,20 +163,6 @@ function ContactInfo() {
                 placeholder="Phone"
                 value={contactInfo.phone}
                 onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Company Name"
-                value={contactInfo.companyName}
-                onChange={(e) => setContactInfo({ ...contactInfo, companyName: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Company Address"
-                value={contactInfo.companyAddress}
-                onChange={(e) => setContactInfo({ ...contactInfo, companyAddress: e.target.value })}
                 required
               />
               <input
@@ -186,20 +207,6 @@ function ContactInfo() {
                 placeholder="Phone"
                 value={contactInfo.phone}
                 onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Company Name"
-                value={contactInfo.companyName}
-                onChange={(e) => setContactInfo({ ...contactInfo, companyName: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Company Address"
-                value={contactInfo.companyAddress}
-                onChange={(e) => setContactInfo({ ...contactInfo, companyAddress: e.target.value })}
                 required
               />
               <input

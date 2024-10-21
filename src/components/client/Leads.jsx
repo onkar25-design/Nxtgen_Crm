@@ -1,45 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Leads.css'; // Create a CSS file for styling
-import NewLeadForm from '../leads/NewLeadForm'; // Import the NewLeadForm component
+import { supabase } from '../../../supabaseClient'; // Import Supabase client
 
-function Leads() {
+function Leads({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [leads, setLeads] = useState([]); // State for leads
   const [leadInfo, setLeadInfo] = useState({ name: '', email: '', phone: '' }); // State for lead info
-  const [editIndex, setEditIndex] = useState(null);
+
+  // Fetch leads from Supabase when the component mounts or clientId changes
+  useEffect(() => {
+    const fetchLeads = async () => {
+      const { data, error } = await supabase
+        .from('client_leads')
+        .select('*')
+        .eq('client_id', clientId); // Filter leads by client_id
+
+      if (error) {
+        console.error('Error fetching leads:', error);
+      } else {
+        setLeads(data);
+      }
+    };
+
+    if (clientId) {
+      fetchLeads();
+    }
+  }, [clientId]);
 
   const handleAddLead = () => {
     setLeadInfo({ name: '', email: '', phone: '' });
     setIsAddModalOpen(true);
   };
 
-  const handleEditLead = (index) => {
-    setEditIndex(index);
-    setLeadInfo(leads[index]);
-    setIsEditModalOpen(true);
-  };
+  const addLead = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    const { error } = await supabase
+      .from('client_leads')
+      .insert([{ ...leadInfo, client_id: clientId }]); // Insert new lead with client_id
 
-  const handleDeleteLead = (index) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      const updatedLeads = leads.filter((_, i) => i !== index);
-      setLeads(updatedLeads);
-      alert('Lead deleted successfully.');
+    if (error) {
+      console.error('Error adding lead:', error);
+    } else {
+      setLeads([...leads, { ...leadInfo, client_id: clientId }]); // Add new lead to the state
+      setIsAddModalOpen(false);
     }
-  };
-
-  const addLead = (leadData) => {
-    setLeads([...leads, leadData]);
-    setIsAddModalOpen(false);
-  };
-
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    const updatedLeads = leads.map((lead, index) =>
-      index === editIndex ? leadInfo : lead
-    );
-    setLeads(updatedLeads);
-    setIsEditModalOpen(false);
   };
 
   return (
@@ -50,7 +54,7 @@ function Leads() {
           +
         </button>
       </div>
-      <hr className="leads-divider" /> {/* Divider after heading */}
+      <hr className="leads-divider" />
 
       {leads.length > 0 ? (
         leads.map((lead, index) => (
@@ -58,25 +62,19 @@ function Leads() {
             <h3>{lead.name || 'Lead Name'}</h3>
             <p>Email: {lead.email || 'example@example.com'}</p>
             <p>Phone: {lead.phone || '123-456-7890'}</p>
-            <button onClick={() => handleEditLead(index)}>Edit</button>
-            <button onClick={() => handleDeleteLead(index)}>Delete</button>
+            {/* Add edit and delete buttons here if needed */}
           </div>
         ))
       ) : (
         <p>No leads available. Please add a lead.</p>
       )}
 
-      {/* Add Lead Modal */}
+      {/* Modal for Adding Leads */}
       {isAddModalOpen && (
-        <NewLeadForm onSubmit={addLead} onCancel={() => setIsAddModalOpen(false)} />
-      )}
-
-      {/* Edit Lead Modal */}
-      {isEditModalOpen && (
         <div className="lead-modal">
           <div className="lead-modal-content">
-            <h3>Edit Lead</h3>
-            <form onSubmit={handleEditSubmit}>
+            <h3>Add New Lead</h3>
+            <form onSubmit={addLead}>
               <input
                 type="text"
                 placeholder="Name"
@@ -98,8 +96,10 @@ function Leads() {
                 onChange={(e) => setLeadInfo({ ...leadInfo, phone: e.target.value })}
                 required
               />
-              <button type="submit">Update</button>
-              <button type="button" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+              <div className="lead-modal-buttons">
+                <button type="submit">Add Lead</button>
+                <button type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
+              </div>
             </form>
           </div>
         </div>
