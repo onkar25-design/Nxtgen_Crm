@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../../supabaseClient'; // Import the Supabase client
+import { supabase } from '../../../../supabaseClient'; // Import the Supabase client
 
 const EditClientModal = ({ isOpen, onClose, clientInfo, setClientInfo }) => {
   const [localClientInfo, setLocalClientInfo] = useState(clientInfo);

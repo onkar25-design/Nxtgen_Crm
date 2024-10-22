@@ -24,3 +24,10 @@ body {
   margin-left: 0; /* Remove left margin */
   padding: 0; /* Remove padding */
 }
+
+/* Add this to your main CSS file (e.g., App.css or index.css) */
+html, body {
+    height: 100%; /* Ensure the HTML and body take full height */
+    margin: 0; /* Remove default margin */
+    background-color: #1F1F1F; /* Set background color to match the theme */
+}

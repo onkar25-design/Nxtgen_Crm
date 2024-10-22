@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { Calendar, Mail, Phone, PieChart, Plus, Search, Users } from 'lucide-react'
-import Leads from './Leads'
-import Calls from './Calls'
-import Appointments from './Appointments'
-import Notes from './Notes'
-import ContactInfo from './ContactInfo'
+import Leads from './leads/Leads'
+import Calls from './calls/Calls'
+import Appointments from './appointments/Appointments'
+import Notes from './notes/Notes'
+import ContactInfo from './contactinfo/ContactInfo'
 import './ClientManagement.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons'; // Import the edit icon
 import { supabase } from '../../../supabaseClient'; // Import the Supabase client
 import Select from 'react-select'; // Import react-select
-import AddClientModal from './AddClientModal'; // Import the new AddClientModal component
-import EditClientModal from './EditClientModal'; // Import the new EditClientModal component
+import AddClientModal from './clients-management/AddClientModal'; // Import the new AddClientModal component
+import EditClientModal from './clients-management/EditClientModal'; // Import the new EditClientModal component
+import AssignedCalls from './calls/AssignedCalls'; // Import the new AssignedCalls component
+import Modal from './Modal'; // Import the Modal component
+import AppointmentsToday from './appointments/AppointmentsToday'; // Import the new AppointmentsToday component
 
 export default function ClientManagement() {
   const [activeTab, setActiveTab] = useState('contact-info') // Default to contact-info
@@ -34,19 +37,11 @@ export default function ClientManagement() {
   const [totalClients, setTotalClients] = useState(0); // New state to hold total clients count
   const [appointmentsToday, setAppointmentsToday] = useState(0); // State for today's appointments count
   const [assignedCallsToday, setAssignedCallsToday] = useState(0); // State for today's assigned calls count
+  const [isAssignedCallsModalOpen, setIsAssignedCallsModalOpen] = useState(false); // State for the assigned calls modal
+  const [isAppointmentsModalOpen, setIsAppointmentsModalOpen] = useState(false); // State for the appointments modal
+  const [leadsCount, setLeadsCount] = useState(0); // State for leads count
 
-  // Static data for client details
-  const staticClientDetails = {
-    companyName: 'TechCorp',
-    email: 'contact@techcorp.com',
-    phone: '+123-456-7890',
-    street: '123 Tech Lane',
-    city: 'Tech City',
-    state: 'Tech State',
-    zipCode: '12345',
-    country: 'Tech Country'
-  };
-
+ 
   // Fetch clients from Supabase when the component mounts
   useEffect(() => {
     const fetchClients = async () => {
@@ -98,9 +93,22 @@ export default function ClientManagement() {
       }
     };
 
+    const fetchLeadsCount = async () => {
+      const { data, error } = await supabase
+        .from('client_leads')
+        .select('*', { count: 'exact' }); // Fetch all leads and get the count
+
+      if (error) {
+        console.error('Error fetching leads count:', error);
+      } else {
+        setLeadsCount(data.length); // Set leads count
+      }
+    };
+
     fetchClients();
     fetchAppointmentsToday();
     fetchAssignedCallsToday();
+    fetchLeadsCount(); // Fetch leads count
   }, []);
 
   // Filter clients based on search input
@@ -136,7 +144,7 @@ export default function ClientManagement() {
     switch (activeTab) {
       case 'leads':
         console.log("Client ID being passed to Leads:", clientInfo.id); // Debugging line
-        return <Leads clientId={clientInfo.id} />; // Pass the client ID to Leads
+        return <Leads clientId={clientInfo.id} companyName={clientInfo.companyName} />; // Pass the client ID and company name to Leads
       case 'calls':
         return <Calls clientId={clientInfo.id} />; // Pass the client ID to Calls
       case 'appointments':
@@ -144,8 +152,10 @@ export default function ClientManagement() {
       case 'contact-info':
         return <ContactInfo clientId={clientInfo.id} />;
       case 'notes':
-      default:
+      case 'assigned-calls':
         return <Notes clientId={clientInfo.id} />; // Pass the client ID to the Notes component
+      default:
+        return <AssignedCalls />; // Render the AssignedCalls component
     }
   }
 
@@ -177,19 +187,58 @@ export default function ClientManagement() {
     setIsAddClientModalOpen(false);
   };
 
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: '#2B2B2B', // Dark background
+      borderColor: '#4CAF50', // Green border
+      color: '#FFFFFF', // White text
+      minHeight: '40px', // Fixed height
+      width: '300px', // Fixed width
+      boxShadow: state.isFocused ? '0 0 0 1px #4CAF50' : null, // Green shadow on focus
+      '&:hover': {
+        borderColor: '#4CAF50', // Green border on hover
+      },
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: '#FFFFFF', // White text
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#FFFFFF', // White text for selected value
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#B0BEC5', // Light gray for placeholder
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: '#2B2B2B', // Dark background for dropdown
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? '#4CAF50' : '#2B2B2B', // Green on hover
+      color: '#FFFFFF', // White text
+    }),
+  };
+
   return (
     <div className="client-management">
       <div className="client-management-pipeline-header">
         <h1>
-          <span className="client-management-logo"> <Users style={{ color: '#4CAF50', marginRight: '8px' }} /> </span>
+          <span className="client-management-logo">
+            <Users style={{ color: '#4CAF50', marginRight: '8px' }} />
+          </span>
           Client Management
         </h1>
         <div className="client-management-header-actions">
           <Select
+            className="client-management-select"
             options={options}
             onChange={handleSelectChange}
-            placeholder="Search clients by company name..."
-            className="client-management-select"
+            styles={customSelectStyles} // Apply custom styles
+            placeholder="Search clients..."
           />
           <button className="client-management-icon-btn add-client-btn" onClick={() => setIsAddClientModalOpen(true)}>
             <Plus />
@@ -208,22 +257,22 @@ export default function ClientManagement() {
         <div className="client-management-dashboard-item">
           <PieChart className="client-management-dashboard-icon pie-chart" />
           <div className="client-management-dashboard-info">
-            <p className="client-management-dashboard-label">Active Deals</p>
-            <p className="client-management-dashboard-value">64</p>
+            <p className="client-management-dashboard-label">Total Leads</p> {/* Changed label to Leads */}
+            <p className="client-management-dashboard-value">{leadsCount}</p> {/* Display leads count */}
           </div>
         </div>
-        <div className="client-management-dashboard-item">
+        <div className="client-management-dashboard-item" onClick={() => setIsAppointmentsModalOpen(true)}>
           <Calendar className="client-management-dashboard-icon calendar" />
           <div className="client-management-dashboard-info">
             <p className="client-management-dashboard-label">Appointments Today</p>
-            <p className="client-management-dashboard-value">{appointmentsToday}</p> {/* Display today's appointments count */}
+            <p className="client-management-dashboard-value">{appointmentsToday}</p>
           </div>
         </div>
-        <div className="client-management-dashboard-item">
+        <div className="client-management-dashboard-item" onClick={() => setIsAssignedCallsModalOpen(true)}>
           <Phone className="client-management-dashboard-icon phone" />
           <div className="client-management-dashboard-info">
-            <p className="client-management-dashboard-label">Assigned Calls Today</p> {/* Updated label */}
-            <p className="client-management-dashboard-value">{assignedCallsToday}</p> {/* Display today's assigned calls count */}
+            <p className="client-management-dashboard-label">Assigned Calls Today</p>
+            <p className="client-management-dashboard-value">{assignedCallsToday}</p>
           </div>
         </div>
       </div>
@@ -317,6 +366,16 @@ export default function ClientManagement() {
         clientInfo={clientInfo} 
         setClientInfo={setClientInfo} 
       />
+
+      {/* Modal for Assigned Calls */}
+      <Modal isOpen={isAssignedCallsModalOpen} onClose={() => setIsAssignedCallsModalOpen(false)}>
+        <AssignedCalls /> {/* Render AssignedCalls component inside the modal */}
+      </Modal>
+
+      {/* Modal for Appointments */}
+      <Modal isOpen={isAppointmentsModalOpen} onClose={() => setIsAppointmentsModalOpen(false)}>
+        <AppointmentsToday /> {/* Render AppointmentsToday component inside the modal */}
+      </Modal>
     </div>
   )
 }

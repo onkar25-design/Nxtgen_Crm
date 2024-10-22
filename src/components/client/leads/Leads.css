@@ -1,0 +1,258 @@
+/* src/components/client/Leads.css */
+
+.client-leads {
+    padding: 20px; /* Increased padding for better spacing */
+    background-color: #1F1F1F; /* Dark background to match Supabase theme */
+    color: #FFFFFF; /* White text color for better contrast */
+}
+
+.client-leads-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.client-leads h2 {
+    margin: 0; /* Remove margin for better alignment */
+    font-size: 24px; /* Increased font size */
+    color: #B0BEC5; /* Light gray color */
+}
+
+.client-leads-divider {
+    margin: 10px 0; /* Space above and below the divider */
+}
+
+.client-leads p {
+    color: #B0BEC5; /* Light gray color for text */
+}
+
+.client-leads-card {
+    position: relative; /* Allow absolute positioning of child elements */
+    background-color: transparent; /* Set to transparent */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin-bottom: 15px; /* Space between lead cards */
+    transition: background-color 0.3s;
+    border: 2px solid transparent; /* Default border */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+    position: relative; /* For the border effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    border: 2px solid gray; /* Gray border for all sides */
+    border-left: 5px solid transparent; /* Default left border */
+}
+
+.client-leads-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7); /* Darker background for better contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure modal is on top */
+}
+
+.client-leads-modal-content {
+    background: #2B2B2B; /* Dark background for modal */
+    padding: 20px; /* Increased padding for better spacing */
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+    width: 100%; /* Set a width for the modal */
+    max-width: 700px; /* Max width for larger screens */
+}
+
+.client-leads-modal-content input,
+.client-leads-modal-content select,
+.client-leads-modal-content textarea {
+    margin-bottom: 15px; /* Space below inputs */
+    padding: 12px; /* Padding for inputs */
+    border: 1px solid #4CAF50; /* Green border for inputs */
+    border-radius: 4px; /* Rounded corners for inputs */
+    width: calc(100% - 24px); /* Full width for inputs with padding adjustment */
+    font-size: 16px; /* Increased font size for better readability */
+    background-color: #1F1F1F; /* Dark background for inputs */
+    color: #FFFFFF; /* White text color for inputs */
+}
+
+/* Button styles */
+.client-leads-submit-btn,
+.client-leads-cancel-btn {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 12px 24px; /* Increased padding for buttons */
+    font-size: 16px; /* Increased font size */
+    font-weight: bold; /* Bold text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s; /* Added transition for hover effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    gap: 20;
+}
+
+.client-leads-submit-btn {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+}
+
+.client-leads-cancel-btn {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+}
+
+.client-leads-submit-btn:hover {
+    background-color: #388E3C; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.client-leads-cancel-btn:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.client-leads-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    gap: 20px; /* Increased space between fields */
+}
+
+/* Icon button styles */
+.client-leads-card-edit-btn {
+    color: #4CAF50; /* Green color for edit icon */
+    transition: color 0.3s; /* Smooth transition for color change */
+}
+
+.client-leads-icon-delete {
+    color: #f44336; /* Red color for delete icon */
+    transition: color 0.3s; /* Smooth transition for color change */
+}
+
+.client-leads-icon-edit:hover {
+    color: #388E3C; /* Darker green on hover */
+}
+
+.client-leads-icon-delete:hover {
+    color: #d32f2f; /* Darker red on hover */
+}
+
+.client-leads-card-actions {
+    position: absolute; /* Position the buttons absolutely */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    display: flex; /* Align buttons in a row */
+    gap: 5px; /* Space between buttons */
+}
+
+.client-leads-card-edit-btn,
+.client-leads-card-delete-btn {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor on hover */
+    color: #4CAF50; /* Default color for edit button */
+    transition: color 0.3s; /* Smooth transition for color change */
+}
+
+.client-leads-card-delete-btn {
+    color: #f44336; /* Default color for delete button */
+}
+
+.client-leads-card-edit-btn:hover {
+    color: #388E3C; /* Darker green on hover */
+}
+
+.client-leads-card-delete-btn:hover {
+    color: #d32f2f; /* Darker red on hover */
+}
+
+.client-leads-card-details {
+    margin-top: 10px; /* Space above the details */
+    padding: 10px; /* Padding for the details section */
+    border-radius: 4px; /* Rounded corners */
+    color: #FFFFFF; /* White text color for details */
+}
+
+.lead-score-1 {
+    border-left-color: red; /* Thick red border */
+}
+
+.lead-score-2 {
+    border-left-color: red; /* Thick red border */
+}
+
+.lead-score-3 {
+    border-left-color: orange; /* Thick orange border */
+}
+
+.lead-score-4 {
+    border-left-color: green; /* Thick green border */
+}
+
+.lead-score-5 {
+    border-left-color: green; /* Thick green border */
+}
+
+.lead-tags {
+    margin: 5px 0;
+}
+
+.lead-tag {
+    background-color: #4CAF50; /* Green background for tags */
+    color: white; /* White text color */
+    border-radius: 3px;
+    padding: 3px 8px; /* Adjust padding for better appearance */
+    margin-right: 5px;
+    display: inline-block; /* Ensure tags are inline */
+}
+
+.lead-amount, .lead-company {
+    font-weight: bold; /* Make amount and company bold */
+}
+
+.lead-score-stars {
+    margin-top: 5px;
+}
+
+.star {
+    color: gold;
+}
+
+.star.empty {
+    color: lightgray;
+}
+
+.client-leads-add-btn {
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.client-leads-add-btn:hover {
+    background-color: #388E3C; /* Darker green on hover */
+}
+
+.calls-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.calls-table th, .calls-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+.calls-table th {
+    background-color: #4CAF50; /* Green background for header */
+    color: white; /* White text color */
+}

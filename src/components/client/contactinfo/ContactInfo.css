@@ -1,5 +1,7 @@
 .contact-info-container {
     padding: 15px;
+    background-color: #1F1F1F; /* Dark background to match Supabase theme */
+    color: #FFFFFF; /* White text color for better contrast */
 }
 
 .contact-info-header {
@@ -10,6 +12,8 @@
 
 .contact-info-title {
     margin-bottom: 10px;
+    font-size: 1.5rem; /* Increased title size */
+    color: #B0BEC5; /* Light gray color */
 }
 
 .contact-info-divider {
@@ -19,7 +23,7 @@
 }
 
 .contact-info-text {
-    color: #555;
+    color: #B0BEC5; /* Light gray color for text */
 }
 
 .contact-info-add-btn {
@@ -39,7 +43,7 @@
 }
 
 .contact-info-card {
-    background-color: #ffffff; /* White background for the card */
+    background-color: #2B2B2B; /* Dark background for the card */
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
@@ -55,7 +59,6 @@
     padding: 5px; /* Increased padding for larger button size */
     font-size: 16px; /* Increased font size */
     transition: transform 0.2s; /* Smooth scaling on hover */
-    
 }
 
 .contact-info-edit-btn {
@@ -84,7 +87,7 @@
 }
 
 .contact-info-modal-content {
-    background: white;
+    background: #2B2B2B; /* Dark background for modal */
     padding: 30px; /* Increased padding for better spacing */
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
@@ -95,6 +98,7 @@
 .contact-info-modal-title {
     margin-bottom: 10px; /* Space below the heading */
     font-size: 24px; /* Increased title text size */
+    color: #FFFFFF; /* White color for title */
 }
 
 /* Divider below the title */
@@ -110,6 +114,8 @@
     border: 1px solid #ccc; /* Border for inputs */
     border-radius: 4px; /* Rounded corners for inputs */
     width: calc(100% - 20px); /* Full width for inputs with padding adjustment */
+    background-color: #2B2B2B; /* Dark background for inputs */
+    color: #FFFFFF; /* White text color for inputs */
 }
 
 /* Button styles in modal */

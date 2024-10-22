@@ -1,7 +1,7 @@
 .nxtgen-sidebar {
     width: 250px; /* Width of the sidebar */
-    background-color: #388E3C; /* Green background for the sidebar */
-    color: white;
+    background-color: #1F1F1F; /* Dark background for the sidebar */
+    color: #FFFFFF; /* White text color */
     padding: 0; /* Remove padding to control sections separately */
     display: flex;
     flex-direction: column;
@@ -9,7 +9,7 @@
     position: fixed; /* Fixed position to keep it in place */
     left: 0;
     top: 0;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* Darker shadow for depth */
 }
 
 .nxtgen-logo-space {
@@ -18,26 +18,33 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 20px;
-    background-color: white; /* White background for the logo area */
-    border-radius: 0; /* Rounded corners on top */
+    background-color: #1F1F1F; /* Match the sidebar background */
 }
 
-.nxtgen-company-logo {
-    max-width: 80%; /* Adjust width to fit better */
-    max-height: 80px; /* Adjust height as needed */
+.nxtgen-logo {
+    font-size: 60px; /* Increase font size as needed */
+    font-weight: bold; /* Make the text bold */
+}
+
+.nxtgen-green {
+    color: #4CAF50; /* Green color for 'Nxt' */
+}
+
+.nxtgen-white {
+    color: #FFFFFF; /* White color for 'Gen' */
 }
 
 .nxtgen-sidebar nav {
     flex-grow: 1;
     overflow-y: auto;
-    background-color: #388E3C; /* Keep the rest of the sidebar green */
+    background-color: #1F1F1F; /* Keep the rest of the sidebar dark */
 }
 
 .nxtgen-nav-item {
     display: flex;
     align-items: center;
     padding: 12px 15px; /* Increased padding for better spacing */
-    color: white;
+    color: #FFFFFF; /* White text color */
     text-decoration: none;
     cursor: pointer;
     border-radius: 4px; /* Add rounded corners */
@@ -45,7 +52,7 @@
 }
 
 .nxtgen-nav-item:hover {
-    background-color: #4CAF50; /* Change background on hover */
+    background-color: #3A3A3A; /* Change background on hover */
 }
 
 .nxtgen-icon {
@@ -65,8 +72,9 @@
 .nxtgen-sub-item {
     padding: 8px 15px; /* Increased padding for sub-items */
     position: relative;
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter background for sub-items */
+    background-color: transparent; /* Set to transparent to avoid background */
     border-radius: 4px; /* Rounded corners for sub-items */
+    color: #FFFFFF; /* Ensure text color is white */
 }
 
 .nxtgen-nav-text {
@@ -79,7 +87,7 @@
 
 .nxtgen-logout-btn {
     margin-top: auto;
-    background-color: #81C784;
+    background-color: #FF3D00; /* Bright color for logout button */
     color: white;
     border: none;
     padding: 12px; 
@@ -92,5 +100,21 @@
 }
 
 .nxtgen-logout-btn:hover {
-    background-color: #4CAF50; 
+    background-color: #D32F2F; /* Darker red on hover */
+}
+
+.nxtgen-nav-item.active,
+.nxtgen-sub-item.active {
+    color: #4CAF50; /* Green color for active text */
+    font-weight: bold; /* Optional: make the active text bold */
+}
+
+.nxtgen-nav-item:hover,
+.nxtgen-sub-item:hover {
+    background-color: transparent; /* Remove background highlight on hover */
+}
+
+.nxtgen-sub-item:hover {
+    background-color: transparent; /* Ensure no background on hover */
+    color: #4CAF50; /* Change text color to green on hover */
 }

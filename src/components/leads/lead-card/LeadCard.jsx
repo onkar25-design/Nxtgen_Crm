@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import './LeadCard.css';
-import { FaEdit, FaTrash, FaEllipsisV, FaStar } from 'react-icons/fa'; // Import star icon
-import EditLeadForm from './EditLeadForm'; // Import the EditLeadForm component
-import { supabase } from '../../../supabaseClient'; // Use named import
+import { FaEdit, FaTrash, FaStar } from 'react-icons/fa'; // Import star icon
+import EditLeadForm from '../add-edit-lead-form/EditLeadForm'; // Import the EditLeadForm component
+import { supabase } from '../../../../supabaseClient'; // Use named import
 
 function LeadCard({ card, columnId, onEdit, onDelete }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -34,7 +34,7 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this lead?')) {
       try {
-        await supabase.from('leads').delete().eq('id', card.id); // Delete from Supabase
+        await supabase.from('client_leads').delete().eq('id', card.id); // Change to delete from client_leads
         onDelete(card.id); // Call the onDelete function with the card ID
       } catch (error) {
         console.error('Error deleting the card:', error); // Handle any errors
@@ -53,7 +53,7 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
 
   const handleFormSubmit = async (updatedData) => {
     try {
-      const { error } = await supabase.from('leads').update(updatedData).eq('id', card.id);
+      const { error } = await supabase.from('client_leads').update(updatedData).eq('id', card.id); // Change to update client_leads
       if (error) throw error; // Handle any errors from Supabase
 
       onEdit({ ...card, ...updatedData }); // Update the existing card with new data
@@ -66,7 +66,7 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
   return (
     <div
       ref={drag} // Attach the drag ref to the card
-      className={`lead-card ${isDragging ? 'dragging' : ''}`}
+      className={`leadcard-lead-card ${isDragging ? 'dragging' : ''}`}
       style={{
         borderLeftColor: getBorderColor(card.lead_score),
         borderLeftWidth: '5px',
@@ -75,50 +75,49 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
       }} // Thicker left border
       onClick={() => setIsExpanded(!isExpanded)}
     >
-      <div className="header">
+      <div className="leadcard-header">
         <h3>{card.title}</h3>
-        <div className="dropdown">
-          <button onClick={handleDropdownToggle} className="dropdown-button">
-            {/* Downward triangle icon using CSS */}
-            <span className="triangle-icon"></span>
+        <div className="leadcard-dropdown">
+          <button onClick={handleDropdownToggle} className="leadcard-dropdown-button">
+            <span className="leadcard-triangle-icon"></span>
           </button>
           {dropdownOpen && (
-            <div className="dropdown-menu">
-              <button onClick={(e) => { e.stopPropagation(); handleEdit(); }} className="dropdown-item">
+            <div className="leadcard-dropdown-menu">
+              <button onClick={(e) => { e.stopPropagation(); handleEdit(); }} className="leadcard-dropdown-item">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaEdit className="edit-icon" style={{ marginRight: '8px' }} /> Edit
+                  <FaEdit className="leadcard-edit-icon" style={{ marginRight: '8px' }} /> Edit
                 </div>
               </button>
-              <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="dropdown-item">
+              <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="leadcard-dropdown-item">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaTrash className="delete-icon" style={{ marginRight: '8px' }} /> Delete
+                  <FaTrash className="leadcard-delete-icon" style={{ marginRight: '8px' }} /> Delete
                 </div>
               </button>
             </div>
           )}
         </div>
       </div>
-      <div className="tags">
+      <div className="leadcard-tags">
         {card.tags.map((tag, index) => (
-          <span key={index} className="tag">{tag}</span>
+          <span key={index} className="leadcard-tag">{tag}</span>
         ))}
       </div>
       {/* Display amount, company name, and stars when card is closed */}
       {!isExpanded && (
-        <div className="card-summary">
-          <p style={{ fontSize: '0.9em', margin: 0 }}> {/* Adjust font size and margin */}
-            <span>$ {card.budget.toLocaleString()}, </span> {/* Add dollar sign and format amount */}
+        <div className="leadcard-card-summary">
+          <p style={{ fontSize: '0.9em', margin: 0 }}>
+            <span>$ {card.budget.toLocaleString()}, </span>
             {card.company}
           </p>
-          <div className="lead-score">
+          <div className="leadcard-lead-score">
             {Array.from({ length: 5 }, (_, index) => (
-              <FaStar key={index} className={index < card.lead_score ? 'star filled' : 'star'} />
+              <FaStar key={index} className={index < card.lead_score ? 'leadcard-star filled' : 'leadcard-star'} />
             ))}
           </div>
         </div>
       )}
       {isExpanded && (
-        <div className="card-details">
+        <div className="leadcard-card-details">
           <p><strong>Budget:</strong> ${card.budget}</p>
           <p><strong>Company:</strong> {card.company}</p>
           <p><strong>Name:</strong> {card.name}</p>

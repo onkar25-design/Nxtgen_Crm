@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Appointments.css'; // Ensure you have appropriate styles
-import { supabase } from '../../../supabaseClient'; // Import Supabase client
+import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 
 function Appointments({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

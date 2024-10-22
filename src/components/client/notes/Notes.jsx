@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons'; // Import the Font Awesome trash icon
-import { supabase } from '../../../supabaseClient'; // Import the Supabase client
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import the Font Awesome edit icon
+import { supabase } from '../../../../supabaseClient'; // Import the Supabase client
 import './Notes.css'; // Create a CSS file for styling
 
 function Notes({ clientId }) { // Accept clientId as a prop
   const [notes, setNotes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
   const [currentNote, setCurrentNote] = useState({ id: null, date: '', text: '' });
 
   // Fetch notes from Supabase when the component mounts or clientId changes
@@ -37,7 +38,7 @@ function Notes({ clientId }) { // Accept clientId as a prop
 
   const handleEditNote = (note) => {
     setCurrentNote(note);
-    setIsModalOpen(true);
+    setIsEditModalOpen(true); // Open the edit modal
   };
 
   const handleDeleteNote = async (id) => {
@@ -85,6 +86,7 @@ function Notes({ clientId }) { // Accept clientId as a prop
       }
     }
     setIsModalOpen(false);
+    setIsEditModalOpen(false); // Close edit modal if it was open
   };
 
   console.log('Client ID:', clientId);
@@ -101,11 +103,13 @@ function Notes({ clientId }) { // Accept clientId as a prop
           <li key={note.id}>
             <span className="notes-note-date">{note.date}</span>
             <span className="notes-note-text" onClick={() => handleEditNote(note)}>{note.text}</span>
+            <FontAwesomeIcon icon={faEdit} className="notes-edit-icon" onClick={() => handleEditNote(note)} />
             <FontAwesomeIcon icon={faTrash} className="notes-delete-icon" onClick={() => handleDeleteNote(note.id)} />
           </li>
         ))}
       </ul>
 
+      {/* Add Note Modal */}
       {isModalOpen && (
         <div className="notes-modal">
           <div className="notes-modal-content">
@@ -128,6 +132,35 @@ function Notes({ clientId }) { // Accept clientId as a prop
               <div className="notes-modal-buttons">
                 <button type="submit" className="notes-submit-btn">Submit</button>
                 <button type="button" className="notes-cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Note Modal */}
+      {isEditModalOpen && (
+        <div className="notes-modal">
+          <div className="notes-modal-content">
+            <h3>Edit Note</h3>
+            <hr className="notes-modal-divider" />
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                value={currentNote.text}
+                onChange={(e) => setCurrentNote({ ...currentNote, text: e.target.value })}
+                placeholder="Note content"
+                required
+              />
+              <input
+                type="date"
+                value={currentNote.date}
+                onChange={(e) => setCurrentNote({ ...currentNote, date: e.target.value })}
+                required
+              />
+              <div className="notes-modal-buttons">
+                <button type="submit" className="notes-submit-btn">Update</button>
+                <button type="button" className="notes-cancel-btn" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
               </div>
             </form>
           </div>

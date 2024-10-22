@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './ContactInfo.css'; // Create a CSS file for styling
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import icons
-import { supabase } from '../../../supabaseClient'; // Import Supabase client
+import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 
 function ContactInfo({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

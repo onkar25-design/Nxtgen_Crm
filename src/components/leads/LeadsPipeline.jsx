@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDrop } from 'react-dnd';
-import LeadCard from './LeadCard';
+import LeadCard from './lead-card/LeadCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faThList } from '@fortawesome/free-solid-svg-icons'; // Import new icon
 import './LeadsPipeline.css';
-import NewLeadForm from './NewLeadForm'; // Import the NewLeadForm component
+import NewLeadForm from './add-edit-lead-form/NewLeadForm'; // Import the NewLeadForm component
 import { supabase } from '../../../supabaseClient'; // Import Supabase client
 
 const initialColumns = [
   {
     id: 'new',
     title: 'New',
-    cards: [], // All columns have the same structure
+    cards: [],
   },
   {
     id: 'qualified',
     title: 'Qualified',
-    cards: [], // All columns have the same structure
+    cards: [],
   },
   {
     id: 'proposition',
     title: 'Proposition',
-    cards: [], // All columns have the same structure
+    cards: [],
   },
   {
     id: 'won',
     title: 'Won',
-    cards: [], // All columns have the same structure
+    cards: [],
   },
 ];
 
@@ -57,7 +57,7 @@ function LeadsPipeline() {
     status: 'New',
     notes: '',
   });
-  const [searchInput, setSearchInput] = useState(''); // New state for search input
+  const [searchInput, setSearchInput] = useState('');
 
   const searchOptions = [
     { value: 'title', label: 'Title' },
@@ -66,66 +66,61 @@ function LeadsPipeline() {
     { value: 'tags', label: 'Tags' },
   ];
 
+  const dropdownRef = useRef(null); // Create a ref for the dropdown
+
   useEffect(() => {
     const fetchLeadsAndColumns = async () => {
-      // Fetch columns
       const { data: columnsData, error: columnsError } = await supabase
         .from('columns')
         .select('*')
         .order('order', { ascending: true });
       if (columnsError) {
         console.error('Error fetching columns:', columnsError);
-        return; // Exit if there's an error
+        return;
       }
 
-      // Initialize column map
       const columnMap = {};
       columnsData.forEach(col => {
-        columnMap[col.id] = { ...col, cards: [] }; // Ensure cards is initialized as an empty array
+        columnMap[col.id] = { ...col, cards: [] };
       });
 
-      // Fetch leads with required fields
       const { data: leadsData, error: leadsError } = await supabase
-        .from('leads')
+        .from('client_leads')
         .select('id, title, budget, company, tags, name, email, phone, lead_source, lead_score, interested_products, assigned_to, status, notes, stage');
-      
+
       if (leadsError) {
         console.error('Error fetching leads:', leadsError);
-        return; // Exit if there's an error
+        return;
       }
 
-      // Populate the columns with the fetched leads based on their stage
       leadsData.forEach(lead => {
-        const stage = lead.stage || 'new'; // Default to 'new' if stage is not set
+        const stage = lead.stage || 'new';
         if (columnMap[stage]) {
-          columnMap[stage].cards.push(lead); // Add the lead to the corresponding column
+          columnMap[stage].cards.push(lead);
         }
       });
 
-      // Set the columns state with the updated columns
       setColumns(Object.values(columnMap));
     };
 
-    fetchLeadsAndColumns(); // Call the fetch function on component mount
+    fetchLeadsAndColumns();
   }, []);
 
   const moveCard = async (cardId, fromColumn, toColumn) => {
     setColumns(prevColumns => {
       const updatedColumns = prevColumns.map(col => {
-        // Ensure cards is initialized as an empty array if undefined
-        const cards = col.cards || []; 
+        const cards = col.cards || [];
 
         if (col.id === fromColumn) {
           return { ...col, cards: cards.filter(card => card.id !== cardId) };
         }
         if (col.id === toColumn) {
           const [movedCard] = prevColumns.find(c => c.id === fromColumn).cards.filter(card => card.id === cardId);
-          // Update the stage of the moved card
-          const updatedCard = { ...movedCard, stage: toColumn }; // Update stage field
+          const updatedCard = { ...movedCard, stage: toColumn };
 
-          // Update the card in Supabase
-          supabase.from('leads').update({ stage: toColumn }).eq('id', cardId)
-            .then(({ data, error }) => {
+          // Update the stage in the database
+          supabase.from('client_leads').update({ stage: toColumn }).eq('id', cardId)
+            .then(({ error }) => {
               if (error) {
                 console.error('Error updating lead stage:', error);
               }
@@ -133,7 +128,7 @@ function LeadsPipeline() {
 
           return { 
             ...col, 
-            cards: [...cards, updatedCard] // Add updated card to the new column
+            cards: [...cards, updatedCard]
           };
         }
         return col;
@@ -150,22 +145,20 @@ function LeadsPipeline() {
       title: newColumnTitle,
       order: selectedColumnToInsertAfter ? 
         columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
-        columns.length + 1, // Set order based on position
+        columns.length + 1,
     };
 
-    // Insert the new column into Supabase
     const { data, error } = await supabase.from('columns').insert([newColumn]);
     if (error) {
       console.error('Error adding column:', error);
     } else {
-      // Update the local state to include the new column at the selected position
       const insertIndex = selectedColumnToInsertAfter ? 
         columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
-        columns.length; // Add to end if no column is selected
+        columns.length;
 
       setColumns(prevColumns => {
         const updatedColumns = [...prevColumns];
-        updatedColumns.splice(insertIndex, 0, newColumn); // Insert at the specified index
+        updatedColumns.splice(insertIndex, 0, newColumn);
         return updatedColumns;
       });
     }
@@ -178,21 +171,19 @@ function LeadsPipeline() {
   const deleteColumn = async (columnId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this column?");
     if (confirmDelete) {
-      // Delete the column from Supabase
       const { data, error } = await supabase.from('columns').delete().eq('id', columnId);
       if (error) {
         console.error('Error deleting column:', error);
-        return; // Exit if there's an error
+        return;
       }
 
-      // Update the local state to remove the deleted column
       setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
     }
   };
 
   const addLead = async (leadData) => {
     const newLeadData = {
-      id: Date.now(), // Unique ID for the lead
+      id: Date.now(),
       title: leadData.title,
       budget: leadData.budget,
       company: leadData.company,
@@ -200,23 +191,22 @@ function LeadsPipeline() {
       name: leadData.name,
       email: leadData.email,
       phone: leadData.phone,
-      leadSource: leadData.leadSource,
-      leadScore: leadData.leadScore,
-      interestedProducts: leadData.interestedProducts,
-      assignedTo: leadData.assignedTo,
+      lead_source: leadData.leadSource,
+      lead_score: leadData.leadScore,
+      interested_products: leadData.interestedProducts,
+      assigned_to: leadData.assignedTo,
       status: leadData.status,
       notes: leadData.notes,
-      stage: 'new', // Set initial stage to 'new'
+      stage: 'new',
     };
 
-    // Insert the new lead into Supabase
-    const { data, error } = await supabase.from('leads').insert([newLeadData]);
+    const { data, error } = await supabase.from('client_leads').insert([newLeadData]);
     if (error) {
       console.error('Error adding lead:', error);
     } else {
       setColumns(prevColumns => {
         const updatedColumns = [...prevColumns];
-        updatedColumns[0].cards.push(newLeadData); // Add to the "New" column
+        updatedColumns[0].cards.push(newLeadData);
         return updatedColumns;
       });
     }
@@ -228,47 +218,59 @@ function LeadsPipeline() {
       return prevColumns.map(column => {
         return {
           ...column,
-          cards: column.cards.filter(card => card.id !== cardId) // Remove the card with the matching ID
+          cards: column.cards.filter(card => card.id !== cardId)
         };
       });
     });
   };
 
-  // Filter leads based on search input
   const filteredColumns = columns.map(column => ({
     ...column,
     cards: column.cards ? column.cards.filter(card => 
-      card.title.toLowerCase().includes(searchInput.toLowerCase()) || 
-      card.company.toLowerCase().includes(searchInput.toLowerCase())
-    ) : [] // Ensure cards is an empty array if undefined
+      (card.title && card.title.toLowerCase().includes(searchInput.toLowerCase())) || 
+      (card.company && card.company.toLowerCase().includes(searchInput.toLowerCase()))
+    ) : []
   }));
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDeleteColumnDropdown(false); // Close dropdown if clicked outside
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="leads-pipeline">
-      <div className="pipeline-header">
+      <div className="leads-pipeline-header">
         <h1>
           <FontAwesomeIcon icon={faThList} style={{ color: '#4CAF50', marginRight: '8px' }} />
           Leads Pipeline
         </h1>
-        <div className="header-actions">
+        <div className="leads-pipeline-header-actions">
           <input
             type="text"
             placeholder="Search by title or company"
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)} // Update search input
-            className="search-input" // Add a class for styling
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="leads-pipeline-search-input"
           />
-          <button className="icon-btn add-column-btn" onClick={() => setShowAddColumnModal(true)}>
+          <button className="leads-pipeline-icon-btn leads-pipeline-add-column-btn" onClick={() => setShowAddColumnModal(true)}>
             <FontAwesomeIcon icon={faPlus} />
           </button>
-          <div className="delete-column-dropdown">
-            <button className="icon-btn delete-column-btn" onClick={() => setShowDeleteColumnDropdown(!showDeleteColumnDropdown)}>
+          <div className="leads-pipeline-delete-column-dropdown" ref={dropdownRef}>
+            <button className="leads-pipeline-icon-btn leads-pipeline-delete-column-btn" onClick={() => setShowDeleteColumnDropdown(!showDeleteColumnDropdown)}>
               <FontAwesomeIcon icon={faTrash} />
             </button>
             {showDeleteColumnDropdown && (
-              <div className="dropdown-menu">
+              <div className="leads-pipeline-dropdown-menu">
                 {columns.map(column => (
-                  <button key={column.id} onClick={() => deleteColumn(column.id)}>
+                  <button key={column.id} onClick={() => { deleteColumn(column.id); setShowDeleteColumnDropdown(false); }}>
                     {column.title}
                   </button>
                 ))}
@@ -277,7 +279,7 @@ function LeadsPipeline() {
           </div>
         </div>
       </div>
-      <div className="columns-container">
+      <div className="leads-pipeline-columns-container">
         {filteredColumns.map(column => (
           <Column
             key={column.id}
@@ -285,34 +287,37 @@ function LeadsPipeline() {
             moveCard={moveCard}
             onEdit={onEdit}
             onDelete={onDelete}
-            onAddLead={() => setShowAddLeadModal(true)} // Pass the function to show the add lead modal
+            onAddLead={() => setShowAddLeadModal(true)}
           />
         ))}
       </div>
       {showAddColumnModal && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="leads-pipeline-modal">
+          <div className="leads-pipeline-modal-content">
             <h2>Add New Column</h2>
-            <input
-              type="text"
-              placeholder="Column Title"
-              value={newColumnTitle}
-              onChange={(e) => setNewColumnTitle(e.target.value)}
-              className="modal-input" // Added class for styling
-            />
-            <select
-              value={selectedColumnToInsertAfter}
-              onChange={(e) => setSelectedColumnToInsertAfter(e.target.value)}
-              className="modal-select" // Added class for styling
-            >
-              <option value="">Add to end</option>
-              {columns.map(col => (
-                <option key={col.id} value={col.id}>After {col.title}</option>
-              ))}
-            </select>
-            <div className="modal-actions">
-              <button className="modal-btn" onClick={addColumn}>Add</button>
-              <button className="modal-btn" onClick={() => setShowAddColumnModal(false)}>Cancel</button>
+            <hr className="leads-pipeline-divider" />
+            <div className="leads-pipeline-modal-inputs">
+              <input
+                type="text"
+                placeholder="Column Title"
+                value={newColumnTitle}
+                onChange={(e) => setNewColumnTitle(e.target.value)}
+                className="leads-pipeline-modal-input"
+              />
+              <select
+                value={selectedColumnToInsertAfter}
+                onChange={(e) => setSelectedColumnToInsertAfter(e.target.value)}
+                className="leads-pipeline-modal-select"
+              >
+                <option value="">Add to end</option>
+                {columns.map(col => (
+                  <option key={col.id} value={col.id}>After {col.title}</option>
+                ))}
+              </select>
+            </div>
+            <div className="leads-pipeline-modal-actions">
+              <button className="leads-pipeline-modal-btn" onClick={addColumn}>Add</button>
+              <button className="leads-pipeline-modal-btn" onClick={() => setShowAddColumnModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
@@ -331,11 +336,11 @@ function Column({ column, moveCard, onEdit, onDelete, onAddLead }) {
   });
 
   return (
-    <div ref={drop} className="column">
-      <div className="column-header">
+    <div ref={drop} className="leads-pipeline-column">
+      <div className="leads-pipeline-column-header">
         <h2>{column.title}</h2>
         {column.id === 'new' && (
-          <button className="icon-btn add-lead-btn" onClick={onAddLead}>
+          <button className="leads-pipeline-icon-btn leads-pipeline-add-lead-btn" onClick={onAddLead}>
             <FontAwesomeIcon icon={faPlus} />
           </button>
         )}
@@ -345,7 +350,7 @@ function Column({ column, moveCard, onEdit, onDelete, onAddLead }) {
           <LeadCard key={card.id} card={card} columnId={column.id} onEdit={onEdit} onDelete={onDelete} />
         ))
       ) : (
-        <p>No leads in this column.</p> // Handle empty state
+        <p>No leads in this column.</p>
       )}
     </div>
   );

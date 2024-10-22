@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import './NewLeadForm.css';
-import { supabase } from '../../../supabaseClient'; // Supabase client import
+import { supabase } from '../../../../supabaseClient'; // Supabase client import
 
-const NewLeadForm = ({ onSubmit, onCancel, initialData }) => {
+const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
   const [formData, setFormData] = useState({
     title: '',
     budget: 0, 
@@ -33,17 +33,44 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Fetch client ID based on company name
+    const clientIdFromCompany = await getClientIdByCompany(formData.company);
+    
+    // If a client ID is found, include it in the lead data
+    if (clientIdFromCompany) {
+      formData.clientId = clientIdFromCompany; // Set the client ID in formData
+    } else {
+      formData.clientId = null; // Or handle the case where no client is found
+    }
+
     const result = await submitLeadToSupabase(formData);
     if (result) {
       onSubmit(formData); // Trigger the parent component's submission
     }
   };
 
+  const getClientIdByCompany = async (companyName) => {
+    const { data, error } = await supabase
+      .from('clients') // Assuming the table name is 'clients'
+      .select('id')
+      .eq('company_name', companyName) // Match the company name
+      .single(); // Get a single record
+
+    if (error) {
+      console.error('Error fetching client ID:', error);
+      return null; // Return null if there's an error
+    }
+
+    return data ? data.id : null; // Return the client ID or null if not found
+  };
+
   const submitLeadToSupabase = async (leadData) => {
     const { data, error } = await supabase
-      .from('leads')  // Ensure the 'leads' table exists
+      .from('client_leads')  // Change the table name to 'client_leads'
       .insert([
         {
+          client_id: leadData.clientId, // Ensure to include client_id if needed
           title: leadData.title,
           budget: leadData.budget,
           company: leadData.company,
@@ -111,8 +138,8 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData }) => {
                 isMulti
                 options={tagOptions}
                 onChange={(selectedOptions) => setFormData(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))}
-                className="react-select-container"
-                classNamePrefix="react-select"
+                className="newleadform-react-select-container"
+                classNamePrefix="newleadform-react-select"
               />
             </div>
             <div>
@@ -145,8 +172,8 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData }) => {
                 isMulti
                 options={productOptions}
                 onChange={(selectedOptions) => setFormData(prev => ({ ...prev, interestedProducts: selectedOptions.map(option => option.value) }))}
-                className="react-select-container"
-                classNamePrefix="react-select"
+                className="newleadform-react-select-container"
+                classNamePrefix="newleadform-react-select"
               />
             </div>
             <div>

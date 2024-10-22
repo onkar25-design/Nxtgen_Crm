@@ -1,0 +1,30 @@
+.assigned-calls-container {
+  padding: 0; /* Remove padding to allow full use of modal space */
+  color: #FFFFFF; /* White text color */
+}
+
+.assigned-calls-table {
+  width: 100%; /* Full width of the modal */
+  border-collapse: collapse; /* Remove space between table cells */
+  margin-top: 20px; /* Space above the table */
+}
+
+.assigned-calls-table th,
+.assigned-calls-table td {
+  border: 1px solid #4CAF50; /* Green border for table cells */
+  padding: 10px; /* Padding inside cells */
+  text-align: left; /* Align text to the left */
+}
+
+.assigned-calls-table th {
+  background-color: #4CAF50; /* Green background for header */
+  color: #FFFFFF; /* White text for header */
+}
+
+.assigned-calls-table tr:nth-child(even) {
+  background-color: #3A3A3A; /* Darker background for even rows */
+}
+
+.assigned-calls-table tr:hover {
+  background-color: #5A5A5A; /* Highlight row on hover */
+}

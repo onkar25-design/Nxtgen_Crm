@@ -1,22 +1,25 @@
-.calls {
+.appointments {
     padding: 5px;
+    background-color: #1F1F1F; /* Dark background to match Supabase theme */
+    color: #FFFFFF; /* White text color for better contrast */
 }
 
-.calls h2 {
+.appointments h2 {
     margin-bottom: 10px;
+    color: #B0BEC5; /* Light gray color */
 }
 
-.calls p {
-    color: #555;
+.appointments p {
+    color: #B0BEC5; /* Light gray color for text */
 }
 
-.calls-header {
+.appointments-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.calls-add-btn {
+.appointments-add-btn {
     background-color: #4CAF50; 
     color: white;
     border: none;
@@ -28,19 +31,19 @@
     transition: background-color 0.3s;
 }
 
-.calls-add-btn:hover {
+.appointments-add-btn:hover {
     background-color: #388E3C; /* Darker green on hover */
 }
 
-.call-card {
-    background-color: #ffffff; /* White background for the card */
+.appointment-card {
+    background-color: #2B2B2B; /* Dark background for the card */
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     margin-bottom: 15px; /* Space between cards */
 }
 
-.calls-modal {
+.appointments-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -52,8 +55,8 @@
     align-items: center;
 }
 
-.calls-modal-content {
-    background: white;
+.appointments-modal-content {
+    background: #2B2B2B; /* Dark background for modal */
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -61,41 +64,46 @@
     max-width: 600px;
 }
 
-.calls-modal-content h3 {
+.appointments-modal-content h3 {
     margin-bottom: 20px; /* Space below the title */
+    color: #FFFFFF; /* White color for title */
 }
 
-.calls-modal-content label {
+.appointments-modal-content label {
     display: block;
     margin-bottom: 10px; /* Space between labels */
     font-weight: bold; /* Make labels bold */
+    color: #B0BEC5; /* Light gray color for labels */
 }
 
-.calls-modal-content input,
-.calls-modal-content select,
-.calls-modal-content textarea {
+.appointments-modal-content input,
+.appointments-modal-content select,
+.appointments-modal-content textarea {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box; /* Include padding and border in element's total width and height */
+    background-color: #2B2B2B; /* Dark background for inputs */
+    color: #FFFFFF; /* White text color for inputs */
 }
-.calls-modal-content textarea {
+
+.appointments-modal-content textarea {
     min-height: 150px; /* Increased minimum height for the textarea */
     height: 200px; /* Set a fixed height for the textarea */
     resize: vertical; /* Allow vertical resizing */
 }
 
 /* Button styles in modal */
-.calls-modal-buttons {
+.appointments-modal-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 10px; /* Space between buttons */
     margin-top: 20px; /* Space above buttons */
 }
 
-.calls-submit-btn {
+.appointments-submit-btn {
     background: #4CAF50;
     color: white;
     border: none;
@@ -105,11 +113,11 @@
     transition: background-color 0.3s; /* Smooth transition for hover effect */
 }
 
-.calls-submit-btn:hover {
+.appointments-submit-btn:hover {
     background: #388E3C; /* Darker green on hover */
 }
 
-.calls-cancel-btn {
+.appointments-cancel-btn {
     background-color: #f44336;
     color: white;
     border: none;
@@ -119,7 +127,7 @@
     transition: background-color 0.3s; /* Smooth transition for hover effect */
 }
 
-.calls-cancel-btn:hover {
+.appointments-cancel-btn:hover {
     background-color: #d32f2f; /* Darker red on hover */
 }
 
@@ -131,4 +139,5 @@
 
 .date-time-container label {
     flex: 1; /* Allow labels to take equal space */
+    color: #B0BEC5; /* Light gray color for labels */
 }

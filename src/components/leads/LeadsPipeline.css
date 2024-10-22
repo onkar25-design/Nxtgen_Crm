@@ -1,35 +1,40 @@
 .leads-pipeline {
-  background-color: #f0f0f0;
+  background-color: #1F1F1F;
   min-width: 800px;
   height: 100%;
   overflow-y: auto;
-  padding: 5px;
+  padding: 20px;
+  color: #FFFFFF;
 }
 
-.pipeline-header {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  background-color: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.header-actions {
+.leads-pipeline-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  margin-bottom: 10px;
 }
 
-.react-select-container {
-  width: 400px;
-  margin-right: 20px;
+.leads-pipeline-header-actions {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  gap: 10px; /* Space between elements */
 }
 
-.icon-btn {
-  background: #4CAF50;
+.leads-pipeline-search-input {
+  padding: 10px;
+  border: 1px solid #4CAF50; /* Green border to match the theme */
+  border-radius: 4px;
+  width: 200px; 
+  background-color: #2B2B2B; /* Dark background for the input */
+  color: #FFFFFF; /* White text color for better contrast */
+}
+
+.leads-pipeline-search-input::placeholder {
+  color: #B0BEC5;
+}
+
+.leads-pipeline-icon-btn {
+  background: #4CAF50; /* Green button */
   border: none;
   cursor: pointer;
   color: white;
@@ -41,44 +46,123 @@
   transition: background-color 0.3s ease, transform 0.2s ease;
   width: 30px;
   height: 30px;
-  margin-left: 5px;
 }
 
-.icon-btn:hover {
-  background-color: #388E3C;
-  transform: scale(1.1);
+.leads-pipeline-icon-btn:hover {
+  background-color: #388E3C; /* Darker green on hover */
 }
 
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
+/* New styles for the delete button */
+.leads-pipeline-delete-column-btn {
+  background: #D32F2F; /* Red button for delete */
 }
 
-.delete-column-btn {
-  background: #F44336;
-  color: white;
+.leads-pipeline-delete-column-btn:hover {
+  background-color: #C62828; /* Darker red on hover */
 }
 
-.delete-column-btn:hover {
-  background-color: #D32F2F;
+/* Dropdown menu styles */
+.leads-pipeline-dropdown-menu {
+  position: absolute; 
+  background-color: #2B2B2B; /* Dark background to match theme */
+  border: 1px solid #4CAF50; /* Green border to match theme */
+  border-radius: 4px; 
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+  z-index: 1000; 
 }
 
-.columns-container {
+.leads-pipeline-dropdown-menu button {
+  background: transparent; /* Transparent background for dropdown items */
+  color: #FFFFFF; /* White text for better readability */
+  padding: 10px; /* Padding for dropdown items */
+  border: none; /* No border */
+  text-align: left; /* Align text to the left */
+  width: 100%; /* Full width */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.leads-pipeline-dropdown-menu button:hover {
+  background-color: #4CAF50; /* Green background on hover */
+  color: white; /* Ensure text is white for contrast */
+}
+
+.leads-pipeline-columns-container {
   display: flex;
   gap: 10px;
   overflow-x: auto;
   padding-bottom: 20px;
 }
 
-.column {
-  background-color: #ffffff;
+.leads-pipeline-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7); /* Darker background for better contrast */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure modal is on top */
+}
+
+.leads-pipeline-modal-content {
+  background: #2B2B2B; /* Dark background to match theme */
+  padding: 30px; /* Increased padding for better spacing */
+  border-radius: 12px; /* More rounded corners */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow for depth */
+  width: 90%;
+  max-width: 500px; /* Max width for larger screens */
+  color: #FFFFFF; /* White text for better readability */
+}
+
+
+.leads-pipeline-modal-input,
+.leads-pipeline-modal-select {
+  margin-bottom: 15px; 
+  padding: 10px; 
+  border: 1px solid #4CAF50; 
+  border-radius: 4px; 
+  width: 100%;
+  background-color: #2B2B2B; 
+  color: #FFFFFF; 
+  height: 40px; 
+}
+.leads-pipeline-modal-input{
+  width: calc(100% - 20px);
+  height: 20px;
+}
+
+.leads-pipeline-modal-actions {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 10px; /* Space between buttons */
+}
+
+.leads-pipeline-modal-btn {
+  background: #4CAF50; 
+  color: white; 
+  border: none; 
+  padding: 10px 20px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  transition: background-color 0.3s ease;
+}
+
+.leads-pipeline-modal-btn:hover {
+  background-color: #388E3C;  
+}
+
+.leads-pipeline-column {
+  background-color: #2B2B2B; /* Dark background to match Supabase theme */
   border-radius: 8px;
   padding: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex: 1;
+  color: #FFFFFF; /* Ensure text is readable */
 }
 
-.column-header {
+.leads-pipeline-column-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -87,100 +171,9 @@
   padding-bottom: 5px;
 }
 
-.modal {
-  background-color: rgba(0, 0, 0, 0.5);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white; 
-  border-radius: 8px; 
-  padding: 20px; 
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
-  width: 500px; 
-  max-width: 90%; 
-  overflow: hidden; 
-}
-
-.modal-input {
-  width: 100%; 
-  padding: 10px; 
-  margin-bottom: 15px; 
-  border: 1px solid #ccc; 
-  border-radius: 4px; 
-  box-sizing: border-box; 
-}
-
-.modal-select {
-  width: 100%; 
-  padding: 10px; 
-  margin-bottom: 15px; 
-  border: 1px solid #ccc; 
-  border-radius: 4px; 
-  box-sizing: border-box; 
-}
-
-.modal-btn {
-  background: #4CAF50; 
-  color: white; 
-  border: none; 
-  padding: 10px 20px; 
-  border-radius: 4px; 
-  cursor: pointer; 
-  transition: background-color 0.3s ease;
-  margin-right: 5px;
-}
-
-.modal-btn:hover {
-  background-color: #388E3C; 
-}
-
-.dropdown-menu {
-  position: absolute; 
-  background-color: white; 
-  border: 1px solid #ccc; 
-  border-radius: 4px; 
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
-  z-index: 1000; 
-}
-
-.dropdown-menu button {
-  display: block; 
-  width: 100%; 
-  padding: 10px; 
-  border: none; 
-  background: none; 
-  text-align: left;
-  cursor: pointer; 
-}
-
-.dropdown-menu button:hover {
-  background-color: #f0f0f0; 
-}
-
-.search-input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 10px; 
-  width: 200px; 
-}
-
-.lead-card {
-  margin-bottom: 0; 
-  padding: 10px; 
-  border: 1px solid #ccc; 
-  border-radius: 0; 
-  transition: box-shadow 0.3s ease; 
-}
-
-.lead-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+.leads-pipeline-divider {
+  border: none; /* Remove default border */
+  border-top: 1px solid #4CAF50; /* Green color for the divider */
+  margin: 10px 0; 
+  margin-bottom: 20px;/* Space above and below the divider */
 }

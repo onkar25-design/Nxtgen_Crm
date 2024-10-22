@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Select from 'react-select'; // Import Select for multi-select fields
-import { supabase } from '../../../supabaseClient'; // Use named import
+import { supabase } from '../../../../supabaseClient'; // Use named import
 import './EditLeadForm.css'; // Import the CSS file
 
 const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
@@ -22,7 +22,7 @@ const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('leads').update(formData).eq('id', formData.id);
+      const { error } = await supabase.from('client_leads').update(formData).eq('id', formData.id);
       if (error) throw error;
       onSubmit(formData); // Pass updated data back to LeadCard
     } catch (error) {
@@ -50,11 +50,11 @@ const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
   ];
 
   return (
-    <div className="new-lead-form-overlay">
-      <div className="new-lead-form">
-        <h2>Edit Lead</h2>
+    <div className="editleadform-overlay">
+      <div className="editleadform">
+        <h2 className="editleadform-header">Edit Lead</h2> {/* Updated header class */}
         <form onSubmit={handleSubmit}>
-          <div className="form-grid">
+          <div className="editleadform-grid">
             <div>
               <label>Title</label>
               <input name="title" value={formData.title} onChange={handleInputChange} placeholder="Title" required />
@@ -105,8 +105,8 @@ const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
                 isMulti
                 options={tagOptions}
                 onChange={handleTagsChange}
-                className="react-select-container"
-                classNamePrefix="react-select"
+                className="editleadform-react-select-container"
+                classNamePrefix="editleadform-react-select"
                 defaultValue={tagOptions.filter(option => formData.tags.includes(option.value))}
               />
             </div>
@@ -116,8 +116,8 @@ const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
                 isMulti
                 options={productOptions}
                 onChange={handleProductsChange}
-                className="react-select-container"
-                classNamePrefix="react-select"
+                className="editleadform-react-select-container"
+                classNamePrefix="editleadform-react-select"
                 defaultValue={productOptions.filter(option => formData.interested_products.includes(option.value))}
               />
             </div>
@@ -126,9 +126,9 @@ const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
             <label>Notes</label>
             <textarea name="notes" value={formData.notes} onChange={handleInputChange} placeholder="Notes" required />
           </div>
-          <div className="form-actions">
-            <button type="submit" className="submit-btn">Save</button>
-            <button type="button" onClick={onCancel} className="cancel-btn">Cancel</button>
+          <div className="editleadform-actions">
+            <button type="submit" className="editleadform-submit-btn">Save</button>
+            <button type="button" onClick={onCancel} className="editleadform-cancel-btn">Cancel</button>
           </div>
         </form>
       </div>

@@ -1,0 +1,162 @@
+.new-lead-form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Darker overlay for better contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.new-lead-form {
+    background-color: #2B2B2B; /* Dark background to match theme */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Enhanced shadow for depth */
+    width: 700px;
+    max-width: 90%;
+}
+
+.new-lead-form h2 {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.new-lead-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #FFFFFF; /* White text for labels */
+}
+
+.new-lead-form input,
+.new-lead-form select,
+.new-lead-form textarea {
+    width: 100%;
+    padding: 10px; /* Increased padding for better appearance */
+    border: 1px solid #4CAF50; /* Green border to match theme */
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #1F1F1F; /* Dark background for inputs */
+    color: #FFFFFF; /* White text for inputs */
+    box-sizing: border-box; /* Ensures padding is included in width */
+}
+
+.new-lead-form textarea {
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+
+.submit-btn,
+.cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn {
+    background-color: #4CAF50; /* Green button */
+    color: white;
+}
+
+.submit-btn:hover {
+    background-color: #388E3C; /* Darker green on hover */
+}
+
+.cancel-btn {
+    margin-left: 10px;
+    background-color: #D32F2F; /* Red button */
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #C62828; /* Darker red on hover */
+}
+
+/* Custom styles for react-select */
+.newleadform-react-select-container {
+    width: 100%;
+}
+
+.newleadform-react-select__control {
+    background-color: #1F1F1F !important; /* Dark background for select */
+    border: 1px solid #4CAF50 !important; /* Green border */
+    border-radius: 4px !important;
+    color: #FFFFFF !important; /* White text */
+}
+
+.newleadform-react-select__control:hover {
+    border-color: #4CAF50 !important; /* Green border on hover */
+}
+
+.newleadform-react-select__menu {
+    background-color: #2B2B2B !important; /* Dark background for dropdown menu */
+    color: #FFFFFF !important; /* White text for dropdown items */
+}
+
+.newleadform-react-select__option {
+    background-color: transparent !important; /* Transparent background for options */
+    color: #FFFFFF !important; /* White text for options */
+}
+
+.newleadform-react-select__option--is-focused {
+    background-color: #4CAF50 !important; /* Green background on hover */
+    color: white !important; /* White text on hover */
+}
+
+.newleadform-react-select__option--is-selected {
+    background-color: #388E3C !important; /* Darker green for selected option */
+    color: white !important; /* White text for selected option */
+}
+
+/* New styles for react-select input fields to match theme */
+.newleadform-react-select__single-value {
+    color: #FFFFFF !important; /* White text for selected value */
+}
+
+.newleadform-react-select__placeholder {
+    color: #AAAAAA !important; /* Light gray for placeholder text */
+}
+
+.newleadform-react-select__multi-value {
+    background-color: #4CAF50 !important; /* Green background for selected tags */
+    color: white !important; /* White text for selected tags */
+}
+
+.newleadform-react-select__multi-value__label {
+    color: white !important; /* White text for selected tags label */
+}
+
+.newleadform-react-select__multi-value__remove {
+    color: white !important; /* White text for remove button */
+}
+
+/* New styles for focused and selected states */
+.newleadform-react-select__multi-value--is-focused {
+    background-color: #388E3C !important; /* Darker green for focused multi-value */
+}
+
+.newleadform-react-select__multi-value--is-selected {
+    background-color: #4CAF50 !important; /* Green background for selected multi-value */
+}

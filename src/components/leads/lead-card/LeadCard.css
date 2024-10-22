@@ -1,6 +1,6 @@
-.lead-card {
-    background-color: #FFFFFF; /* Default background */
-    border: 1px solid #81C784;
+.leadcard-lead-card {
+    background-color: transparent; /* Remove background color */
+    border: 1px solid #81C784; /* Keep the border color */
     border-radius: 0;
     padding: 15px; /* Increased padding for better spacing */
     margin-bottom: 10px; /* Increased margin for separation between cards */
@@ -10,23 +10,23 @@
     font-family: 'Roboto', sans-serif; /* Use the new font family */
 }
 
-.lead-card:hover {
+.leadcard-lead-card:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.lead-card.dragging {
+.leadcard-lead-card.dragging {
     opacity: 0.5;
     transform: scale(1.05); /* Slightly enlarge the card when dragging */
 }
 
-.header {
+.leadcard-header {
     display: flex;
     justify-content: space-between; /* Space between title and button */
     align-items: center; /* Center vertically */
     margin-bottom: 10px; /* Added margin below header */
 }
 
-.edit-button {
+.leadcard-dropdown-button {
     background: none; /* Remove default button background */
     border: none; /* Remove border */
     cursor: pointer; /* Pointer cursor */
@@ -34,20 +34,20 @@
     font-size: 1.2em; /* Adjust size */
 }
 
-.lead-card h3 {
+.leadcard-lead-card h3 {
     margin: 0 0 5px 0;
     font-size: 1.2em; /* Slightly increased font size for better visibility */
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.tags {
+.leadcard-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 8px; /* Increased gap between tags */
     margin-bottom: 10px; /* Added margin below tags */
 }
 
-.tag {
+.leadcard-tag {
     display: inline-block;
     background-color: #81C784;
     color: white;
@@ -57,103 +57,77 @@
     font-family: 'Roboto', sans-serif; /* Ensure tags use the same font */
 }
 
-.card-summary {
+.leadcard-card-summary {
     margin-top: 10px; /* Added margin above summary */
     font-size: 0.9em; /* Adjust font size */
 }
 
-.card-summary p {
+.leadcard-card-summary p {
     display: flex;
     align-items: center; /* Center icons and text vertically */
 }
 
-.card-details {
+.leadcard-card-details {
     margin-top: 10px;
     font-size: 0.9em;
+    color: #FFFFFF; /* Change text color to white for better visibility */
 }
 
-.card-details p {
+.leadcard-card-details p {
     margin: 5px 0; /* Maintain spacing between details */
+    color: #FFFFFF; /* Ensure all paragraph text is white */
 }
 
-.lead-score {
+.leadcard-lead-score {
     display: flex;
     margin-top: 5px; /* Space between summary and stars */
 }
 
-.star {
+.leadcard-star {
     color: lightgray; /* Default star color */
     font-size: 1em; /* Adjust star size */
 }
 
-.star.filled {
+.leadcard-star.filled {
     color: orange; /* Filled star color */
 }
 
-.delete-button {
-    background: none; /* Remove default button background */
-    border: none; /* Remove border */
-    cursor: pointer; /* Pointer cursor */
-    color: #F44336; /* Change color to red for delete */
-    font-size: 1.2em; /* Adjust size */
-    margin-left: 5px; /* Increased space between edit and delete buttons */
-}
-
-.card-details strong {
-    font-weight: bold; /* Ensure titles are bold */
-    color: #333; /* Optional: Change color if needed */
-}
-
-.dropdown {
+.leadcard-dropdown {
     position: relative; /* Position relative for absolute positioning of dropdown */
 }
 
-.dropdown-button {
-    background: none; /* Remove default button background */
-    border: none; /* Remove border */
-    cursor: pointer; /* Pointer cursor */
-    color: #4CAF50; /* Change color to match theme */
-    font-size: 1.2em; /* Adjust size */
-}
-
-.dropdown-menu {
+.leadcard-dropdown-menu {
     position: absolute; /* Position dropdown menu */
     right: 0; /* Align to the right */
-    background-color: white; /* Background color */
-    border: 1px solid #ccc; /* Border */
+    background-color: #2B2B2B; /* Dark background to match theme */
+    border: 1px solid #4CAF50; /* Green border to match theme */
     border-radius: 5px; /* Rounded corners */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Shadow */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Shadow for depth */
     z-index: 1000; /* Ensure it appears above other elements */
+    min-width: 80px; /* Minimum width for dropdown */
 }
 
-.dropdown-item {
+.leadcard-dropdown-item {
     display: flex; /* Use flexbox for alignment */
     align-items: center; /* Center items vertically */
     padding: 10px; /* Padding */
     cursor: pointer; /* Pointer cursor */
-    color: #333; /* Text color */
+    color: #FFFFFF; /* White text color for better visibility */
     text-align: left; /* Align text */
+    background-color: transparent; /* Ensure no default background color */
+    border: none; /* Remove border */
+    transition: background-color 0.2s; /* Smooth transition for hover effect */
 }
 
-.dropdown-item svg {
-    margin-right: 8px; /* Space between icon and text */
-    font-size: 1.2em; /* Adjust icon size if needed */
-}
-
-/* New styles for edit and delete icons */
-.edit-icon {
+.leadcard-edit-icon {
     color: #4CAF50; /* Green color for edit icon */
 }
 
-.delete-icon {
+.leadcard-delete-icon {
     color: #F44336; /* Red color for delete icon */
 }
 
-.dropdown-item:hover {
-    background-color: #f0f0f0; /* Hover effect */
-}
-
-.triangle-icon {
+.leadcard-triangle-icon {
     display: inline-block;
     width: 0;
     height: 0;
@@ -161,4 +135,8 @@
     border-right: 5px solid transparent; /* Adjust size as needed */
     border-top: 10px solid #4CAF50; /* Color of the triangle */
     margin-left: 5px; /* Space between title and icon */
+}
+
+.leadcard-card-details h3 {
+    color: #FFFFFF; /* Change title color to white */
 }

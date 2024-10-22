@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUsersCog, faSignOutAlt, faChevronDown } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
 import './Sidebar.css';
-import companyLogo from './company-logo.png'; // Adjust the path to your logo
 
 function Sidebar() {
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
+  const location = useLocation(); // Get the current location
 
   const handleLogout = () => {
     // Perform any logout logic here (e.g., clearing tokens)
@@ -17,10 +17,13 @@ function Sidebar() {
   return (
     <div className="nxtgen-sidebar">
       <div className="nxtgen-logo-space">
-        <img src={companyLogo} alt="Company Logo" className="nxtgen-company-logo" />
+        <h1 className="nxtgen-logo">
+          <span className="nxtgen-green">Nxt</span>
+          <span className="nxtgen-white">Gen</span>
+        </h1>
       </div>
       <nav>
-        <Link className="nxtgen-nav-item">
+      <Link className="nxtgen-nav-item">
           <FontAwesomeIcon icon={faHome} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Home</span>
         </Link>
@@ -31,10 +34,10 @@ function Sidebar() {
         </div>
         {isManagementOpen && (
           <div className="nxtgen-sub-menu">
-            <Link to="/management/leads-pipeline" className="nxtgen-nav-item nxtgen-sub-item">
+            <Link to="/management/leads-pipeline" className={`nxtgen-nav-item nxtgen-sub-item ${location.pathname === '/management/leads-pipeline' ? 'active' : ''}`}>
               <span className="nxtgen-nav-text">Leads Pipeline</span>
             </Link>
-            <Link to="/management/clients" className="nxtgen-nav-item nxtgen-sub-item">
+            <Link to="/management/clients" className={`nxtgen-nav-item nxtgen-sub-item ${location.pathname === '/management/clients' ? 'active' : ''}`}>
               <span className="nxtgen-nav-text">Clients</span>
             </Link>
           </div>

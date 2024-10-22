@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../../../supabaseClient'; // Import the Supabase client
+import { supabase } from '../../../../supabaseClient'; // Import the Supabase client
 
 const AddClientModal = ({ isOpen, onClose }) => {
   const [clientInfo, setClientInfo] = useState({
