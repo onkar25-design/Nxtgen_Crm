@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faUsersCog, faSignOutAlt, faChevronDown } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
+import { faHome, faUsersCog, faSignOutAlt, faChevronDown, faClipboardList, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
 import './Sidebar.css';
 
 function Sidebar() {
@@ -40,8 +40,15 @@ function Sidebar() {
             <Link to="/management/clients" className={`nxtgen-nav-item nxtgen-sub-item ${location.pathname === '/management/clients' ? 'active' : ''}`}>
               <span className="nxtgen-nav-text">Clients</span>
             </Link>
+            <Link to="/management/staff" className={`nxtgen-nav-item nxtgen-sub-item ${location.pathname === '/management/staff' ? 'active' : ''}`}>
+              <span className="nxtgen-nav-text">Staff</span>
+            </Link>
           </div>
         )}
+        <Link to="/management/activity" className={`nxtgen-nav-item nxtgen-sub-item ${location.pathname === '/management/activity' ? 'active' : ''}`}>
+          <FontAwesomeIcon icon={faClipboardList} className="nxtgen-icon" />
+          <span className="nxtgen-nav-text">Activity</span>
+        </Link>
         <div className="nxtgen-nav-item" onClick={handleLogout}>
           <FontAwesomeIcon icon={faSignOutAlt} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Logout</span>

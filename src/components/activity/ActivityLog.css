@@ -1,0 +1,130 @@
+/* src/components/activity/ActivityLog.css */
+
+.activity-log-container {
+  min-height: 100vh;
+  background-color: #1f1f1f;
+  color: #ffffff;
+  padding: 1rem;
+}
+
+.activity-log-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.activity-log-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.activity-log-select {
+  background-color: #2b2b2b;
+  border: 1px solid #4caf50;
+  color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.activity-log-chevron {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: #ffffff;
+}
+
+.activity-log-date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.activity-log-date-input {
+  background-color: #2b2b2b;
+  border: 1px solid #4caf50;
+  color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.activity-log-filter-button {
+  background-color: #28a745;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.activity-log-table-container {
+  overflow-x: auto;
+  background-color: #2b2b2b;
+  border-radius: 4px;
+}
+
+.activity-log-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.activity-log-table th,
+.activity-log-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.activity-log-table th {
+  background-color: #4caf50;
+  color: white;
+}
+
+.activity-log-table tr:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.activity-log-badge {
+  display: inline-block;
+  padding: 5px 10px; /* Padding for the badge */
+  border-radius: 20px; /* Rounded corners for pill shape */
+  color: white; /* Text color */
+  font-size: 14px; /* Font size */
+  text-align: center; /* Center text */
+}
+
+.activity-log-badge-add {
+  background-color: #4CAF50; /* Green for Add */
+}
+
+.activity-log-badge-edit {
+  background-color: #2196f3; /* Blue for Edit */
+}
+
+.activity-log-badge-delete {
+  background-color: #ff0000; /* Red for Delete */
+}
+
+.activity-log-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Add spacing between icon and date */
+}
+
+.activity-log-title-icon {
+  color: #28a745; /* Green color for the title icon */
+  margin-right: 0.5rem; /* Spacing after the icon */
+}
+
+.activity-log-header {
+  display: flex;
+  justify-content: space-between; /* Space between title and filters */
+  align-items: center; /* Center items vertically */
+  margin-bottom: 1rem; /* Space below the header */
+}
+
+.activity-log-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Spacing between icon and time */
+}

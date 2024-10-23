@@ -1,0 +1,226 @@
+/* src/components/staff/StaffManagement.css */
+
+.manageStaff-management {
+  background-color: #1F1F1F; /* Dark background to match the theme */
+  min-height: 100vh; /* Ensure it covers the full height */
+  padding: 1rem; /* Consistent padding */
+  color: #FFFFFF; /* White text color for better contrast */
+}
+
+.manageStaff-header {
+  display: flex; /* Flexbox for header layout */
+  justify-content: space-between; /* Space between title and actions */
+  align-items: center; /* Center items vertically */
+  padding: 15px;
+  margin-bottom: 20px; /* Space below header */
+}
+
+.manageStaff-header-actions {
+  display: flex; /* Flexbox for actions */
+  align-items: center; /* Center items vertically */
+  gap: 10px; /* Space between buttons */
+}
+
+.manageStaff-icon-btn {
+  background: none; /* No background for icon buttons */
+  color: white; /* White color for icons */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center icons */
+  width: 40px; /* Fixed width for buttons */
+  height: 40px; /* Fixed height for buttons */
+  border-radius: 4px; /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.manageStaff-add-button {
+  background-color: #28a745; /* Green for add button */
+}
+
+.manageStaff-sort-button {
+  background-color: #2196f3; /* Blue for sort button */
+}
+
+.manageStaff-action-button {
+  background: none; /* No background for action buttons */
+  color: white; /* White color for icons */
+  border: none; /* No border */
+  cursor: pointer; /* Pointer cursor */
+}
+
+.manageStaff-edit-button {
+  color: #28a745; /* Green for edit button */
+}
+
+.manageStaff-delete-button {
+  color: #ff0000; /* Red for delete button */
+}
+
+.manageStaff-management h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.manageStaff-management input[type="text"],
+.manageStaff-management input[type="email"] {
+  width: calc(100% - 20px); /* Adjust width to account for padding */
+  padding: 10px; /* Consistent padding for all input fields */
+  margin-bottom: 20px; /* Space below each input */
+  border: 1px solid #4CAF50; /* Green border to match theme */
+  border-radius: 4px; /* Rounded corners */
+  background-color: #2B2B2B; /* Dark background for input */
+  color: #FFFFFF; /* White text */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.manageStaff-management table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.manageStaff-management th,
+.manageStaff-management td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.manageStaff-management th {
+  background-color: #4CAF50; /* Green background for header */
+  color: white;
+}
+
+.manageStaff-management tr:hover {
+  background-color: rgba(76, 175, 80, 0.1); /* Light green hover effect */
+}
+
+.manageStaff-management button {
+  padding: 8px; /* Adjust padding for icon buttons */
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.manageStaff-management .add-button {
+  background-color: #28a745; /* Green for add button */
+}
+
+.manageStaff-management .sort-button {
+  background-color: #2196f3; /* Blue for sort button */
+}
+
+.manageStaff-header h1 {
+  font-size: 30px; /* Increased font size for the title */
+  margin-bottom: 20px;
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+}
+
+.manageStaff-header h1 .header-icon {
+  margin-right: 10px; /* Add space between icon and title */
+  color: #28a745; /* Set the icon color to green */
+}
+
+.manageStaff-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.manageStaff-modal-content {
+  background: #2B2B2B; /* Dark background for modal */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+}
+
+.manageStaff-modal-content h3 {
+  color: #FFFFFF; /* White color for the modal title */
+  margin-bottom: 20px; /* Space below the title */
+  font-size: 24px; /* Increased font size for title */
+  text-align: center; /* Center the title */
+}
+
+.manageStaff-modal-buttons {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 10px; /* Space between buttons */
+  margin-top: 20px; /* Space above buttons */
+}
+
+.manageStaff-modal-buttons button {
+  padding: 10px 15px; /* Padding for buttons */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  font-size: 16px; /* Increased font size for buttons */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.manageStaff-modal-buttons button[type="submit"] {
+  background-color: #28a745; /* Green for add button */
+  color: white; /* White text */
+}
+
+.manageStaff-modal-buttons button[type="button"] {
+  background-color: #f44336; /* Red for cancel button */
+  color: white; /* White text */
+}
+
+.manageStaff-modal-buttons button[type="submit"]:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.manageStaff-modal-buttons button[type="button"]:hover {
+  background-color: #e53935; /* Darker red on hover */
+}
+
+.manageStaff-modal-content input[type="text"],
+.manageStaff-modal-content input[type="email"] {
+  width: calc(100% - 20px); /* Adjust width to account for padding */
+  padding: 10px; /* Consistent padding for all input fields */
+  margin-bottom: 20px; /* Space below each input */
+  border: 1px solid #4CAF50; /* Green border to match theme */
+  border-radius: 4px; /* Rounded corners */
+  background-color: #2B2B2B; /* Dark background for input */
+  color: #FFFFFF; /* White text */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+/* Add this to src/components/staff/StaffManagement.css */
+
+.badge {
+  display: inline-block;
+  padding: 5px 10px; /* Padding for the badge */
+  border-radius: 20px; /* Rounded corners for pill shape */
+  color: white; /* Text color */
+  font-size: 14px; /* Font size */
+  text-align: center; /* Center text */
+}
+
+.badge-active {
+  background-color: #4CAF50; /* Green for Active */
+}
+
+.badge-inactive {
+  background-color: #f44336; /* Red for Inactive */
+}
+
+.badge-admin {
+  background-color: #2196f3; /* Blue for Admin */
+}
+
+.badge-user {
+  background-color: #ff9800; /* Orange for User */
+}

@@ -9,6 +9,8 @@ import ResetPasswordPage from './components/login/ResetPasswordPage';
 import Sidebar from './components/sidebar/Sidebar'; // Import the Sidebar component
 import LeadsPipeline from './components/leads/LeadsPipeline'; // Import the LeadsPipeline component
 import ClientManagement from './components/client/ClientManagement';
+import StaffManagement from './components/staff/StaffManagement'; // Import the StaffManagement component
+import ActivityLog from './components/activity/ActivityLog'; // Import the ActivityLog component
 
 const App = () => {
   const location = useLocation(); // Get the current location
@@ -33,6 +35,8 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/management/leads-pipeline" element={<LeadsPipeline />} /> {/* Add this line */}
             <Route path="/management/clients" element={<ClientManagement />} />
+            <Route path="/management/staff" element={<StaffManagement />} /> {/* Add this line */}
+            <Route path="/management/activity" element={<ActivityLog />} /> {/* Add this line */}
           </Routes>
         </div>
       </div>
@@ -48,4 +52,3 @@ const AppWrapper = () => (
 );
 
 export default AppWrapper; // Ensure this is the default export
-
