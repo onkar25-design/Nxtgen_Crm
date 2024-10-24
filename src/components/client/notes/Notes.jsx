@@ -4,15 +4,44 @@ import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import t
 import { supabase } from '../../../../supabaseClient'; // Import the Supabase client
 import './Notes.css'; // Create a CSS file for styling
 
+// Function to log activity
+const logActivity = async (activity) => {
+  console.log('Logging activity:', activity); // Log the activity being logged
+  const { error } = await supabase
+    .from('activity_log') // Assuming you have an 'activity_log' table
+    .insert([activity]);
+
+  if (error) {
+    console.error('Error logging activity:', error);
+  } else {
+    console.log('Activity logged successfully'); // Log success message
+  }
+};
+
 function Notes({ clientId }) { // Accept clientId as a prop
   const [notes, setNotes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
-  const [currentNote, setCurrentNote] = useState({ id: null, date: '', text: '' });
+  const [isReadOnlyModalOpen, setIsReadOnlyModalOpen] = useState(false); // State for read-only modal
+  const [currentNote, setCurrentNote] = useState({ id: null, date: '', title: '', text: '' });
+  const [companyName, setCompanyName] = useState(''); // State for company name
 
-  // Fetch notes from Supabase when the component mounts or clientId changes
+  // Fetch notes and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
-    const fetchNotes = async () => {
+    const fetchNotesAndCompanyName = async () => {
+      // Fetch company name
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('company_name')
+        .eq('id', clientId);
+
+      if (clientError) {
+        console.error('Error fetching client:', clientError);
+      } else {
+        setCompanyName(clientData[0]?.company_name); // Set company name
+      }
+
+      // Fetch notes
       const { data, error } = await supabase
         .from('notes')
         .select('*')
@@ -27,18 +56,23 @@ function Notes({ clientId }) { // Accept clientId as a prop
     };
 
     if (clientId) {
-      fetchNotes();
+      fetchNotesAndCompanyName();
     }
   }, [clientId]);
 
-  const handleAddNote = () => {
-    setCurrentNote({ id: null, date: '', text: '' });
+  const handleAddNote = async () => {
+    setCurrentNote({ id: null, date: '', title: '', text: '' });
     setIsModalOpen(true);
   };
 
   const handleEditNote = (note) => {
     setCurrentNote(note);
     setIsEditModalOpen(true); // Open the edit modal
+  };
+
+  const handleReadNote = (note) => {
+    setCurrentNote(note);
+    setIsReadOnlyModalOpen(true); // Open the read-only modal
   };
 
   const handleDeleteNote = async (id) => {
@@ -52,6 +86,13 @@ function Notes({ clientId }) { // Accept clientId as a prop
         console.error('Error deleting note:', error);
       } else {
         setNotes(notes.filter(note => note.id !== id));
+        await logActivity({ 
+          activity: `Deleted Note: ${currentNote.title} (Client: ${companyName})`, // Log title and company name
+          action: 'Delete', 
+          activity_by: 'User', 
+          date: new Date().toISOString().split('T')[0], 
+          time: new Date().toLocaleTimeString() 
+        });
       }
     }
   };
@@ -64,6 +105,7 @@ function Notes({ clientId }) { // Accept clientId as a prop
         .from('notes')
         .update({
           date: currentNote.date,
+          title: currentNote.title, // Include title in update
           text: currentNote.text,
         })
         .eq('id', currentNote.id);
@@ -72,24 +114,36 @@ function Notes({ clientId }) { // Accept clientId as a prop
         console.error('Error updating note:', error);
       } else {
         setNotes(notes.map(note => (note.id === currentNote.id ? currentNote : note)));
+        await logActivity({ 
+          activity: `Edited Note: ${currentNote.title} (Client: ${companyName})`, // Log title and company name
+          action: 'Edit', 
+          activity_by: 'User', 
+          date: new Date().toISOString().split('T')[0], 
+          time: new Date().toLocaleTimeString() 
+        });
       }
     } else {
       // Insert new note
       const { error } = await supabase
         .from('notes')
-        .insert([{ client_id: clientId, date: currentNote.date, text: currentNote.text }]); // Corrected insert
+        .insert([{ client_id: clientId, date: currentNote.date, title: currentNote.title, text: currentNote.text }]); // Include title
 
       if (error) {
         console.error('Error adding note:', error);
       } else {
-        setNotes([{ ...currentNote, id: Date.now() }, ...notes]); // Add new note to the top
+        setNotes([{ ...currentNote, id: Date.now() }, ...notes]);
+        await logActivity({ 
+          activity: `Added Note: ${currentNote.title} (Client: ${companyName})`, // Log title and company name
+          action: 'Add', 
+          activity_by: 'User', 
+          date: new Date().toISOString().split('T')[0], 
+          time: new Date().toLocaleTimeString() 
+        });
       }
     }
     setIsModalOpen(false);
     setIsEditModalOpen(false); // Close edit modal if it was open
   };
-
-  console.log('Client ID:', clientId);
 
   return (
     <div className="notes">
@@ -100,11 +154,13 @@ function Notes({ clientId }) { // Accept clientId as a prop
       <hr className="notes-divider" />
       <ul className="notes-list">
         {notes.map(note => (
-          <li key={note.id}>
+          <li key={note.id} className="notes-list-item">
             <span className="notes-note-date">{note.date}</span>
-            <span className="notes-note-text" onClick={() => handleEditNote(note)}>{note.text}</span>
-            <FontAwesomeIcon icon={faEdit} className="notes-edit-icon" onClick={() => handleEditNote(note)} />
-            <FontAwesomeIcon icon={faTrash} className="notes-delete-icon" onClick={() => handleDeleteNote(note.id)} />
+            <span className="notes-note-title" onClick={() => handleReadNote(note)}>{note.title}</span> {/* Display title */}
+            <div className="notes-actions">
+              <FontAwesomeIcon icon={faEdit} className="notes-edit-icon" onClick={() => handleEditNote(note)} />
+              <FontAwesomeIcon icon={faTrash} className="notes-delete-icon" onClick={() => handleDeleteNote(note.id)} />
+            </div>
           </li>
         ))}
       </ul>
@@ -116,6 +172,13 @@ function Notes({ clientId }) { // Accept clientId as a prop
             <h3>{currentNote.id ? 'Edit Note' : 'Add Note'}</h3>
             <hr className="notes-modal-divider" />
             <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                value={currentNote.title} // Title input
+                onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+                placeholder="Note Title"
+                required
+              />
               <input
                 type="text"
                 value={currentNote.text}
@@ -147,6 +210,13 @@ function Notes({ clientId }) { // Accept clientId as a prop
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
+                value={currentNote.title} // Title input
+                onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+                placeholder="Note Title"
+                required
+              />
+              <input
+                type="text"
                 value={currentNote.text}
                 onChange={(e) => setCurrentNote({ ...currentNote, text: e.target.value })}
                 placeholder="Note content"
@@ -163,6 +233,28 @@ function Notes({ clientId }) { // Accept clientId as a prop
                 <button type="button" className="notes-cancel-btn" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Read-Only Note Modal */}
+      {isReadOnlyModalOpen && (
+        <div className="notes-modal">
+          <div className="notes-modal-content">
+            <h3>View Note</h3>
+            <hr className="notes-modal-divider" />
+            <div>
+              <strong>Date:</strong> {currentNote.date}
+            </div>
+            <div>
+              <strong>Title:</strong> {currentNote.title}
+            </div>
+            <div>
+              <strong>Content:</strong> {currentNote.text}
+            </div>
+            <div className="notes-modal-buttons">
+              <button type="button" className="notes-cancel-btn" onClick={() => setIsReadOnlyModalOpen(false)}>Close</button>
+            </div>
           </div>
         </div>
       )}

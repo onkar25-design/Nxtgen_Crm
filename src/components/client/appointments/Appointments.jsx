@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import './Appointments.css'; // Ensure you have appropriate styles
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 
+// Function to log activity
+const logActivity = async (activity) => {
+  console.log('Logging activity:', activity); // Log the activity being logged
+  const { error } = await supabase
+    .from('activity_log') // Assuming you have an 'activity_log' table
+    .insert([activity]);
+
+  if (error) {
+    console.error('Error logging activity:', error);
+  } else {
+    console.log('Activity logged successfully'); // Log success message
+  }
+};
+
 function Appointments({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -13,10 +27,24 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     appointment_with: '', // Updated to appointment_with
     subject: '',
   });
+  const [companyName, setCompanyName] = useState(''); // Add state for company name
 
-  // Fetch appointments from Supabase when the component mounts or clientId changes
+  // Fetch appointments and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
-    const fetchAppointments = async () => {
+    const fetchAppointmentsAndCompanyName = async () => {
+      // Fetch company name
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('company_name')
+        .eq('id', clientId);
+
+      if (clientError) {
+        console.error('Error fetching client:', clientError);
+      } else {
+        setCompanyName(clientData[0]?.company_name); // Set company name
+      }
+
+      // Fetch appointments
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
@@ -30,7 +58,7 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     };
 
     if (clientId) {
-      fetchAppointments();
+      fetchAppointmentsAndCompanyName();
     }
   }, [clientId]);
 
@@ -73,6 +101,15 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     if (error) {
       console.error('Error adding appointment:', error);
     } else {
+      // Log the activity for the new appointment
+      await logActivity({ 
+        activity: `Added Appointment with ${appointmentInfo.appointment_with} (Client: ${companyName})`, // Include company name
+        action: 'Add', 
+        activity_by: 'User', 
+        date: new Date().toISOString().split('T')[0], 
+        time: new Date().toLocaleTimeString() 
+      });
+
       // Fetch updated appointments after adding a new one
       const { data: updatedData, error: fetchError } = await supabase
         .from('appointments')

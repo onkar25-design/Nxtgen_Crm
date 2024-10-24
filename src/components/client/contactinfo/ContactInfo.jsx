@@ -4,6 +4,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import icons
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 
+// Function to log activity
+const logActivity = async (activity) => {
+  console.log('Logging activity:', activity); // Log the activity being logged
+  const { error } = await supabase
+    .from('activity_log') // Assuming you have an 'activity_log' table
+    .insert([activity]);
+
+  if (error) {
+    console.error('Error logging activity:', error);
+  } else {
+    console.log('Activity logged successfully'); // Log success message
+  }
+};
+
 function ContactInfo({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -15,10 +29,22 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
     designation: '',
   });
   const [editIndex, setEditIndex] = useState(null);
+  const [companyName, setCompanyName] = useState(''); // Add state for company name
 
-  // Fetch contacts from Supabase when the component mounts or clientId changes
+  // Fetch contacts and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
     const fetchContacts = async () => {
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('company_name')
+        .eq('id', clientId) // Fetch company name by client ID
+
+      if (clientError) {
+        console.error('Error fetching client:', clientError);
+      } else {
+        setCompanyName(clientData[0]?.company_name); // Set company name
+      }
+
       const { data, error } = await supabase
         .from('contacts')
         .select('*')
@@ -62,8 +88,16 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
       if (error) {
         console.error('Error deleting contact:', error);
       } else {
+        const deletedContact = contacts[index]; // Store deleted contact info
         const updatedContacts = contacts.filter((_, i) => i !== index);
         setContacts(updatedContacts);
+        await logActivity({ 
+          activity: `Deleted Contact: ${deletedContact.name} (Client: ${companyName})`, // Update activity log
+          action: 'Delete', 
+          activity_by: 'User', 
+          date: new Date().toISOString().split('T')[0], 
+          time: new Date().toLocaleTimeString() 
+        });
         alert('Contact deleted successfully.');
       }
     }
@@ -82,6 +116,13 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
       console.error('Error adding contact:', error);
     } else {
       setContacts([...contacts, { ...contactInfo, client_id: clientId }]); // Add new contact to the state
+      await logActivity({ 
+        activity: `Added Contact: ${contactInfo.name} (Client: ${companyName})`, // Update activity log
+        action: 'Add', 
+        activity_by: 'User', 
+        date: new Date().toISOString().split('T')[0], 
+        time: new Date().toLocaleTimeString() 
+      });
       setIsAddModalOpen(false);
     }
   };
@@ -100,6 +141,13 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
         index === editIndex ? contactInfo : contact
       );
       setContacts(updatedContacts);
+      await logActivity({ 
+        activity: `Edited Contact: ${contactInfo.name} (Client: ${companyName})`, // Update activity log
+        action: 'Edit', 
+        activity_by: 'User', 
+        date: new Date().toISOString().split('T')[0], 
+        time: new Date().toLocaleTimeString() 
+      });
       setIsEditModalOpen(false);
     }
   };

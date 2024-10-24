@@ -1,30 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faClock, faChevronDown, faFilter, faClipboardList } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
+import { supabase } from '../../../supabaseClient'; // Import Supabase client
 import './ActivityLog.css'; // Import the CSS file
 
-const activities = [
-  { id: 1, activity: 'Added Company Contact #48', action: 'Add', activityBy: 'Super Admin', date: '2024-02-10', time: '12:12 PM' },
-  { id: 2, activity: 'Added Company #30', action: 'Add', activityBy: 'Super Admin', date: '2024-02-10', time: '12:10 PM' },
-  { id: 3, activity: 'Edited Lead #49', action: 'Edit', activityBy: 'Super Admin', date: '2024-02-10', time: '12:09 PM' },
-  { id: 4, activity: 'Added Lead Call #22', action: 'Add', activityBy: 'Super Admin', date: '2024-02-10', time: '12:08 PM' },
-  { id: 5, activity: 'Added Lead Notes #14', action: 'Add', activityBy: 'Super Admin', date: '2024-02-10', time: '12:08 PM' },
-  { id: 6, activity: 'Added Lead Appointment #26', action: 'Add', activityBy: 'Super Admin', date: '2024-02-10', time: '12:07 PM' },
-  { id: 7, activity: 'Deleted Lead #48', action: 'Delete', activityBy: 'Super Admin', date: '2024-02-10', time: '12:03 PM' },
-];
-
-const dateRanges = [
-  { label: 'Last 7 Days', value: '7d' },
-  { label: '1 Month', value: '1m' },
-  { label: '3 Months', value: '3m' },
-  { label: '6 Months', value: '6m' },
-  { label: '1 Year', value: '1y' },
-];
-
 export default function ActivityLog() {
+  const [activities, setActivities] = useState([]); // State to hold activities
+  const [filteredActivities, setFilteredActivities] = useState([]); // State to hold filtered activities
   const [dateRange, setDateRange] = useState('7d');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  // Fetch activities from the database when the component mounts
+  useEffect(() => {
+    const fetchActivities = async () => {
+      const { data, error } = await supabase
+        .from('activity_log')
+        .select('*')
+        .order('date', { ascending: false }); // Order by date in descending order
+
+      if (error) {
+        console.error('Error fetching activities:', error);
+      } else {
+        setActivities(data);
+        setFilteredActivities(data); // Initialize filtered activities
+      }
+    };
+
+    fetchActivities();
+  }, []);
+
+  // Function to filter activities based on date range
+  const filterActivities = () => {
+    let filtered = [...activities];
+    const today = new Date();
+
+    if (dateRange === '7d') {
+      const last7Days = new Date(today.setDate(today.getDate() - 7));
+      filtered = filtered.filter(activity => new Date(activity.date) >= last7Days);
+    } else if (dateRange === '1m') {
+      const last1Month = new Date(today.setMonth(today.getMonth() - 1));
+      filtered = filtered.filter(activity => new Date(activity.date) >= last1Month);
+    } else if (dateRange === '3m') {
+      const last3Months = new Date(today.setMonth(today.getMonth() - 3));
+      filtered = filtered.filter(activity => new Date(activity.date) >= last3Months);
+    } else if (dateRange === '6m') {
+      const last6Months = new Date(today.setMonth(today.getMonth() - 6));
+      filtered = filtered.filter(activity => new Date(activity.date) >= last6Months);
+    } else if (dateRange === '1y') {
+      const last1Year = new Date(today.setFullYear(today.getFullYear() - 1));
+      filtered = filtered.filter(activity => new Date(activity.date) >= last1Year);
+    }
+
+    // Filter by custom date range if both dates are provided
+    if (startDate && endDate) {
+      filtered = filtered.filter(activity => {
+        const activityDate = new Date(activity.date);
+        return activityDate >= new Date(startDate) && activityDate <= new Date(endDate);
+      });
+    }
+
+    setFilteredActivities(filtered);
+  };
 
   return (
     <div className="activity-log-container">
@@ -40,11 +77,12 @@ export default function ActivityLog() {
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
             >
-              {dateRanges.map((range) => (
-                <option key={range.value} value={range.value}>
-                  {range.label}
-                </option>
-              ))}
+              {/* Date range options */}
+              <option value="7d">Last 7 Days</option>
+              <option value="1m">1 Month</option>
+              <option value="3m">3 Months</option>
+              <option value="6m">6 Months</option>
+              <option value="1y">1 Year</option>
             </select>
             <div className="activity-log-chevron">
               <FontAwesomeIcon icon={faChevronDown} />
@@ -65,7 +103,7 @@ export default function ActivityLog() {
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
-          <button className="activity-log-filter-button">
+          <button className="activity-log-filter-button" onClick={filterActivities}>
             <FontAwesomeIcon icon={faFilter} />
           </button>
         </div>
@@ -82,7 +120,7 @@ export default function ActivityLog() {
             </tr>
           </thead>
           <tbody>
-            {activities.map((activity) => (
+            {filteredActivities.map((activity) => (
               <tr key={activity.id}>
                 <td>{activity.activity}</td>
                 <td>
@@ -90,7 +128,7 @@ export default function ActivityLog() {
                     {activity.action}
                   </span>
                 </td>
-                <td>{activity.activityBy}</td>
+                <td>{activity.activity_by}</td>
                 <td>
                   <div className="activity-log-date">
                     <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" /> {/* Calendar icon */}

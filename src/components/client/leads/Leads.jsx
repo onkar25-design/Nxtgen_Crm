@@ -5,6 +5,20 @@ import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesome
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import icons
 
+// Function to log activity
+const logActivity = async (activity) => {
+  console.log('Logging activity:', activity); // Log the activity being logged
+  const { error } = await supabase
+    .from('activity_log') // Assuming you have an 'activity_log' table
+    .insert([activity]);
+
+  if (error) {
+    console.error('Error logging activity:', error);
+  } else {
+    console.log('Activity logged successfully'); // Log success message
+  }
+};
+
 function Leads({ clientId, companyName }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
@@ -76,6 +90,13 @@ function Leads({ clientId, companyName }) {
       console.error('Error adding lead:', error);
     } else {
       setLeads([...leads, { ...leadInfo, client_id: clientId }]); // Add new lead to the state
+      await logActivity({
+        activity: `Added Lead: ${leadInfo.title} (Company: ${leadInfo.company})`, // Include title and company name
+        action: 'Add',
+        activity_by: 'User',
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString(),
+      });
       setIsAddModalOpen(false);
     }
   };
@@ -97,22 +118,39 @@ function Leads({ clientId, companyName }) {
       console.error('Error updating lead:', error);
     } else {
       setLeads(leads.map(lead => (lead.id === currentLeadId ? leadInfo : lead))); // Update the lead in the state
+      await logActivity({
+        activity: `Edited Lead: ${leadInfo.title} (Company: ${leadInfo.company})`, // Include title and company name
+        action: 'Edit',
+        activity_by: 'User',
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString(),
+      });
       setIsEditModalOpen(false); // Close the edit modal
     }
   };
 
   const deleteLead = async (leadId) => {
     if (window.confirm("Are you sure you want to delete this lead?")) { // Confirmation alert
-        const { error } = await supabase
-            .from('client_leads')
-            .delete()
-            .eq('id', leadId); // Delete the lead from the database
+      // Fetch the lead details before deletion
+      const leadToDelete = leads.find(lead => lead.id === leadId); // Find the lead to delete
 
-        if (error) {
-            console.error('Error deleting lead:', error);
-        } else {
-            setLeads(leads.filter(lead => lead.id !== leadId)); // Remove the lead from the state
-        }
+      const { error } = await supabase
+        .from('client_leads')
+        .delete()
+        .eq('id', leadId); // Delete the lead from the database
+
+      if (error) {
+        console.error('Error deleting lead:', error);
+      } else {
+        setLeads(leads.filter(lead => lead.id !== leadId)); // Remove the lead from the state
+        await logActivity({
+          activity: `Deleted Lead: ${leadToDelete.title} (Company: ${leadToDelete.company})`, // Include title and company name
+          action: 'Delete',
+          activity_by: 'User',
+          date: new Date().toISOString().split('T')[0],
+          time: new Date().toLocaleTimeString(),
+        });
+      }
     }
   };
 

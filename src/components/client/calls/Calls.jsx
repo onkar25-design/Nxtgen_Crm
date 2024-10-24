@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import './Calls.css'; // Ensure you have appropriate styles
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 
+// Function to log activity
+const logActivity = async (activity) => {
+  console.log('Logging activity:', activity); // Log the activity being logged
+  const { error } = await supabase
+    .from('activity_log') // Assuming you have an 'activity_log' table
+    .insert([activity]);
+
+  if (error) {
+    console.error('Error logging activity:', error);
+  } else {
+    console.log('Activity logged successfully'); // Log success message
+  }
+};
+
 function Calls({ clientId }) { // Accept clientId as a prop
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -13,14 +27,28 @@ function Calls({ clientId }) { // Accept clientId as a prop
     call_with: '', // Updated to call_with
     subject: '',
   });
+  const [companyName, setCompanyName] = useState(''); // Add state for company name
 
-  // Fetch calls from Supabase when the component mounts or clientId changes
+  // Fetch calls and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
-    const fetchCalls = async () => {
+    const fetchCallsAndCompanyName = async () => {
+      // Fetch company name
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('company_name')
+        .eq('id', clientId);
+
+      if (clientError) {
+        console.error('Error fetching client:', clientError);
+      } else {
+        setCompanyName(clientData[0]?.company_name); // Set company name
+      }
+
+      // Fetch calls
       const { data, error } = await supabase
         .from('calls')
         .select('*')
-        .eq('client_id', clientId); // Filter calls by client_id
+        .eq('client_id', clientId);
 
       if (error) {
         console.error('Error fetching calls:', error);
@@ -30,7 +58,7 @@ function Calls({ clientId }) { // Accept clientId as a prop
     };
 
     if (clientId) {
-      fetchCalls();
+      fetchCallsAndCompanyName();
     }
   }, [clientId]);
 
@@ -73,7 +101,14 @@ function Calls({ clientId }) { // Accept clientId as a prop
       console.error('Error adding call:', error);
     } else {
       setCalls([...calls, newCall]); // Add new call to the state
-      setIsAddModalOpen(false);
+      await logActivity({ 
+        activity: `Added Call with ${callInfo.call_with} (Client: ${companyName})`, // Include company name
+        action: 'Add', 
+        activity_by: 'User', 
+        date: new Date().toISOString().split('T')[0], 
+        time: new Date().toLocaleTimeString() 
+      });
+      setIsAddModalOpen(false); // Close the modal after adding
     }
   };
 
