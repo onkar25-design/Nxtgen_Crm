@@ -48,7 +48,7 @@ const LoginPage = () => {
       console.log('Login successful:', data);
 
       // Simplified navigation logic: redirect to sidebar for any user
-      navigate('/sidebar'); // Remove role check
+      navigate('/dashboard'); // Remove role check
 
     } catch (error) {
       console.error('Login error:', error);
