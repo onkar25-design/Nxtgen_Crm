@@ -11,6 +11,7 @@ import LeadsPipeline from './components/leads/LeadsPipeline'; // Import the Lead
 import ClientManagement from './components/client/ClientManagement';
 import StaffManagement from './components/staff/StaffManagement'; // Import the StaffManagement component
 import ActivityLog from './components/activity/ActivityLog'; // Import the ActivityLog component
+import Dashboard from './components/dashboard/Dashboard'; // Import the Dashboard component
 
 const App = () => {
   const location = useLocation(); // Get the current location
@@ -37,6 +38,7 @@ const App = () => {
             <Route path="/management/clients" element={<ClientManagement />} />
             <Route path="/management/staff" element={<StaffManagement />} /> {/* Add this line */}
             <Route path="/management/activity" element={<ActivityLog />} /> {/* Add this line */}
+            <Route path="/dashboard" element={<Dashboard />} /> {/* Add this line for Dashboard route */}
           </Routes>
         </div>
       </div>

@@ -1,89 +1,173 @@
 import React from 'react';
-import { Doughnut, Bar } from 'react-chartjs-2'; // Import Bar component
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'; // Import necessary components
-import './Dashboard.css'; // Import the CSS file
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart as BarChartIcon, Phone, Calendar, Trophy, DollarSign } from 'lucide-react';
+import './Dashboard.css';
 
-// Register the components
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+const monthlyData = [
+  { name: 'January', leads: 25 },
+  { name: 'February', leads: 35 },
+  { name: 'March', leads: 45 },
+  { name: 'April', leads: 30 },
+];
 
-const Dashboard = () => {
-  // Sample data for the charts
-  const leadsWonByMonthData = {
-    labels: ['January', 'February', 'March', 'April'],
-    datasets: [
-      {
-        label: 'Leads Won',
-        data: [30, 50, 70, 40],
-        backgroundColor: '#36A2EB',
-      },
-    ],
-  };
+const statusData = [
+  { name: 'New', value: 300, color: '#FF6B6B' },
+  { name: 'Contacted', value: 200, color: '#4ECDC4' },
+  { name: 'Qualified', value: 150, color: '#FFD93D' },
+  { name: 'Converted', value: 100, color: '#95A5A6' },
+];
 
-  const leadsByStatusData = {
-    labels: ['New', 'Contacted', 'Qualified', 'Converted'],
-    datasets: [
-      {
-        data: [300, 50, 100, 40],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-      },
-    ],
-  };
+const sourceData = [
+  { name: 'Website', value: 400, color: '#FF6B6B' },
+  { name: 'Referral', value: 300, color: '#4ECDC4' },
+  { name: 'Social Media', value: 200, color: '#FFD93D' },
+  { name: 'Email', value: 100, color: '#95A5A6' },
+];
 
-  const leadsBySourceData = {
-    labels: ['Website', 'Referral', 'Social Media', 'Email'],
-    datasets: [
-      {
-        data: [200, 150, 100, 50],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-      },
-    ],
-  };
+const topEmployeesData = [
+  { name: 'John Doe', revenue: 250000 },
+  { name: 'Jane Smith', revenue: 200000 },
+  { name: 'Mike Johnson', revenue: 180000 },
+  { name: 'Sarah Williams', revenue: 150000 },
+  { name: 'Tom Brown', revenue: 120000 },
+];
 
-  return (
-    <div className="dashboard-container">
-      <h1 className="dashboard-title">Lead Dashboard</h1>
-      <div className="dashboard-charts">
-        <div className="dashboard-chart-container">
-          <h2>Total Leads</h2>
-          <p>1,234</p>
-        </div>
-        <div className="dashboard-chart-container">
-          <h2>New Leads</h2>
-          <p>256</p>
-        </div>
-        <div className="dashboard-chart-container">
-          <h2>Calls Made</h2>
-          <p>789</p>
-        </div>
-        <div className="dashboard-chart-container">
-          <h2>Appointments</h2>
-          <p>45</p>
-        </div>
-        <div className="dashboard-chart-container">
-          <h2>Leads Won</h2>
-          <p>98</p>
-        </div>
-        <div className="dashboard-chart-container">
-          <h2>Total Won Amount</h2>
-          <p>$1.2M</p>
-        </div>
+const conversionData = [
+  { name: 'Q1', rate: 65 },
+  { name: 'Q2', rate: 75 },
+  { name: 'Q3', rate: 82 },
+  { name: 'Q4', rate: 88 },
+];
+
+const StatCard = ({ icon: Icon, title, value, iconColor }) => (
+  <div className="stat-card">
+    <div className="stat-content">
+      <div>
+        <p className="stat-title">{title}</p>
+        <p className="stat-value">{value}</p>
       </div>
-      <div className="dashboard-charts">
-        <div className="dashboard-chart-container dashboard-bar-chart">
-          <h2>Leads Won by Month</h2>
-          <Bar data={leadsWonByMonthData} options={{ responsive: true }} />
+      <Icon className="stat-icon" style={{ color: iconColor }} />
+    </div>
+  </div>
+);
+
+function Dashboard() {
+  return (
+    <div className="dashboard">
+      <div className="dashboard-container">
+        <div className="dashboard-header">
+          <h1>
+            <BarChartIcon style={{ color: '#4CAF50', marginRight: '8px' }} />
+            Dashboard
+          </h1>
         </div>
-        <div className="dashboard-chart-container dashboard-doughnut-chart">
-          <h2>Leads by Status</h2>
-          <Doughnut data={leadsByStatusData} />
+
+        <div className="stats-grid">
+          <StatCard icon={BarChartIcon} title="Total Leads" value="1,234" iconColor="#4CAF50" />
+          <StatCard icon={BarChartIcon} title="New Leads" value="256" iconColor="#FF6B6B" />
+          <StatCard icon={Phone} title="Calls Made" value="789" iconColor="#FFD93D" />
+          <StatCard icon={Calendar} title="Appointments" value="45" iconColor="#4ECDC4" />
+          <StatCard icon={Trophy} title="Leads Won" value="98" iconColor="#FFD93D" />
+          <StatCard icon={DollarSign} title="Total Won Amount" value="$1.2M" iconColor="#FFD700" />
         </div>
-        <div className="dashboard-chart-container dashboard-doughnut-chart">
-          <h2>Leads by Source</h2>
-          <Doughnut data={leadsBySourceData} />
+
+        <div className="charts-row">
+          <div className="chart-card">
+            <h2>Leads by Status</h2>
+            <div className="chart-container">
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="chart-card">
+            <h2>Leads by Source</h2>
+            <div className="chart-container">
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={sourceData}
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {sourceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="chart-card">
+            <h2>Leads Won by Month</h2>
+            <div className="chart-container">
+              <ResponsiveContainer>
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="leads" fill="#4ECDC4" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        <div className="charts-row-large">
+          <div className="chart-card">
+            <h2>Top 5 Revenue Generating Employees</h2>
+            <div className="chart-container">
+              <ResponsiveContainer>
+                <BarChart data={topEmployeesData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" />
+                  <Tooltip />
+                  <Bar dataKey="revenue" fill="#FF6B6B" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="chart-card">
+            <h2>Performance Overview</h2>
+            <div className="chart-container">
+              <ResponsiveContainer>
+                <BarChart data={conversionData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="rate" fill="#FFD93D" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Dashboard;

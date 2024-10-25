@@ -23,7 +23,7 @@ function Sidebar() {
         </h1>
       </div>
       <nav>
-      <Link className="nxtgen-nav-item">
+      <Link to="/dashboard" className={`nxtgen-nav-item ${location.pathname === '/dashboard' ? 'active' : ''}`}>
           <FontAwesomeIcon icon={faHome} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Home</span>
         </Link>
@@ -49,6 +49,7 @@ function Sidebar() {
           <FontAwesomeIcon icon={faClipboardList} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Activity</span>
         </Link>
+       
         <div className="nxtgen-nav-item" onClick={handleLogout}>
           <FontAwesomeIcon icon={faSignOutAlt} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Logout</span>
