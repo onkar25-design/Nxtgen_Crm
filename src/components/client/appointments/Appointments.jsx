@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Appointments.css'; // Ensure you have appropriate styles
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
+import sendEmail from '../../utils/sendEmail'; // Adjust the import path as necessary
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -26,22 +27,27 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     description: '',
     appointment_with: '', // Updated to appointment_with
     subject: '',
+    client_email: '', // New field for client email
   });
   const [companyName, setCompanyName] = useState(''); // Add state for company name
 
   // Fetch appointments and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
     const fetchAppointmentsAndCompanyName = async () => {
-      // Fetch company name
+      // Fetch company name and client email
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
-        .select('company_name')
+        .select('company_name, email') // Fetch company name and email
         .eq('id', clientId);
 
       if (clientError) {
         console.error('Error fetching client:', clientError);
       } else {
         setCompanyName(clientData[0]?.company_name); // Set company name
+        setAppointmentInfo((prev) => ({
+          ...prev,
+          client_email: clientData[0]?.email || '', // Set client email
+        }));
       }
 
       // Fetch appointments
@@ -63,30 +69,45 @@ function Appointments({ clientId }) { // Accept clientId as a prop
   }, [clientId]);
 
   const handleAddAppointment = () => {
-    setAppointmentInfo({
+    // Reset appointment info and set client email
+    setAppointmentInfo((prev) => ({
+      ...prev,
       date: '',
       time: '',
-      description: `Dear Client,\n\nThis is a courteous reminder of your upcoming appointment scheduled on {APPOINTMENT_DATE} at {APPOINTMENT_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nWe look forward to meeting you.\n\nBest regards,\n\nNxtGen Innovation`, // Default description
-      appointment_with: '', // Updated to appointment_with
+      description: `Dear Client,\n\nThis is a courteous reminder of your upcoming appointment scheduled on {APPOINTMENT_DATE} at {APPOINTMENT_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nWe look forward to meeting you.`,
+      appointment_with: '',
       subject: '',
-    });
+      client_email: appointmentInfo.client_email, // Set client email from state
+    }));
     setIsAddModalOpen(true);
   };
 
   const handleSelectAppointment = (selectedAppointment) => {
-    setAppointmentInfo(selectedAppointment);
+    setAppointmentInfo(selectedAppointment); // Ensure selectedAppointment includes client_email
     setIsViewModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     // Replace placeholders in the description with actual values
     const filledDescription = appointmentInfo.description
-      .replace('{CLIENT_NAME}', '') // Removed client name
       .replace('{APPOINTMENT_DATE}', appointmentInfo.date)
       .replace('{APPOINTMENT_TIME}', appointmentInfo.time)
       .replace('{MANAGER_NAME}', appointmentInfo.appointment_with) // Updated to appointment_with
       .replace('{COMPANY_NAME}', 'NxtGen Innovation'); // Set company name
+
+    // Prepare the email content
+    const emailSubject = `Appointment Confirmation with ${appointmentInfo.appointment_with}`;
+    const emailBody = `\n${filledDescription}\n`;
+
+    try {
+      // Call the sendEmail function
+      console.log('Sending email to:', appointmentInfo.client_email);
+      await sendEmail(appointmentInfo.client_email, emailSubject, emailBody); // Use the client email from the form
+    } catch (error) {
+      console.error('Failed to send email:', error);
+    }
 
     const newAppointment = {
       ...appointmentInfo,
@@ -209,6 +230,15 @@ function Appointments({ clientId }) { // Accept clientId as a prop
                 />
               </label>
               <label>
+                To Email: {/* Bind this to the client_email state */}
+                <input
+                  type="email"
+                  value={appointmentInfo.client_email} // Bind to client_email
+                  onChange={(e) => setAppointmentInfo({ ...appointmentInfo, client_email: e.target.value })} // Update state on change
+                  required // Ensure this field is required
+                />
+              </label>
+              <label>
                 Description:
                 <textarea
                   value={appointmentInfo.description}
@@ -235,6 +265,7 @@ function Appointments({ clientId }) { // Accept clientId as a prop
               <p><strong>Appointment With:</strong> {appointmentInfo.appointment_with}</p>
               <p>{formatDateTime(appointmentInfo.date, appointmentInfo.time)}</p> {/* Display formatted date and time */}
               <p><strong>Subject:</strong> {appointmentInfo.subject}</p>
+              <p><strong>Client Email:</strong> {appointmentInfo.client_email}</p> {/* Display client email */}
               <p>{appointmentInfo.description.split('\n').map((line, index) => (
                 <span key={index}>{line}<br /></span> // Replace \n with <br />
               ))}</p>

@@ -66,7 +66,7 @@
 }
 
 .nxtgen-sub-menu {
-    margin-left: 20px;
+    margin-left: 20px; /* Indent the entire sub-menu */
 }
 
 .nxtgen-sub-item {
@@ -75,6 +75,7 @@
     background-color: transparent; /* Set to transparent to avoid background */
     border-radius: 4px; /* Rounded corners for sub-items */
     color: #FFFFFF; /* Ensure text color is white */
+    margin-left: 20px; /* Add left margin for indentation */
 }
 
 .nxtgen-nav-text {

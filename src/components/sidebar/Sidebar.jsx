@@ -45,7 +45,7 @@ function Sidebar() {
             </Link>
           </div>
         )}
-        <Link to="/management/activity" className={`nxtgen-nav-item nxtgen-sub-item ${location.pathname === '/management/activity' ? 'active' : ''}`}>
+        <Link to="/management/activity" className={`nxtgen-nav-item ${location.pathname === '/management/activity' ? 'active' : ''}`}>
           <FontAwesomeIcon icon={faClipboardList} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Activity</span>
         </Link>
