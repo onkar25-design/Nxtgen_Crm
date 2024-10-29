@@ -5,7 +5,7 @@
     padding: 0; /* Remove padding to control sections separately */
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100vh; /* Full height of the viewport */
     position: fixed; /* Fixed position to keep it in place */
     left: 0;
     top: 0;
@@ -13,10 +13,11 @@
 }
 
 .nxtgen-logo-space {
-    height: 100px;
+    height: 120px; /* Adjust height as needed */
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
     margin-bottom: 20px;
     background-color: #1F1F1F; /* Match the sidebar background */
 }
@@ -34,10 +35,52 @@
     color: #FFFFFF; /* White color for 'Gen' */
 }
 
+.nxtgen-user-info {
+    display: flex;
+    align-items: center; /* Center items vertically */
+    justify-content: flex-start; /* Align items to the start */
+    margin-bottom: 20px; /* Space below user info */
+}
+
+.nxtgen-user-icon-container {
+    width: 40px; /* Set width for the icon container */
+    height: 40px; /* Set height for the icon container */
+    border-radius: 50%; /* Make it circular */
+    background-color: #4CAF50; /* Match the theme color */
+    display: flex;
+    align-items: center; /* Center icon vertically */
+    justify-content: center; /* Center icon horizontally */
+    margin-right: 10px;
+    margin-left: 20px;
+}
+
+.nxtgen-user-icon {
+    font-size: 20px; /* Adjust size as needed */
+    color: #FFFFFF; /* White color for the icon */
+}
+
+.nxtgen-user-details {
+    display: flex;
+    flex-direction: column; /* Stack name and role vertically */
+}
+
+.nxtgen-user-name {
+    font-size: 20px; /* Increase font size for better visibility */
+    color: #4CAF50; /* Use a green color to match the theme */
+    font-weight: bold; /* Make the text bold */
+    margin: 0; /* Remove margin */
+}
+
+.nxtgen-user-role {
+    font-size: 16px; /* Adjust font size for role */
+    color: #FFFFFF; /* White color for the role */
+    margin: 0; /* Remove margin */
+}
+
 .nxtgen-sidebar nav {
-    flex-grow: 1;
-    overflow-y: auto;
+    flex-grow: 1; /* Allow nav to take available space */
     background-color: #1F1F1F; /* Keep the rest of the sidebar dark */
+    overflow: hidden; /* Prevent overflow */
 }
 
 .nxtgen-nav-item {
@@ -82,13 +125,8 @@
     margin-left: 10px; /* Space between icon and text */
 }
 
-.nxtgen-bullet {
-    display: none; /* Hide bullet */
-}
-
 .nxtgen-logout-btn {
     margin-top: auto;
-    background-color: #FF3D00; /* Bright color for logout button */
     color: white;
     border: none;
     padding: 12px; 
@@ -118,4 +156,10 @@
 .nxtgen-sub-item:hover {
     background-color: transparent; /* Ensure no background on hover */
     color: #4CAF50; /* Change text color to green on hover */
+}
+
+.nxtgen-divider {
+    height: 1px; /* Height of the divider */
+    background-color: #4CAF50; /* Color of the divider */
+    margin: 10px 10px; /* Margin around the divider */
 }

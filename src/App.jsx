@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd'; // Import DndProvider
 import { HTML5Backend } from 'react-dnd-html5-backend'; // Import HTML5Backend
@@ -14,6 +14,8 @@ import ActivityLog from './components/activity/ActivityLog'; // Import the Activ
 import Dashboard from './components/dashboard/Dashboard'; // Import the Dashboard component
 
 const App = () => {
+  const [userName, setUserName] = useState(localStorage.getItem('userName') || ''); // Retrieve user name from localStorage
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || ''); // Retrieve user role from localStorage
   const location = useLocation(); // Get the current location
 
   // Define an array of paths where the sidebar should not be displayed
@@ -26,11 +28,11 @@ const App = () => {
     <DndProvider backend={HTML5Backend}> {/* Wrap your app with DndProvider */}
       <div style={{ display: 'flex' }}> {/* Flex container for sidebar and main content */}
         {/* Render Sidebar only if the current path is not in noSidebarPaths */}
-        {!isLoginPage && <Sidebar />} {/* Sidebar on every page except login-related pages */}
+        {!isLoginPage && <Sidebar userName={userName} userRole={userRole} />} {/* Pass userName and userRole to Sidebar */}
         <div className={`content ${isLoginPage ? 'login-content' : ''}`}> {/* Main content area with class for styling */}
           <Routes>
             <Route path="/" element={<Navigate to="/login" />} /> {/* Redirect root path to login page */}
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage setUserName={setUserName} setUserRole={setUserRole} />} /> {/* Pass setUserName and setUserRole to LoginPage */}
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />

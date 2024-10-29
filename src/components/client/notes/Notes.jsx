@@ -99,13 +99,15 @@ function Notes({ clientId }) { // Accept clientId as a prop
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
     if (currentNote.id) {
       // Update existing note
       const { error } = await supabase
         .from('notes')
         .update({
           date: currentNote.date,
-          title: currentNote.title, // Include title in update
+          title: currentNote.title,
           text: currentNote.text,
         })
         .eq('id', currentNote.id);
@@ -115,7 +117,7 @@ function Notes({ clientId }) { // Accept clientId as a prop
       } else {
         setNotes(notes.map(note => (note.id === currentNote.id ? currentNote : note)));
         await logActivity({ 
-          activity: `Edited Note: ${currentNote.title} (Client: ${companyName})`, // Log title and company name
+          activity: `Edited Note: ${currentNote.title} (Client: ${companyName})`,
           action: 'Edit', 
           activity_by: 'User', 
           date: new Date().toISOString().split('T')[0], 
@@ -126,14 +128,20 @@ function Notes({ clientId }) { // Accept clientId as a prop
       // Insert new note
       const { error } = await supabase
         .from('notes')
-        .insert([{ client_id: clientId, date: currentNote.date, title: currentNote.title, text: currentNote.text }]); // Include title
+        .insert([{ 
+          client_id: clientId, 
+          user_id: user.id, // Set the user_id to the logged-in user's ID
+          date: currentNote.date, 
+          title: currentNote.title, 
+          text: currentNote.text 
+        }]);
 
       if (error) {
         console.error('Error adding note:', error);
       } else {
         setNotes([{ ...currentNote, id: Date.now() }, ...notes]);
         await logActivity({ 
-          activity: `Added Note: ${currentNote.title} (Client: ${companyName})`, // Log title and company name
+          activity: `Added Note: ${currentNote.title} (Client: ${companyName})`,
           action: 'Add', 
           activity_by: 'User', 
           date: new Date().toISOString().split('T')[0], 

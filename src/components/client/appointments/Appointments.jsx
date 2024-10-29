@@ -30,10 +30,31 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     client_email: '', // New field for client email
   });
   const [companyName, setCompanyName] = useState(''); // Add state for company name
+  const [userRole, setUserRole] = useState(''); // State for user role
 
   // Fetch appointments and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
     const fetchAppointmentsAndCompanyName = async () => {
+      // Fetch user role
+      const { data: { user }, error: userError } = await supabase.auth.getUser(); // Correctly get the logged-in user
+
+      if (userError) {
+        console.error('Error fetching user:', userError);
+        return; // Exit if there's an error
+      }
+
+      const { data: userData, error: roleError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id) // Use user.id to get the current user's ID
+        .single();
+
+      if (roleError) {
+        console.error('Error fetching user role:', roleError);
+      } else {
+        setUserRole(userData.role); // Set user role
+      }
+
       // Fetch company name and client email
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
@@ -50,11 +71,24 @@ function Appointments({ clientId }) { // Accept clientId as a prop
         }));
       }
 
-      // Fetch appointments
-      const { data, error } = await supabase
+      // Fetch appointments based on user role
+      let query = supabase
         .from('appointments')
         .select('*')
         .eq('client_id', clientId); // Fetch appointments for the specific client
+
+      if (userRole === 'admin') {
+        // Admin can see all appointments
+        query = query; // No additional filter needed
+      } else if (userRole === 'staff') {
+        // Staff can only see their own appointments
+        query = query.eq('user_id', user.id); // Filter by user ID
+      } else {
+        // Handle other roles if necessary
+        query = query.or('user_id.is.null'); // Public appointments
+      }
+
+      const { data, error } = await query; // Execute the query
 
       if (error) {
         console.error('Error fetching appointments:', error);
@@ -66,7 +100,7 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     if (clientId) {
       fetchAppointmentsAndCompanyName();
     }
-  }, [clientId]);
+  }, [clientId, userRole]); // Add userRole to the dependency array
 
   const handleAddAppointment = () => {
     // Reset appointment info and set client email
@@ -89,6 +123,7 @@ function Appointments({ clientId }) { // Accept clientId as a prop
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
 
     // Replace placeholders in the description with actual values
     const filledDescription = appointmentInfo.description
@@ -113,6 +148,7 @@ function Appointments({ clientId }) { // Accept clientId as a prop
       ...appointmentInfo,
       description: filledDescription,
       client_id: clientId, // Include client_id when inserting
+      user_id: user.id, // Set the user_id to the logged-in user's ID
     };
 
     const { error } = await supabase
@@ -208,6 +244,7 @@ function Appointments({ clientId }) { // Accept clientId as a prop
                     value={appointmentInfo.date}
                     onChange={(e) => setAppointmentInfo({ ...appointmentInfo, date: e.target.value })}
                     required
+                    min={new Date().toISOString().split('T')[0]} // Set minimum date to today
                   />
                 </label>
                 <label>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Calls.css'; // Ensure you have appropriate styles
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
+import sendEmail from '../../utils/sendEmail'; // Import sendEmail function
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -26,22 +27,27 @@ function Calls({ clientId }) { // Accept clientId as a prop
     description: '',
     call_with: '', // Updated to call_with
     subject: '',
+    client_email: '', // New field for client email
   });
   const [companyName, setCompanyName] = useState(''); // Add state for company name
 
   // Fetch calls and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
     const fetchCallsAndCompanyName = async () => {
-      // Fetch company name
+      // Fetch company name and client email
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
-        .select('company_name')
+        .select('company_name, email') // Fetch company name and email
         .eq('id', clientId);
 
       if (clientError) {
         console.error('Error fetching client:', clientError);
       } else {
         setCompanyName(clientData[0]?.company_name); // Set company name
+        setCallInfo((prev) => ({
+          ...prev,
+          client_email: clientData[0]?.email || '', // Set client email
+        }));
       }
 
       // Fetch calls
@@ -66,9 +72,10 @@ function Calls({ clientId }) { // Accept clientId as a prop
     setCallInfo({
       date: '',
       time: '',
-      description: `Dear Client,\n\nThis is a reminder for your upcoming call scheduled on {CALL_DATE} at {CALL_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\nBest regards,\n\nNxtGen Innovation`,
+      description: `Dear Client,\n\nThis is a reminder for your upcoming call scheduled on {CALL_DATE} at {CALL_TIME} with {MANAGER_NAME}.\n\nPlease let us know if you have any questions or need to reschedule. You can contact us at 1234567890 for any assistance.\n\n`,
       call_with: '', // Updated to call_with
       subject: '',
+      client_email: callInfo.client_email, // Set client email from state
     });
     setIsAddModalOpen(true);
   };
@@ -82,10 +89,21 @@ function Calls({ clientId }) { // Accept clientId as a prop
     e.preventDefault();
     // Replace placeholders in the description with actual values
     const filledDescription = callInfo.description
-      .replace('{CLIENT_NAME}', callInfo.clientName) // Use client name
       .replace('{CALL_DATE}', callInfo.date)
       .replace('{CALL_TIME}', callInfo.time)
       .replace('{MANAGER_NAME}', callInfo.call_with); // Updated to call_with
+
+    // Prepare the email content
+    const emailSubject = `Call Reminder with ${callInfo.call_with}`;
+    const emailBody = `\n${filledDescription}\n`;
+
+    try {
+      // Call the sendEmail function
+      console.log('Sending email to:', callInfo.client_email); // Ensure client_email is set in callInfo
+      await sendEmail(callInfo.client_email, emailSubject, emailBody); // Use the client email from the form
+    } catch (error) {
+      console.error('Failed to send email:', error);
+    }
 
     const newCall = {
       ...callInfo,
@@ -101,12 +119,12 @@ function Calls({ clientId }) { // Accept clientId as a prop
       console.error('Error adding call:', error);
     } else {
       setCalls([...calls, newCall]); // Add new call to the state
-      await logActivity({ 
+      await logActivity({
         activity: `Added Call with ${callInfo.call_with} (Client: ${companyName})`, // Include company name
-        action: 'Add', 
-        activity_by: 'User', 
-        date: new Date().toISOString().split('T')[0], 
-        time: new Date().toLocaleTimeString() 
+        action: 'Add',
+        activity_by: 'User',
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString()
       });
       setIsAddModalOpen(false); // Close the modal after adding
     }
@@ -124,6 +142,9 @@ function Calls({ clientId }) { // Accept clientId as a prop
     const formattedHour = hour % 12 || 12; // Convert to 12-hour format
     return `${day}/${month}/${year.slice(-2)}, ${formattedHour}:${minute} ${ampm}`;
   };
+
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="calls">
@@ -173,6 +194,7 @@ function Calls({ clientId }) { // Accept clientId as a prop
                     type="date"
                     value={callInfo.date}
                     onChange={(e) => setCallInfo({ ...callInfo, date: e.target.value })}
+                    min={today} // Set minimum date to today
                     required
                   />
                 </label>
@@ -193,6 +215,15 @@ function Calls({ clientId }) { // Accept clientId as a prop
                   value={callInfo.subject} // Allow user to input their own subject
                   onChange={(e) => setCallInfo({ ...callInfo, subject: e.target.value })}
                   required
+                />
+              </label>
+              <label>
+                To Email: {/* Bind this to the client_email state */}
+                <input
+                  type="email"
+                  value={callInfo.client_email} // Bind to client_email
+                  onChange={(e) => setCallInfo({ ...callInfo, client_email: e.target.value })} // Update state on change
+                  required // Ensure this field is required
                 />
               </label>
               <label>
@@ -222,6 +253,7 @@ function Calls({ clientId }) { // Accept clientId as a prop
               <p><strong>Call With:</strong> {callInfo.call_with}</p> {/* Updated to call_with */}
               <p>{formatDateTime(callInfo.date, callInfo.time)}</p> {/* Display formatted date and time */}
               <p><strong>Subject:</strong> {callInfo.subject}</p>
+              <p><strong>Client Email:</strong> {callInfo.client_email}</p> {/* Display client email */}
               <p>{callInfo.description.split('\n').map((line, index) => (
                 <span key={index}>{line}<br /></span> // Replace \n with <br />
               ))}</p>

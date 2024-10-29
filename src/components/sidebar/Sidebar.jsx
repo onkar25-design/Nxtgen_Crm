@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faUsersCog, faSignOutAlt, faChevronDown, faClipboardList, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
+import { faHome, faUsersCog, faSignOutAlt, faChevronDown, faClipboardList, faUser } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
 import './Sidebar.css';
 
-function Sidebar() {
+function Sidebar({ userName, userRole }) { // Accept userRole as a prop
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
   const location = useLocation(); // Get the current location
@@ -22,8 +22,20 @@ function Sidebar() {
           <span className="nxtgen-white">Gen</span>
         </h1>
       </div>
+      <div className="nxtgen-user-info">
+        <div className="nxtgen-user-icon-container">
+          <FontAwesomeIcon icon={faUser} className="nxtgen-user-icon" />
+        </div>
+        <div className="nxtgen-user-details">
+          {userName && <h3 className="nxtgen-user-name">{userName}</h3>}
+          {userRole && <h4 className="nxtgen-user-role">{userRole}</h4>} 
+        </div>
+      </div>
+      
+      <div className="nxtgen-divider"></div>
+
       <nav>
-      <Link to="/dashboard" className={`nxtgen-nav-item ${location.pathname === '/dashboard' ? 'active' : ''}`}>
+        <Link to="/dashboard" className={`nxtgen-nav-item ${location.pathname === '/dashboard' ? 'active' : ''}`}>
           <FontAwesomeIcon icon={faHome} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Home</span>
         </Link>
@@ -49,10 +61,9 @@ function Sidebar() {
           <FontAwesomeIcon icon={faClipboardList} className="nxtgen-icon" />
           <span className="nxtgen-nav-text">Activity</span>
         </Link>
-       
-        <div className="nxtgen-nav-item" onClick={handleLogout}>
-          <FontAwesomeIcon icon={faSignOutAlt} className="nxtgen-icon" />
-          <span className="nxtgen-nav-text">Logout</span>
+        <div className="nxtgen-nav-item nxtgen-logout-btn" onClick={handleLogout}>
+          <FontAwesomeIcon icon={faSignOutAlt} className="nxtgen-icon" style={{ color: '#FF3D00' }} />
+          <span className="nxtgen-nav-text" style={{ color: '#FF3D00' }}>Logout</span>
         </div>
       </nav>
     </div>

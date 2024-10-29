@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from "../../../supabaseClient";
-import bcrypt from 'bcryptjs';
 import { 
   TextField, 
   Button, 
@@ -22,7 +21,7 @@ const theme = createTheme({
   },
 });
 
-const LoginPage = () => {
+const LoginPage = ({ setUserName, setUserRole }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -40,18 +39,26 @@ const LoginPage = () => {
 
       if (error) throw error;
 
-      if (data.user && !data.user.email_confirmed_at) {
-        setError('Please confirm your email before logging in.');
-        return;
-      }
+      // Fetch user details including name and role
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('first_name, last_name, role') // Fetch first and last name and role
+        .eq('id', data.user.id)
+        .single();
 
-      console.log('Login successful:', data);
+      if (userError) throw userError;
 
-      // Simplified navigation logic: redirect to sidebar for any user
-      navigate('/dashboard'); // Remove role check
+      // Set user name and role in the parent component
+      const fullName = `${userData.first_name} ${userData.last_name}`;
+      setUserName(fullName);
+      setUserRole(userData.role);
 
+      // Store user name and role in localStorage
+      localStorage.setItem('userName', fullName);
+      localStorage.setItem('userRole', userData.role);
+
+      navigate('/dashboard'); // Redirect to dashboard or desired page
     } catch (error) {
-      console.error('Login error:', error);
       setError(error.message);
     }
   };
@@ -116,3 +123,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
