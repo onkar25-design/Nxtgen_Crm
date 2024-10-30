@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import companyLogo from '../login/company-logo.png'; // Adjust the path as needed
 import './SignupPage.css'; // Create this CSS file
+import Swal from 'sweetalert2';
 
 const theme = createTheme({
   palette: {
@@ -27,6 +28,13 @@ const SignupPage = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [street, setStreet] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [country, setCountry] = useState('');
+  const [zipcode, setZipcode] = useState('');
+  const [designation, setDesignation] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -42,7 +50,7 @@ const SignupPage = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
-            role: 'staff' // Changed default role to 'staff'
+            role: 'staff'
           },
           emailRedirectTo: `${window.location.origin}/login`
         }
@@ -52,22 +60,38 @@ const SignupPage = () => {
 
       if (data.user) {
         console.log('Sign-up initiated:', data.user);
-        // Insert user details into the users table
+        const address = {
+          street,
+          city,
+          state,
+          country,
+          zipcode
+        };
+
         const { error: insertError } = await supabase
-          .from('users') // Ensure this matches your table name
+          .from('users')
           .insert([
             {
-              id: data.user.id, // Use the user's ID from Supabase
+              id: data.user.id,
               email: data.user.email,
-              role: 'staff', // Default role
+              role: 'staff',
               first_name: firstName,
-              last_name: lastName
+              last_name: lastName,
+              phone,
+              designation,
+              address: address,
+              status: 'Pending'
             }
           ]);
 
         if (insertError) throw insertError;
 
-        setError('Please check your email to confirm your account before logging in.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Sign Up Successful!',
+          text: 'Please wait for admin approval.',
+        });
+        navigate('/login');
       }
     } catch (error) {
       console.error('Sign-up error:', error);
@@ -132,6 +156,89 @@ const SignupPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="phone"
+                  label="Phone Number"
+                  name="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="designation"
+                    label="Designation"
+                    name="designation"
+                    value={designation}
+                    onChange={(e) => setDesignation(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="street"
+                    label="Street"
+                    name="street"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item xs={12} container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="city"
+                    label="City"
+                    name="city"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="state"
+                    label="State"
+                    name="state"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item xs={12} container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="country"
+                    label="Country"
+                    name="country"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="zipcode"
+                    label="Zip Code"
+                    name="zipcode"
+                    value={zipcode}
+                    onChange={(e) => setZipcode(e.target.value)}
+                  />
+                </Grid>
               </Grid>
             </Grid>
             <Button

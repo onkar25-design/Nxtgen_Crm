@@ -57,39 +57,47 @@
 
 .client-leads-modal-content {
     background: #2B2B2B; /* Dark background for modal */
-    padding: 20px; /* Increased padding for better spacing */
+    padding: 30px; /* Increased padding for better spacing */
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow for depth */
     width: 100%; /* Set a width for the modal */
-    max-width: 700px; /* Max width for larger screens */
+    max-width: 600px; /* Max width for larger screens */
 }
 
 .client-leads-modal-content input,
 .client-leads-modal-content select,
 .client-leads-modal-content textarea {
     margin-bottom: 15px; /* Space below inputs */
-    padding: 12px; /* Padding for inputs */
+    padding: 12px; /* Adjusted padding for inputs */
     border: 1px solid #4CAF50; /* Green border for inputs */
-    border-radius: 4px; /* Rounded corners for inputs */
+    border-radius: 5px; /* Rounded corners for inputs */
     width: calc(100% - 24px); /* Full width for inputs with padding adjustment */
     font-size: 16px; /* Increased font size for better readability */
     background-color: #1F1F1F; /* Dark background for inputs */
     color: #FFFFFF; /* White text color for inputs */
+    transition: border-color 0.3s; /* Smooth transition for border color */
 }
 
-/* Button styles */
+.client-leads-modal-content input:focus,
+.client-leads-modal-content select:focus,
+.client-leads-modal-content textarea:focus {
+    border-color: #81C784; /* Lighter green on focus */
+    outline: none; /* Remove default outline */
+}
+
+.client-leads-form-actions {
+    display: flex; /* Use flexbox for button alignment */
+    justify-content: space-between; /* Space between buttons */
+    margin-top: 20px; /* Space above buttons */
+}
+
 .client-leads-submit-btn,
 .client-leads-cancel-btn {
-    background: none; /* Remove background */
-    border: none; /* Remove border */
-    border-radius: 4px; /* Rounded corners */
-    padding: 12px 24px; /* Increased padding for buttons */
+    padding: 12px 20px; /* Adjusted padding for buttons */
     font-size: 16px; /* Increased font size */
-    font-weight: bold; /* Bold text */
+    border-radius: 5px; /* Rounded corners */
     cursor: pointer; /* Pointer cursor on hover */
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s; /* Added transition for hover effect */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-    gap: 20;
 }
 
 .client-leads-submit-btn {
@@ -105,19 +113,23 @@
 .client-leads-submit-btn:hover {
     background-color: #388E3C; /* Darker green on hover */
     transform: scale(1.05); /* Slightly enlarge button on hover */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
 }
 
 .client-leads-cancel-btn:hover {
     background-color: #d32f2f; /* Darker red on hover */
     transform: scale(1.05); /* Slightly enlarge button on hover */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
 }
 
 .client-leads-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Two columns */
-    gap: 20px; /* Increased space between fields */
+    gap: 15px; /* Space between fields */
+}
+
+.client-leads-modal-content label {
+    margin-bottom: 5px; /* Space below labels */
+    font-weight: bold; /* Bold labels for better visibility */
+    color: #B0BEC5; /* Light gray color for labels */
 }
 
 /* Icon button styles */

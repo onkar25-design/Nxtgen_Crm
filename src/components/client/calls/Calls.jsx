@@ -30,10 +30,31 @@ function Calls({ clientId }) { // Accept clientId as a prop
     client_email: '', // New field for client email
   });
   const [companyName, setCompanyName] = useState(''); // Add state for company name
+  const [userRole, setUserRole] = useState(''); // State for user role
 
   // Fetch calls and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
     const fetchCallsAndCompanyName = async () => {
+      // Fetch user role
+      const { data: { user }, error: userError } = await supabase.auth.getUser(); // Correctly get the logged-in user
+
+      if (userError) {
+        console.error('Error fetching user:', userError);
+        return; // Exit if there's an error
+      }
+
+      const { data: userData, error: roleError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id) // Use user.id to get the current user's ID
+        .single();
+
+      if (roleError) {
+        console.error('Error fetching user role:', roleError);
+      } else {
+        setUserRole(userData.role); // Set user role
+      }
+
       // Fetch company name and client email
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
@@ -50,23 +71,33 @@ function Calls({ clientId }) { // Accept clientId as a prop
         }));
       }
 
-      // Fetch calls
-      const { data, error } = await supabase
+      // Fetch calls based on user role
+      let query = supabase
         .from('calls')
         .select('*')
-        .eq('client_id', clientId);
+        .eq('client_id', clientId); // Fetch calls for the specific client
+
+      if (userRole === 'admin') {
+        // Admin can see all calls
+        query = query; // No additional filter needed
+      } else if (userRole === 'staff') {
+        // Staff can only see their own calls
+        query = query.eq('user_id', user.id); // Filter by user ID
+      }
+
+      const { data, error } = await query; // Execute the query
 
       if (error) {
         console.error('Error fetching calls:', error);
       } else {
-        setCalls(data);
+        setCalls(data); // Update state with fetched calls
       }
     };
 
     if (clientId) {
       fetchCallsAndCompanyName();
     }
-  }, [clientId]);
+  }, [clientId, userRole]); // Add userRole to the dependency array
 
   const handleAddCall = () => {
     setCallInfo({
@@ -87,6 +118,14 @@ function Calls({ clientId }) { // Accept clientId as a prop
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Fetch the logged-in user again to get the user ID
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error('Error fetching user:', userError);
+      return; // Exit if there's an error
+    }
+
     // Replace placeholders in the description with actual values
     const filledDescription = callInfo.description
       .replace('{CALL_DATE}', callInfo.date)
@@ -109,6 +148,7 @@ function Calls({ clientId }) { // Accept clientId as a prop
       ...callInfo,
       description: filledDescription,
       client_id: clientId, // Include client_id when inserting
+      user_id: user.id, // Set the user_id to the logged-in user's ID
     };
 
     const { error } = await supabase
@@ -142,9 +182,6 @@ function Calls({ clientId }) { // Accept clientId as a prop
     const formattedHour = hour % 12 || 12; // Convert to 12-hour format
     return `${day}/${month}/${year.slice(-2)}, ${formattedHour}:${minute} ${ampm}`;
   };
-
-  // Get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="calls">
@@ -194,8 +231,8 @@ function Calls({ clientId }) { // Accept clientId as a prop
                     type="date"
                     value={callInfo.date}
                     onChange={(e) => setCallInfo({ ...callInfo, date: e.target.value })}
-                    min={today} // Set minimum date to today
                     required
+                    min={new Date().toISOString().split('T')[0]} // Set minimum date to today
                   />
                 </label>
                 <label>

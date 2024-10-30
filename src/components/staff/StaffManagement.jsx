@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select'; // Import React Select
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSort, faEdit, faTrash, faUsers, faEye } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
+import { faPlus, faSort, faEdit, faTrash, faUsers, faEye, faCheck } from '@fortawesome/free-solid-svg-icons'; // Import Font Awesome icons
 import './StaffManagement.css'; // Import the CSS file
 import { supabase } from '../../../supabaseClient'; // Import Supabase client
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const roleOptions = [
-  { value: 'Admin', label: 'Admin' },
-  { value: 'User', label: 'User' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'staff', label: 'Staff' },
 ];
 
 const statusOptions = [
-  { value: 'Active', label: 'Active' },
-  { value: 'Inactive', label: 'Inactive' },
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
 ];
 
 // Function to log activity
@@ -34,7 +35,8 @@ const StaffManagement = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal visibility
   const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for view modal visibility
   const [newStaffInfo, setNewStaffInfo] = useState({ // State for new staff information
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     address: {
@@ -49,7 +51,8 @@ const StaffManagement = () => {
   });
   const [editStaffInfo, setEditStaffInfo] = useState({ // State for editing staff information
     id: null,
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     address: {
@@ -65,7 +68,8 @@ const StaffManagement = () => {
   });
   const [viewStaffInfo, setViewStaffInfo] = useState({ // State for viewing staff information
     id: null,
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     address: {
@@ -83,27 +87,74 @@ const StaffManagement = () => {
   const [staffData, setStaffData] = useState([]); // Initialize staffData as an empty array
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
   const [selectedStaff, setSelectedStaff] = useState([]); // State for selected staff in multi-select
+  const [userRole, setUserRole] = useState(''); // State for user role
 
   // Fetch staff data from Supabase
   useEffect(() => {
     const fetchStaffData = async () => {
-      const { data, error } = await supabase
-        .from('staff')
-        .select('*'); // Fetch all staff data
+        try {
+            // Get the logged-in user
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError) {
+                throw new Error(`Error fetching user: ${userError.message}`);
+            }
 
-      if (error) {
-        console.error('Error fetching staff data:', error);
-      } else {
-        setStaffData(data); // Set the fetched data to state
-      }
+            if (!user) {
+                console.error("User is not logged in");
+                return; // Exit if no user is found
+            }
+
+            // Fetch the role of the logged-in user
+            const { data: userData, error: roleError } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', user.id) // Fetch the role of the logged-in user
+                .single();
+
+            if (roleError) {
+                throw new Error(`Error fetching user role: ${roleError.message}`);
+            }
+
+            console.log("User Role:", userData.role); // Log the user role
+            setUserRole(userData.role); // Set the user role
+
+            // Fetch all user data
+            const { data, error: fetchError } = await supabase
+                .from('users')
+                .select('*'); // Fetch all user data
+
+            if (fetchError) {
+                throw new Error(`Error fetching staff data: ${fetchError.message}`);
+            }
+
+            console.log("Fetched Data:", data); // Log the fetched data
+
+            // Set staff data based on user role
+            if (userData.role === 'admin') {
+                setStaffData(data); // Admin can see all users (both admins and staff)
+            } else {
+                setStaffData(data.filter(staff => staff.id === user.id)); // Staff can see only their own data
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
     };
 
     fetchStaffData(); // Call the fetch function
-  }, []); // Empty dependency array to run only on mount
+}, []); // Empty dependency array to run only on mount
 
-  const handleAddStaff = () => { // Function to open the add staff modal
+  const handleAddStaff = () => {
+    if (userRole !== 'admin') { // Check if the user is not an admin
+      Swal.fire({
+        icon: 'error',
+        title: 'Unauthorized',
+        text: 'You are not authorized to add staff members.',
+      });
+      return; // Prevent opening the add staff modal
+    }
     setNewStaffInfo({ // Reset the form fields
-      name: '',
+      first_name: '',
+      last_name: '',
       email: '',
       phone: '',
       address: {
@@ -119,9 +170,30 @@ const StaffManagement = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleEditStaff = (staff) => { // Function to open the edit staff modal
-    setEditStaffInfo(staff); // Set the staff data to be edited
-    setIsEditModalOpen(true);
+  const handleEditStaff = async (staff) => {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError) {
+        console.error("Error fetching user:", userError.message);
+        return;
+    }
+
+    if (!user) {
+        console.error("User is not logged in");
+        return;
+    }
+
+    // Allow edit if admin or if the staff member is editing their own data
+    if (userRole === 'admin' || staff.id === user.id) {
+        setEditStaffInfo(staff); // Set the staff data to be edited
+        setIsEditModalOpen(true); // Open the edit modal
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Unauthorized',
+            text: 'You are not authorized to edit this staff member.',
+        });
+    }
   };
 
   const handleViewStaff = (staff) => { // Function to open the view staff modal
@@ -129,13 +201,16 @@ const StaffManagement = () => {
     setIsViewModalOpen(true);
   };
 
-  const handleSubmitNewStaff = async (e) => { // Function to handle form submission for adding staff
+  const handleSubmitNewStaff = async (e) => {
     e.preventDefault();
+    if (userRole !== 'admin') return; // Prevent non-admins from adding staff
+
     const { data, error } = await supabase
-      .from('staff') // Specify the table name
+      .from('users')
       .insert([
         {
-          name: newStaffInfo.name,
+          first_name: newStaffInfo.first_name,
+          last_name: newStaffInfo.last_name,
           email: newStaffInfo.email,
           phone: newStaffInfo.phone,
           role: newStaffInfo.role,
@@ -154,7 +229,7 @@ const StaffManagement = () => {
 
       // Log activity for addition
       await logActivity({
-        activity: `Added Staff: ${newStaffInfo.name} (Role: ${newStaffInfo.role})`,
+        activity: `Added Staff: ${newStaffInfo.first_name} ${newStaffInfo.last_name} (Role: ${newStaffInfo.role})`,
         action: 'Add',
         activity_by: 'User',
         date: new Date().toISOString().split('T')[0],
@@ -165,38 +240,73 @@ const StaffManagement = () => {
     setIsAddModalOpen(false); // Close the modal after submission
   };
 
-  const handleSubmitEditStaff = async (e) => { // Function to handle form submission for editing staff
+  const handleSubmitEditStaff = async (e) => {
     e.preventDefault();
-    const { data, error } = await supabase
-      .from('staff') // Specify the table name
-      .update({
-        name: editStaffInfo.name,
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError) {
+        console.error("Error fetching user:", userError.message);
+        return;
+    }
+
+    if (!user) {
+        console.error("User is not logged in");
+        return;
+    }
+
+    // Allow admins to update any data, and staff can only update their own data
+    if (userRole !== 'admin' && editStaffInfo.id !== user.id) {
+        console.error("You do not have permission to update this data.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Unauthorized',
+            text: 'You are not authorized to update this data.',
+        });
+        return; // Prevent the update
+    }
+
+    // Prepare the update data
+    const updateData = {
+        first_name: editStaffInfo.first_name,
+        last_name: editStaffInfo.last_name,
         email: editStaffInfo.email,
         phone: editStaffInfo.phone,
-        role: editStaffInfo.role,
         designation: editStaffInfo.designation,
-        status: editStaffInfo.status, // Update status
-        address: editStaffInfo.address, // Update address as JSON
-      })
-      .eq('id', editStaffInfo.id); // Update the staff member by id
+        address: editStaffInfo.address,
+    };
+
+    // Only include the role if the user is an admin
+    if (userRole === 'admin') {
+        updateData.role = editStaffInfo.role; // Admin can change role
+    }
+
+    // Proceed with the update logic
+    const { data, error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', editStaffInfo.id); // Update the user by id
 
     if (error) {
-      console.error('Error updating staff:', error);
+        console.error('Error updating staff:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'There was an error updating the staff member.',
+        });
     } else {
-      console.log('Staff updated:', data);
-      const updatedStaffData = staffData.map(staff => 
-        staff.id === editStaffInfo.id ? { ...staff, ...editStaffInfo } : staff
-      );
-      setStaffData(updatedStaffData); // Update staffData with the edited staff
-
-      // Log activity for editing
-      await logActivity({
-        activity: `Edited Staff: ${editStaffInfo.name} (Role: ${editStaffInfo.role})`,
-        action: 'Edit',
-        activity_by: 'User',
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toLocaleTimeString(),
-      });
+        console.log('Staff updated:', data);
+        // Update staffData with the edited staff
+        const updatedStaffData = staffData.map(staff => 
+            staff.id === editStaffInfo.id ? { ...staff, ...editStaffInfo } : staff
+        );
+        setStaffData(updatedStaffData); // Update staffData with the edited staff
+        Swal.fire({
+            icon: 'success',
+            title: 'Updated!',
+            text: 'Staff member details have been updated successfully.',
+        });
     }
 
     setIsEditModalOpen(false); // Close the edit modal after submission
@@ -207,49 +317,160 @@ const StaffManagement = () => {
   };
 
   const sortedStaffData = [...staffData].sort((a, b) => {
+    // Sort by status
     if (sortOption === 'Active') {
-      return a.status === 'Active' ? -1 : 1; // Sort Active first
+      return a.status === 'Active' ? -1 : b.status === 'Active' ? 1 : 0; // Active first
     } else if (sortOption === 'Inactive') {
-      return a.status === 'Inactive' ? -1 : 1; // Sort Inactive first
+      return a.status === 'Inactive' ? -1 : b.status === 'Inactive' ? 1 : 0; // Inactive first
     } else if (sortOption === 'Admin') {
-      return a.role === 'Admin' ? -1 : 1; // Sort Admin first
-    } else if (sortOption === 'User') {
-      return a.role === 'User' ? -1 : 1; // Sort User first
+      return a.role === 'Admin' ? -1 : b.role === 'Admin' ? 1 : 0; // Admin first
+    } else if (sortOption === 'Staff') {
+      return a.role === 'Staff' ? -1 : b.role === 'Staff' ? 1 : 0; // Staff first
     } else {
-      return a.name.localeCompare(b.name); // Default sort by name
+      // Default sort by name
+      const nameA = `${a.first_name} ${a.last_name}`.toLowerCase(); // Combine first and last name
+      const nameB = `${b.first_name} ${b.last_name}`.toLowerCase(); // Combine first and last name
+      return nameA.localeCompare(nameB); // Sort alphabetically
     }
   });
 
   const handleDeleteStaff = async (id) => {
-    if (window.confirm("Are you sure you want to delete this staff member?")) {
-      const { error } = await supabase
-        .from('staff')
-        .delete()
-        .eq('id', id); // Delete staff member by id
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error('Error deleting staff:', error);
-      } else {
-        const updatedStaffData = staffData.filter(staff => staff.id !== id);
-        setStaffData(updatedStaffData); // Update the state with the new staff data
-        console.log(`Deleted staff with id: ${id}`);
+    if (userError) {
+        console.error("Error fetching user:", userError.message);
+        return;
+    }
 
-        // Log activity for deletion
-        const deletedStaff = staffData.find(staff => staff.id === id);
-        await logActivity({
-          activity: `Deleted Staff: ${deletedStaff.name} (Role: ${deletedStaff.role})`,
-          action: 'Delete',
-          activity_by: 'User',
-          date: new Date().toISOString().split('T')[0],
-          time: new Date().toLocaleTimeString(),
+    if (!user) {
+        console.error("User is not logged in");
+        return;
+    }
+
+    // Check if the user is trying to delete their own data
+    if (user.id === id) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Unauthorized',
+            text: 'You are not authorized to delete your own account.',
         });
-      }
+        return; // Prevent deletion
+    }
+
+    const { value: confirmed } = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+    });
+
+    if (confirmed) {
+        const { error: userError } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', id); // Delete user by id
+
+        if (userError) {
+            console.error('Error deleting staff from users:', userError);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'There was an error deleting the staff member.',
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'Staff member has been deleted from the users table.',
+            });
+            // Update staffData with the new staff data
+            const updatedStaffData = staffData.filter(staff => staff.id !== id);
+            setStaffData(updatedStaffData); // Update local state
+        }
     }
   };
 
-  const filteredStaffData = sortedStaffData.filter(staff => 
-    selectedStaff.length === 0 || selectedStaff.includes(staff.name) // Filter based on selected staff names
-  );
+  const fetchStaffData = async () => {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        throw new Error(`Error fetching user: ${userError.message}`);
+      }
+
+      if (!user) {
+        console.error("User is not logged in");
+        return; // Exit if no user is found
+      }
+
+      const { data: userData, error: roleError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id) // Fetch the role of the logged-in user
+        .single();
+
+      if (roleError) {
+        throw new Error(`Error fetching user role: ${roleError.message}`);
+      }
+
+      console.log("User Role:", userData.role); // Log the user role
+      setUserRole(userData.role); // Set the user role
+
+      const { data, error: fetchError } = await supabase
+        .from('users')
+        .select('*'); // Fetch all user data
+
+      if (fetchError) {
+        throw new Error(`Error fetching staff data: ${fetchError.message}`);
+      }
+
+      console.log("Fetched Data:", data); // Log the fetched data
+
+      if (userData.role === 'admin') {
+        setStaffData(data); // Admin can see all users (both admins and staff)
+      } else {
+        setStaffData(data.filter(staff => staff.id === user.id)); // Staff can see only their own data
+      }
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const handleApproveStaff = async (id) => {
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({ status: 'Active' }) // Update the status to 'Active'
+            .eq('id', id); // Specify the user by id
+
+        if (error) throw error;
+
+        // Show a success message
+        Swal.fire({
+            icon: 'success',
+            title: 'Approved!',
+            text: 'User access has been approved and status is now Active.',
+        });
+
+        // Refresh the staff data to reflect the changes
+        fetchStaffData(); // Call the fetch function to refresh data
+    } catch (error) {
+        console.error('Error approving staff:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'There was an error approving the user.',
+        });
+    }
+  };
+
+  // Filter staff data based on selected staff names
+  const filteredStaffData = sortedStaffData.filter(staff => {
+    const firstNameMatch = staff.first_name.toLowerCase().includes(searchQuery.toLowerCase()); // Check first name
+    return firstNameMatch; // Filter based on first name only
+  });
 
   return (
     <div className="manageStaff-management">
@@ -259,167 +480,15 @@ const StaffManagement = () => {
           Manage Staff
         </h1>
         <div className="manageStaff-header-actions">
-          {/* Recently Added Search Bar using React Select (Multi-Select) */}
-          <Select
-            options={staffData.map(staff => ({ value: staff.name, label: staff.name }))} // Create options from staff names
-            placeholder="Search staff by Name..."
-            isMulti // Enable multi-select
-            onChange={(selectedOptions) => setSelectedStaff(selectedOptions ? selectedOptions.map(option => option.value) : [])} // Update selected staff
-            styles={{
-              control: (base) => ({
-                ...base,
-                border: '1px solid #4CAF50', // Green border
-                backgroundColor: '#2B2B2B', // Dark background
-                color: '#FFFFFF', // White text
-              }),
-              multiValue: (base) => ({
-                ...base,
-                backgroundColor: '#4CAF50', // Green background for selected values
-              }),
-              singleValue: (base) => ({
-                ...base,
-                color: '#FFFFFF', // White text for selected value
-              }),
-              menu: (base) => ({
-                ...base,
-                backgroundColor: '#2B2B2B', // Dark background for dropdown
-                color: '#FFFFFF', // White text
-              }),
-            }}
+          {/* Input for searching staff by first name */}
+          <input
+            type="text"
+            placeholder="Search staff by First Name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)} // Update search query state
           />
-          {/* Sort Staff Select */}
-          <Select
-            options={[
-              { value: '', label: 'Sort by Name' },
-              { value: 'Active', label: 'Active' },
-              { value: 'Inactive', label: 'Inactive' },
-              { value: 'Admin', label: 'Admin' },
-              { value: 'User', label: 'User' },
-            ]}
-            placeholder="Sort staff..."
-            onChange={handleSortChange}
-            styles={{
-              control: (base) => ({
-                ...base,
-                border: '1px solid #4CAF50', // Green border
-                backgroundColor: '#2B2B2B', // Dark background
-                color: '#FFFFFF', // White text
-              }),
-              singleValue: (base) => ({
-                ...base,
-                color: '#FFFFFF', // White text for selected value
-              }),
-              menu: (base) => ({
-                ...base,
-                backgroundColor: '#2B2B2B', // Dark background for dropdown
-                color: '#FFFFFF', // White text
-              }),
-            }}
-          />
-          <button className="manageStaff-icon-btn manageStaff-add-button" onClick={handleAddStaff}>
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
         </div>
       </div>
-      {/* Add Staff Modal */}
-      {isAddModalOpen && (
-        <div className="manageStaff-modal-overlay">
-          <div className="manageStaff-modal-content">
-            <h3>Add New Staff</h3>
-            <form onSubmit={handleSubmitNewStaff}>
-              <input
-                type="text"
-                placeholder="Name"
-                value={newStaffInfo.name}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, name: e.target.value })}
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={newStaffInfo.email}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, email: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Phone"
-                value={newStaffInfo.phone}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, phone: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Designation" // Add designation input
-                value={newStaffInfo.designation}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, designation: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Street"
-                value={newStaffInfo.address.street}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, address: { ...newStaffInfo.address, street: e.target.value } })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="City"
-                value={newStaffInfo.address.city}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, address: { ...newStaffInfo.address, city: e.target.value } })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="State"
-                value={newStaffInfo.address.state}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, address: { ...newStaffInfo.address, state: e.target.value } })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Country"
-                value={newStaffInfo.address.country}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, address: { ...newStaffInfo.address, country: e.target.value } })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Zipcode"
-                value={newStaffInfo.address.zipcode}
-                onChange={(e) => setNewStaffInfo({ ...newStaffInfo, address: { ...newStaffInfo.address, zipcode: e.target.value } })}
-                required
-              />
-              <Select
-                options={roleOptions}
-                placeholder="Select Role"
-                onChange={(selectedOption) => setNewStaffInfo({ ...newStaffInfo, role: selectedOption.value })}
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    border: '1px solid #4CAF50', // Green border
-                    backgroundColor: '#2B2B2B', // Dark background
-                    color: '#FFFFFF', // White text
-                  }),
-                  singleValue: (base) => ({
-                    ...base,
-                    color: '#FFFFFF', // White text for selected value
-                  }),
-                  menu: (base) => ({
-                    ...base,
-                    backgroundColor: '#2B2B2B', // Dark background for dropdown
-                    color: '#FFFFFF', // White text
-                  }),
-                }}
-              />
-              <div className="manageStaff-modal-buttons">
-                <button type="submit">Add Staff</button>
-                <button type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       {/* Edit Staff Modal */}
       {isEditModalOpen && (
         <div className="manageStaff-modal-overlay">
@@ -428,9 +497,16 @@ const StaffManagement = () => {
             <form onSubmit={handleSubmitEditStaff}>
               <input
                 type="text"
-                placeholder="Name"
-                value={editStaffInfo.name}
-                onChange={(e) => setEditStaffInfo({ ...editStaffInfo, name: e.target.value })}
+                placeholder="First Name"
+                value={editStaffInfo.first_name}
+                onChange={(e) => setEditStaffInfo({ ...editStaffInfo, first_name: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={editStaffInfo.last_name}
+                onChange={(e) => setEditStaffInfo({ ...editStaffInfo, last_name: e.target.value })}
                 required
               />
               <input
@@ -449,7 +525,7 @@ const StaffManagement = () => {
               />
               <input
                 type="text"
-                placeholder="Designation" // Add designation input
+                placeholder="Designation"
                 value={editStaffInfo.designation}
                 onChange={(e) => setEditStaffInfo({ ...editStaffInfo, designation: e.target.value })}
                 required
@@ -494,12 +570,15 @@ const StaffManagement = () => {
                 placeholder="Select Role"
                 value={roleOptions.find(option => option.value === editStaffInfo.role)}
                 onChange={(selectedOption) => setEditStaffInfo({ ...editStaffInfo, role: selectedOption.value })}
+                isDisabled={userRole === 'staff'} // Disable role selection for staff
                 styles={{
                   control: (base) => ({
                     ...base,
                     border: '1px solid #4CAF50', // Green border
                     backgroundColor: '#2B2B2B', // Dark background
                     color: '#FFFFFF', // White text
+                    width: 'calc(100% - 20px)', // Match width of other inputs
+                    marginBottom: '20px', // Add gap below the role select
                   }),
                   singleValue: (base) => ({
                     ...base,
@@ -523,6 +602,8 @@ const StaffManagement = () => {
                     border: '1px solid #4CAF50', // Green border
                     backgroundColor: '#2B2B2B', // Dark background
                     color: '#FFFFFF', // White text
+                    width: 'calc(100% - 20px)', // Match width of other inputs
+                    marginBottom: '20px', // Add gap below the status select
                   }),
                   singleValue: (base) => ({
                     ...base,
@@ -548,15 +629,14 @@ const StaffManagement = () => {
         <div className="manageStaff-modal-overlay">
           <div className="manageStaff-modal-content">
             <h3>View Staff Details</h3>
-            <div>
-              <p><strong>Name:</strong> {viewStaffInfo.name}</p>
-              <p><strong>Email:</strong> {viewStaffInfo.email}</p>
-              <p><strong>Phone:</strong> {viewStaffInfo.phone}</p>
-              <p><strong>Address:</strong></p>
-              <p>{viewStaffInfo.address.street}, {viewStaffInfo.address.city}, {viewStaffInfo.address.state}, {viewStaffInfo.address.country}, {viewStaffInfo.address.zipcode}</p>
-              <p><strong>Role:</strong> {viewStaffInfo.role}</p>
-              <p><strong>Designation:</strong> {viewStaffInfo.designation}</p>
-            </div>
+            <p><strong>First Name:</strong> {viewStaffInfo.first_name}</p>
+            <p><strong>Last Name:</strong> {viewStaffInfo.last_name}</p>
+            <p><strong>Email:</strong> {viewStaffInfo.email}</p>
+            <p><strong>Phone:</strong> {viewStaffInfo.phone}</p>
+            <p><strong>Role:</strong> {viewStaffInfo.role}</p>
+            <p><strong>Designation:</strong> {viewStaffInfo.designation}</p>
+            <p><strong>Status:</strong> {viewStaffInfo.status}</p>
+            <p><strong>Address:</strong> {viewStaffInfo.address.street}, {viewStaffInfo.address.city}, {viewStaffInfo.address.state}, {viewStaffInfo.address.country}, {viewStaffInfo.address.zipcode}</p>
             <div className="manageStaff-modal-buttons">
               <button type="button" onClick={() => setIsViewModalOpen(false)}>Close</button>
             </div>
@@ -566,25 +646,25 @@ const StaffManagement = () => {
       <table>
         <thead>
           <tr>
-            <th>Name</th>
+            <th>First Name</th>
+            <th>Last Name</th>
             <th>Email</th>
-            <th>Phone</th>
             <th>Role</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {filteredStaffData.map(staff => ( // Use filtered staff data
+          {filteredStaffData.map((staff) => (
             <tr key={staff.id}>
-              <td>{staff.name}</td>
+              <td>{staff.first_name}</td>
+              <td>{staff.last_name}</td>
               <td>{staff.email}</td>
-              <td>{staff.phone}</td>
               <td>
-                <span className={`badge badge-${staff.role.toLowerCase()}`}>{staff.role}</span>
+                <span className={`badge badge-${staff.role ? staff.role.toLowerCase() : 'unknown'}`}>{staff.role || 'Unknown'}</span>
               </td>
               <td>
-                <span className={`badge badge-${staff.status.toLowerCase()}`}>{staff.status}</span>
+                <span className={`badge badge-${staff.status ? staff.status.toLowerCase() : 'unknown'}`}>{staff.status || 'Unknown'}</span>
               </td>
               <td>
                 <button className="manageStaff-action-button" onClick={() => handleViewStaff(staff)}>
@@ -596,6 +676,11 @@ const StaffManagement = () => {
                 <button className="manageStaff-action-button manageStaff-delete-button" onClick={() => handleDeleteStaff(staff.id)}>
                   <FontAwesomeIcon icon={faTrash} />
                 </button>
+                {userRole === 'admin' && staff.status === 'Pending' && (
+                  <button className="manageStaff-action-button manageStaff-approve-button" onClick={() => handleApproveStaff(staff.id)}>
+                    <FontAwesomeIcon icon={faCheck} style={{ color: '#28a745' }} />
+                  </button>
+                )}
               </td>
             </tr>
           ))}

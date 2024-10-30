@@ -221,6 +221,12 @@
   background-color: #2196f3; /* Blue for Admin */
 }
 
-.badge-user {
-  background-color: #ff9800; /* Orange for User */
+.badge-staff {
+  background-color: #ff9800; /* Orange for Staff */
 }
+
+.badge-pending {
+  background-color: red; /* Red background for pending badge */
+  color: white; /* White text */
+}
+

@@ -44,10 +44,35 @@ function Leads({ clientId, companyName }) {
   // Fetch leads from Supabase when the component mounts or clientId changes
   useEffect(() => {
     const fetchLeads = async () => {
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
+      // Check if the user is an admin
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (userError) {
+        console.error('Error fetching user role:', userError);
+        return;
+      }
+
+      let query = supabase
         .from('client_leads')
         .select('*')
         .eq('client_id', clientId); // Filter leads by client_id
+
+      // If the user is an admin, fetch all leads; otherwise, filter by user_id
+      if (userData.role === 'admin') {
+        // Admins can see all leads
+        query = query;
+      } else {
+        // Regular users can only see their own leads
+        query = query.eq('user_id', user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching leads:', error);
@@ -82,9 +107,11 @@ function Leads({ clientId, companyName }) {
 
   const addLead = async (e) => {
     e.preventDefault(); // Prevent default form submission
+    const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
     const { error } = await supabase
       .from('client_leads')
-      .insert([{ ...leadInfo, client_id: clientId }]); // Insert new lead with client_id
+      .insert([{ ...leadInfo, client_id: clientId, user_id: user.id }]); // Insert new lead with client_id and user_id
 
     if (error) {
       console.error('Error adding lead:', error);
@@ -238,7 +265,8 @@ function Leads({ clientId, companyName }) {
       {isAddModalOpen && (
         <div className="client-leads-modal">
           <div className="client-leads-modal-content">
-            <h3>Add New Lead</h3>
+            <h3 className="client-leads-modal-title">Add Lead Information</h3>
+            <hr className="client-leads-modal-divider" />
             <form onSubmit={addLead}>
               <div className="client-leads-form-grid">
                 <div>
@@ -305,7 +333,7 @@ function Leads({ clientId, companyName }) {
                   <Select
                     isMulti
                     options={tagOptions}
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))} // Update tags in leadInfo
+                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))}
                     className="react-select-container"
                     classNamePrefix="react-select"
                   />

@@ -287,7 +287,6 @@ function LeadsPipeline() {
             moveCard={moveCard}
             onEdit={onEdit}
             onDelete={onDelete}
-            onAddLead={() => setShowAddLeadModal(true)}
           />
         ))}
       </div>
@@ -329,7 +328,7 @@ function LeadsPipeline() {
   );
 }
 
-function Column({ column, moveCard, onEdit, onDelete, onAddLead }) {
+function Column({ column, moveCard, onEdit, onDelete }) {
   const [, drop] = useDrop({
     accept: 'card',
     drop: (item) => moveCard(item.id, item.columnId, column.id),
@@ -339,11 +338,6 @@ function Column({ column, moveCard, onEdit, onDelete, onAddLead }) {
     <div ref={drop} className="leads-pipeline-column">
       <div className="leads-pipeline-column-header">
         <h2>{column.title}</h2>
-        {column.id === 'new' && (
-          <button className="leads-pipeline-icon-btn leads-pipeline-add-lead-btn" onClick={onAddLead}>
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
-        )}
       </div>
       {column.cards && column.cards.length > 0 ? (
         column.cards.map(card => (
