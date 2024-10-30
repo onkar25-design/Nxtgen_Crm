@@ -17,7 +17,7 @@ const statusOptions = [
 ];
 
 // Function to log activity
-const logActivity = async (activity) => {
+const logActivity = async (activity) => {s
   console.log('Logging activity:', activity); // Log the activity being logged
   const { error } = await supabase
     .from('activity_log') // Assuming you have an 'activity_log' table
@@ -275,6 +275,8 @@ const StaffManagement = () => {
         phone: editStaffInfo.phone,
         designation: editStaffInfo.designation,
         address: editStaffInfo.address,
+        // Only include status if the user is an admin
+        ...(userRole === 'admin' && { status: editStaffInfo.status }), // Include status only for admin
     };
 
     // Only include the role if the user is an admin
@@ -333,110 +335,6 @@ const StaffManagement = () => {
       return nameA.localeCompare(nameB); // Sort alphabetically
     }
   });
-
-  const handleDeleteStaff = async (id) => {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError) {
-        console.error("Error fetching user:", userError.message);
-        return;
-    }
-
-    if (!user) {
-        console.error("User is not logged in");
-        return;
-    }
-
-    // Check if the user is trying to delete their own data
-    if (user.id === id) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Unauthorized',
-            text: 'You are not authorized to delete your own account.',
-        });
-        return; // Prevent deletion
-    }
-
-    const { value: confirmed } = await Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!',
-    });
-
-    if (confirmed) {
-        const { error: userError } = await supabase
-            .from('users')
-            .delete()
-            .eq('id', id); // Delete user by id
-
-        if (userError) {
-            console.error('Error deleting staff from users:', userError);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'There was an error deleting the staff member.',
-            });
-        } else {
-            Swal.fire({
-                icon: 'success',
-                title: 'Deleted!',
-                text: 'Staff member has been deleted from the users table.',
-            });
-            // Update staffData with the new staff data
-            const updatedStaffData = staffData.filter(staff => staff.id !== id);
-            setStaffData(updatedStaffData); // Update local state
-        }
-    }
-  };
-
-  const fetchStaffData = async () => {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) {
-        throw new Error(`Error fetching user: ${userError.message}`);
-      }
-
-      if (!user) {
-        console.error("User is not logged in");
-        return; // Exit if no user is found
-      }
-
-      const { data: userData, error: roleError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id) // Fetch the role of the logged-in user
-        .single();
-
-      if (roleError) {
-        throw new Error(`Error fetching user role: ${roleError.message}`);
-      }
-
-      console.log("User Role:", userData.role); // Log the user role
-      setUserRole(userData.role); // Set the user role
-
-      const { data, error: fetchError } = await supabase
-        .from('users')
-        .select('*'); // Fetch all user data
-
-      if (fetchError) {
-        throw new Error(`Error fetching staff data: ${fetchError.message}`);
-      }
-
-      console.log("Fetched Data:", data); // Log the fetched data
-
-      if (userData.role === 'admin') {
-        setStaffData(data); // Admin can see all users (both admins and staff)
-      } else {
-        setStaffData(data.filter(staff => staff.id === user.id)); // Staff can see only their own data
-      }
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
 
   const handleApproveStaff = async (id) => {
     try {
@@ -672,9 +570,6 @@ const StaffManagement = () => {
                 </button>
                 <button className="manageStaff-action-button manageStaff-edit-button" onClick={() => handleEditStaff(staff)}>
                   <FontAwesomeIcon icon={faEdit} style={{ color: '#28a745' }} />
-                </button>
-                <button className="manageStaff-action-button manageStaff-delete-button" onClick={() => handleDeleteStaff(staff.id)}>
-                  <FontAwesomeIcon icon={faTrash} />
                 </button>
                 {userRole === 'admin' && staff.status === 'Pending' && (
                   <button className="manageStaff-action-button manageStaff-approve-button" onClick={() => handleApproveStaff(staff.id)}>

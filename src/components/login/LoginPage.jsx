@@ -111,7 +111,7 @@ const LoginPage = ({ setUserName, setUserRole }) => {
             Swal.fire({
                 icon: 'error',
                 title: 'Unauthorized',
-                text: 'Your account is not approved yet. Please contact an administrator.',
+                text: 'Your account is not approved. Please contact an administrator.',
             });
             await supabase.auth.signOut();
             return;
