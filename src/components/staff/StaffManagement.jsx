@@ -90,58 +90,58 @@ const StaffManagement = () => {
   const [userRole, setUserRole] = useState(''); // State for user role
 
   // Fetch staff data from Supabase
-  useEffect(() => {
-    const fetchStaffData = async () => {
-        try {
-            // Get the logged-in user
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
-            if (userError) {
-                throw new Error(`Error fetching user: ${userError.message}`);
-            }
-
-            if (!user) {
-                console.error("User is not logged in");
-                return; // Exit if no user is found
-            }
-
-            // Fetch the role of the logged-in user
-            const { data: userData, error: roleError } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', user.id) // Fetch the role of the logged-in user
-                .single();
-
-            if (roleError) {
-                throw new Error(`Error fetching user role: ${roleError.message}`);
-            }
-
-            console.log("User Role:", userData.role); // Log the user role
-            setUserRole(userData.role); // Set the user role
-
-            // Fetch all user data
-            const { data, error: fetchError } = await supabase
-                .from('users')
-                .select('*'); // Fetch all user data
-
-            if (fetchError) {
-                throw new Error(`Error fetching staff data: ${fetchError.message}`);
-            }
-
-            console.log("Fetched Data:", data); // Log the fetched data
-
-            // Set staff data based on user role
-            if (userData.role === 'admin') {
-                setStaffData(data); // Admin can see all users (both admins and staff)
-            } else {
-                setStaffData(data.filter(staff => staff.id === user.id)); // Staff can see only their own data
-            }
-        } catch (error) {
-            console.error(error.message);
+  const fetchStaffData = async () => {
+    try {
+        // Get the logged-in user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) {
+            throw new Error(`Error fetching user: ${userError.message}`);
         }
-    };
 
+        if (!user) {
+            console.error("User is not logged in");
+            return; // Exit if no user is found
+        }
+
+        // Fetch the role of the logged-in user
+        const { data: userData, error: roleError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id) // Fetch the role of the logged-in user
+            .single();
+
+        if (roleError) {
+            throw new Error(`Error fetching user role: ${roleError.message}`);
+        }
+
+        console.log("User Role:", userData.role); // Log the user role
+        setUserRole(userData.role); // Set the user role
+
+        // Fetch all user data
+        const { data, error: fetchError } = await supabase
+            .from('users')
+            .select('*'); // Fetch all user data
+
+        if (fetchError) {
+            throw new Error(`Error fetching staff data: ${fetchError.message}`);
+        }
+
+        console.log("Fetched Data:", data); // Log the fetched data
+
+        // Set staff data based on user role
+        if (userData.role === 'admin') {
+            setStaffData(data); // Admin can see all users (both admins and staff)
+        } else {
+            setStaffData(data.filter(staff => staff.id === user.id)); // Staff can see only their own data
+        }
+    } catch (error) {
+        console.error(error.message);
+    }
+  };
+
+  useEffect(() => {
     fetchStaffData(); // Call the fetch function
-}, []); // Empty dependency array to run only on mount
+  }, []); // Empty dependency array to run only on mount
 
   const handleAddStaff = () => {
     if (userRole !== 'admin') { // Check if the user is not an admin
