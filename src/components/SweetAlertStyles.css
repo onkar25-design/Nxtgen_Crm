@@ -1,0 +1,28 @@
+/* SweetAlertStyles.css */
+.swal2-popup {
+    background-color: #1F1F1F; /* Dark background */
+    color: #FFFFFF; /* White text */
+    border-radius: 8px; /* Rounded corners */
+}
+
+.swal2-title {
+    color: #B0BEC5; /* Light gray title */
+}
+
+.swal2-confirm {
+    background-color: #4CAF50; /* Green button */
+    color: white; /* White text */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners */
+}
+
+.swal2-cancel {
+    background-color: #f44336; /* Red button */
+    color: white; /* White text */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners */
+}
+
+.swal2-styled {
+    font-weight: 500; /* Bold text */
+}

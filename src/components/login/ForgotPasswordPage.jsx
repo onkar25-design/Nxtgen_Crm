@@ -5,42 +5,82 @@ import {
   TextField, 
   Button, 
   Box, 
-  Typography, 
   CssBaseline,
   ThemeProvider,
   createTheme
 } from '@mui/material';
-import companyLogo from './company-logo.png';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 import './ForgotPasswordPage.css'; // Create this CSS file if needed
 
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#388e3c',
+      main: '#7fba00',
+    },
+    background: {
+      default: '#121212',
+      paper: '#1e1e1e',
     },
   },
 });
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    setMessage('');
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+        // Check if the email is registered
+        const { data, error: fetchError } = await supabase
+            .from('users')
+            .select('email')
+            .eq('email', email)
+            .single();
 
-      if (error) throw error;
+        if (fetchError) {
+            // Handle specific fetch errors
+            if (fetchError.code === 'PGRST116') { // Example error code for no rows found
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Email Not Registered',
+                    text: 'This email is not registered. Please check and try again.',
+                });
+                return;
+            }
+            throw fetchError; // Throw other fetch errors
+        }
 
-      setMessage('Password reset email sent. Please check your inbox.');
+        if (!data) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Email Not Registered',
+                text: 'This email is not registered. Please check and try again.',
+            });
+            return;
+        }
+
+        // Proceed to send the password reset email
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/reset-password`,
+        });
+
+        if (error) throw error;
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Email Sent',
+            text: 'Password reset email sent. Please check your inbox.',
+        });
     } catch (error) {
-      console.error('Reset password error:', error);
-      setMessage(error.message);
+        console.error('Reset password error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while trying to reset the password. Please try again later.',
+        });
     }
   };
 
@@ -49,10 +89,9 @@ const ForgotPasswordPage = () => {
       <CssBaseline />
       <div className="forgot-password-container">
         <div className="forgot-password-box">
-          <img src={companyLogo} alt="Company Logo" className="company-logo" />
-          <Typography variant="h4" component="h1" className="page-title">
-            Forgot Password
-          </Typography>
+          <div className="forgot-password-company-logo">
+            <h1 className="forgot-password-logo-title"><span>Nxt</span><span>Gen</span></h1>
+          </div>
           <Box component="form" onSubmit={handleResetPassword} noValidate className="forgot-password-form">
             <TextField
               margin="normal"
@@ -70,7 +109,7 @@ const ForgotPasswordPage = () => {
               type="submit"
               fullWidth
               variant="contained"
-              className="reset-password-button"
+              className="forgot-password-reset-button"
             >
               Reset Password
             </Button>
@@ -78,15 +117,10 @@ const ForgotPasswordPage = () => {
               onClick={() => navigate('/login')}
               fullWidth
               variant="text"
-              className="back-to-login-button"
+              className="forgot-password-back-to-login-button"
             >
               Back to Login
             </Button>
-            {message && (
-              <Typography className="reset-message">
-                {message}
-              </Typography>
-            )}
           </Box>
         </div>
       </div>

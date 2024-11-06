@@ -11,14 +11,18 @@ import {
   createTheme,
   Grid
 } from '@mui/material';
-import companyLogo from '../login/company-logo.png'; // Adjust the path as needed
 import './SignupPage.css'; // Create this CSS file
 import Swal from 'sweetalert2';
 
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#388e3c',
+      main: '#7fba00',
+    },
+    background: {
+      default: '#121212',
+      paper: '#1e1e1e',
     },
   },
 });
@@ -42,14 +46,34 @@ const SignupPage = () => {
     e.preventDefault();
     setError(null);
 
+    // Validate password
+    const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+        setError('Password must be at least 8 characters long and include at least one special character.');
+        return;
+    }
+
+    // Validate phone number
+    if (!/^\d{10}$/.test(phone)) {
+        setError('Phone number must be exactly 10 digits.');
+        return;
+    }
+
+    // Capitalize first name, last name, city, state, and country
+    const formattedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    const formattedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+    const formattedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+    const formattedState = state.charAt(0).toUpperCase() + state.slice(1).toLowerCase();
+    const formattedCountry = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            first_name: firstName,
-            last_name: lastName,
+            first_name: formattedFirstName,
+            last_name: formattedLastName,
             role: 'staff'
           },
           emailRedirectTo: `${window.location.origin}/login`
@@ -62,9 +86,9 @@ const SignupPage = () => {
         console.log('Sign-up initiated:', data.user);
         const address = {
           street,
-          city,
-          state,
-          country,
+          city: formattedCity,
+          state: formattedState,
+          country: formattedCountry,
           zipcode
         };
 
@@ -75,8 +99,8 @@ const SignupPage = () => {
               id: data.user.id,
               email: data.user.email,
               role: 'staff',
-              first_name: firstName,
-              last_name: lastName,
+              first_name: formattedFirstName,
+              last_name: formattedLastName,
               phone,
               designation,
               address: address,
@@ -104,7 +128,9 @@ const SignupPage = () => {
       <CssBaseline />
       <div className="signup-container">
         <div className="signup-box">
-          <img src={companyLogo} alt="Company Logo" className="company-logo" />
+          <div className="signup-company-logo">
+            <h1 className="signup-logo-title"><span>Nxt</span><span>Gen</span></h1>
+          </div>
           <Box component="form" onSubmit={handleSignUp} noValidate className="signup-form">
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
@@ -258,7 +284,7 @@ const SignupPage = () => {
               onClick={() => navigate('/login')}
               fullWidth
               variant="text"
-              className="back-to-login-button"
+              className="signup-back-to-login-button"
             >
               Back to Login
             </Button>

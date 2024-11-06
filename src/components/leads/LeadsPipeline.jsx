@@ -86,7 +86,7 @@ function LeadsPipeline() {
 
       const { data: leadsData, error: leadsError } = await supabase
         .from('client_leads')
-        .select('id, title, budget, company, tags, name, email, phone, lead_source, lead_score, interested_products, assigned_to, status, notes, stage');
+        .select('id, title, budget, company, tags, name, email, phone, lead_source, lead_score, interested_products, status, notes, stage');
 
       if (leadsError) {
         console.error('Error fetching leads:', leadsError);
@@ -194,7 +194,6 @@ function LeadsPipeline() {
       lead_source: leadData.leadSource,
       lead_score: leadData.leadScore,
       interested_products: leadData.interestedProducts,
-      assigned_to: leadData.assignedTo,
       status: leadData.status,
       notes: leadData.notes,
       stage: 'new',
@@ -206,7 +205,10 @@ function LeadsPipeline() {
     } else {
       setColumns(prevColumns => {
         const updatedColumns = [...prevColumns];
-        updatedColumns[0].cards.push(newLeadData);
+        const newColumnIndex = updatedColumns.findIndex(col => col.id === 'new');
+        if (newColumnIndex !== -1) {
+          updatedColumns[newColumnIndex].cards.push(newLeadData);
+        }
         return updatedColumns;
       });
     }

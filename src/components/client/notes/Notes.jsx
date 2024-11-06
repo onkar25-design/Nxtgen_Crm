@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import the Font Awesome edit icon
 import { supabase } from '../../../../supabaseClient'; // Import the Supabase client
 import './Notes.css'; // Create a CSS file for styling
+import Swal from 'sweetalert2'; // Import SweetAlert
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -76,24 +77,35 @@ function Notes({ clientId }) { // Accept clientId as a prop
   };
 
   const handleDeleteNote = async (id) => {
-    if (window.confirm('Are you sure you want to delete this note?')) {
-      const { error } = await supabase
-        .from('notes')
-        .delete()
-        .eq('id', id);
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    });
 
-      if (error) {
-        console.error('Error deleting note:', error);
-      } else {
-        setNotes(notes.filter(note => note.id !== id));
-        await logActivity({ 
-          activity: `Deleted Note: ${currentNote.title} (Client: ${companyName})`, // Log title and company name
-          action: 'Delete', 
-          activity_by: 'User', 
-          date: new Date().toISOString().split('T')[0], 
-          time: new Date().toLocaleTimeString() 
-        });
-      }
+    if (result.isConfirmed) {
+        const { error } = await supabase
+            .from('notes')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting note:', error);
+        } else {
+            setNotes(notes.filter(note => note.id !== id));
+            await logActivity({ 
+                activity: `Deleted Note: ${currentNote.title} (Client: ${companyName})`,
+                action: 'Delete', 
+                activity_by: 'User', 
+                date: new Date().toISOString().split('T')[0], 
+                time: new Date().toLocaleTimeString() 
+            });
+            Swal.fire('Deleted!', 'Your note has been deleted.', 'success'); // Success alert
+        }
     }
   };
 
@@ -123,6 +135,7 @@ function Notes({ clientId }) { // Accept clientId as a prop
           date: new Date().toISOString().split('T')[0], 
           time: new Date().toLocaleTimeString() 
         });
+        Swal.fire('Updated!', 'Your note has been updated successfully.', 'success'); // Success alert for update
       }
     } else {
       // Insert new note
@@ -147,6 +160,7 @@ function Notes({ clientId }) { // Accept clientId as a prop
           date: new Date().toISOString().split('T')[0], 
           time: new Date().toLocaleTimeString() 
         });
+        Swal.fire('Added!', 'Your note has been added successfully.', 'success'); // Success alert for add
       }
     }
     setIsModalOpen(false);
@@ -251,17 +265,17 @@ function Notes({ clientId }) { // Accept clientId as a prop
           <div className="notes-modal-content">
             <h3>View Note</h3>
             <hr className="notes-modal-divider" />
-            <div>
-              <strong>Date:</strong> {currentNote.date}
+            <div style={{ marginBottom: '20px' }}>
+                <strong>Date:</strong> {currentNote.date}
             </div>
-            <div>
-              <strong>Title:</strong> {currentNote.title}
+            <div style={{ marginBottom: '20px' }}>
+                <strong>Title:</strong> {currentNote.title}
             </div>
-            <div>
-              <strong>Content:</strong> {currentNote.text}
+            <div style={{ marginBottom: '20px' }}>
+                <strong>Content:</strong> {currentNote.text}
             </div>
             <div className="notes-modal-buttons">
-              <button type="button" className="notes-cancel-btn" onClick={() => setIsReadOnlyModalOpen(false)}>Close</button>
+                <button type="button" className="notes-cancel-btn" onClick={() => setIsReadOnlyModalOpen(false)}>Close</button>
             </div>
           </div>
         </div>

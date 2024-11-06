@@ -3,6 +3,7 @@ import './ContactInfo.css'; // Create a CSS file for styling
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import icons
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
+import Swal from 'sweetalert2';
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -16,6 +17,14 @@ const logActivity = async (activity) => {
   } else {
     console.log('Activity logged successfully'); // Log success message
   }
+};
+
+// Function to capitalize the first letter of each word
+const capitalizeEachWord = (str) => {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 };
 
 function ContactInfo({ clientId }) { // Accept clientId as a prop
@@ -105,19 +114,48 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate phone number (10 digits)
+    if (!/^\d{10}$/.test(contactInfo.phone)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Phone Number',
+        text: 'Phone number must be a 10-digit number.',
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(contactInfo.email)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address.',
+      });
+      return;
+    }
+
+    // Capitalize first letter of each word in name and designation
+    const formattedContactInfo = {
+      ...contactInfo,
+      name: capitalizeEachWord(contactInfo.name),
+      designation: capitalizeEachWord(contactInfo.designation),
+    };
+
     const { error } = await supabase
       .from('contacts')
       .insert([{ 
-          ...contactInfo, 
+          ...formattedContactInfo, 
           client_id: clientId 
       }]); // Insert new contact with client_id
 
     if (error) {
       console.error('Error adding contact:', error);
     } else {
-      setContacts([...contacts, { ...contactInfo, client_id: clientId }]); // Add new contact to the state
+      setContacts([...contacts, { ...formattedContactInfo, client_id: clientId }]); // Add new contact to the state
       await logActivity({ 
-        activity: `Added Contact: ${contactInfo.name} (Client: ${companyName})`, // Update activity log
+        activity: `Added Contact: ${formattedContactInfo.name} (Client: ${companyName})`, // Update activity log
         action: 'Add', 
         activity_by: 'User', 
         date: new Date().toISOString().split('T')[0], 
@@ -129,20 +167,49 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate phone number (10 digits)
+    if (!/^\d{10}$/.test(contactInfo.phone)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Phone Number',
+        text: 'Phone number must be a 10-digit number.',
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(contactInfo.email)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address.',
+      });
+      return;
+    }
+
+    // Capitalize first letter of each word in name and designation
+    const formattedContactInfo = {
+      ...contactInfo,
+      name: capitalizeEachWord(contactInfo.name),
+      designation: capitalizeEachWord(contactInfo.designation),
+    };
+
     const { error } = await supabase
       .from('contacts')
-      .update(contactInfo)
+      .update(formattedContactInfo)
       .eq('id', contacts[editIndex].id); // Update contact by ID
 
     if (error) {
       console.error('Error updating contact:', error);
     } else {
       const updatedContacts = contacts.map((contact, index) =>
-        index === editIndex ? contactInfo : contact
+        index === editIndex ? formattedContactInfo : contact
       );
       setContacts(updatedContacts);
       await logActivity({ 
-        activity: `Edited Contact: ${contactInfo.name} (Client: ${companyName})`, // Update activity log
+        activity: `Edited Contact: ${formattedContactInfo.name} (Client: ${companyName})`, // Update activity log
         action: 'Edit', 
         activity_by: 'User', 
         date: new Date().toISOString().split('T')[0], 

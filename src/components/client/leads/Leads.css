@@ -36,10 +36,7 @@
     transition: background-color 0.3s;
     border: 2px solid transparent; /* Default border */
     transition: border-color 0.3s; /* Smooth transition for border color */
-    position: relative; /* For the border effect */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     border: 2px solid gray; /* Gray border for all sides */
-    border-left: 5px solid transparent; /* Default left border */
 }
 
 .client-leads-modal {
@@ -48,7 +45,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7); /* Darker background for better contrast */
+    background: rgba(0, 0, 0, 0.8); /* Updated opacity for better contrast */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,83 +53,110 @@
 }
 
 .client-leads-modal-content {
-    background: #2B2B2B; /* Dark background for modal */
-    padding: 30px; /* Increased padding for better spacing */
+    background: #1F1F1F; /* Consistent background color */
+    padding: 2rem; /* Consistent padding */
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow for depth */
-    width: 100%; /* Set a width for the modal */
+    width: 90%; /* Responsive width */
     max-width: 600px; /* Max width for larger screens */
+    color: #fff; /* Text color */
+    max-height: 90vh; /* Limit height for better usability */
+    overflow-y: auto; /* Enable scrolling if content exceeds max height */
+}
+
+.client-leads-modal-title {
+    color: #fff; /* Title color */
+    margin-bottom: 1rem; /* Space below title */
+    font-size: 1.5rem; /* Increased font size for better visibility */
 }
 
 .client-leads-modal-content input,
 .client-leads-modal-content select,
+.client-leads-modal-content textarea,
+.client-leads-modal-content .react-select-container {
+    width: 100%; /* Full width for inputs */
+    padding: 0.75rem; /* Consistent padding */
+    background: #2B2B2B; /* Dark background for inputs */
+    border: 1px solid #404040; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    color: #fff; /* Text color */
+    margin-bottom: 1rem; /* Space below inputs */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
 .client-leads-modal-content textarea {
-    margin-bottom: 15px; /* Space below inputs */
-    padding: 12px; /* Adjusted padding for inputs */
-    border: 1px solid #4CAF50; /* Green border for inputs */
-    border-radius: 5px; /* Rounded corners for inputs */
-    width: calc(100% - 24px); /* Full width for inputs with padding adjustment */
-    font-size: 16px; /* Increased font size for better readability */
-    background-color: #1F1F1F; /* Dark background for inputs */
-    color: #FFFFFF; /* White text color for inputs */
-    transition: border-color 0.3s; /* Smooth transition for border color */
+    height: 100px; /* Fixed height for textarea */
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 42px; /* Minimum height for textarea */
 }
 
 .client-leads-modal-content input:focus,
 .client-leads-modal-content select:focus,
 .client-leads-modal-content textarea:focus {
-    border-color: #81C784; /* Lighter green on focus */
+    border-color: #4CAF50; /* Border color on focus */
     outline: none; /* Remove default outline */
 }
 
-.client-leads-form-actions {
-    display: flex; /* Use flexbox for button alignment */
-    justify-content: space-between; /* Space between buttons */
-    margin-top: 20px; /* Space above buttons */
-}
-
-.client-leads-submit-btn,
-.client-leads-cancel-btn {
-    padding: 12px 20px; /* Adjusted padding for buttons */
-    font-size: 16px; /* Increased font size */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s; /* Added transition for hover effect */
-}
-
-.client-leads-submit-btn {
-    background-color: #4CAF50; /* Green background */
-    color: white; /* White text */
-}
-
-.client-leads-cancel-btn {
-    background-color: #f44336; /* Red background */
-    color: white; /* White text */
-}
-
-.client-leads-submit-btn:hover {
-    background-color: #388E3C; /* Darker green on hover */
-    transform: scale(1.05); /* Slightly enlarge button on hover */
-}
-
-.client-leads-cancel-btn:hover {
-    background-color: #d32f2f; /* Darker red on hover */
-    transform: scale(1.05); /* Slightly enlarge button on hover */
+.client-leads-modal-content label {
+    display: block; /* Block display for labels */
+    margin-bottom: 0.5rem; /* Space below labels */
+    color: #B0BEC5; /* Label color */
+    font-size: 0.9rem; /* Font size for labels */
 }
 
 .client-leads-form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Two columns */
-    gap: 15px; /* Space between fields */
+    grid-template-columns: repeat(2, 1fr); /* Two-column layout */
+    gap: 1rem; /* Space between fields */
+    margin-bottom: 1rem; /* Space below grid */
 }
 
-.client-leads-modal-content label {
-    margin-bottom: 5px; /* Space below labels */
-    font-weight: bold; /* Bold labels for better visibility */
-    color: #B0BEC5; /* Light gray color for labels */
+.client-leads-form-grid > div {
+    display: flex;
+    flex-direction: column; /* Ensure labels and inputs stack vertically */
 }
 
-/* Icon button styles */
+.client-leads-form-actions {
+    display: flex; /* Flexbox for button alignment */
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 1rem; /* Space between buttons */
+    margin-top: 1.5rem; /* Space above buttons */
+}
+
+.client-leads-submit-btn,
+.client-leads-cancel-btn {
+    padding: 0.75rem 1.5rem; /* Consistent padding */
+    border-radius: 4px; /* Rounded corners */
+    border: none; /* Remove border */
+    font-weight: 500; /* Font weight */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: all 0.2s; /* Smooth transition */
+    min-width: 120px; /* Minimum width for buttons */
+    height: 42px; /* Consistent height for buttons */
+}
+
+.client-leads-submit-btn {
+    background: #4CAF50; /* Green background */
+    color: white; /* White text */
+}
+
+.client-leads-submit-btn:hover {
+    background: #388E3C; /* Darker green on hover */
+}
+
+.client-leads-cancel-btn {
+    background: #f44336; /* Red background */
+    color: white; /* White text */
+}
+
+.client-leads-cancel-btn:hover {
+    background: #d32f2f; /* Darker red on hover */
+}
+
+.client-leads-form-notes {
+    margin-top: 1rem; /* Space above notes field */
+    grid-column: 1 / -1; /* Span full width */
+}
+
 .client-leads-card-edit-btn {
     color: #4CAF50; /* Green color for edit icon */
     transition: color 0.3s; /* Smooth transition for color change */
@@ -267,4 +291,110 @@
 .calls-table th {
     background-color: #4CAF50; /* Green background for header */
     color: white; /* White text color */
+}
+
+.client-leads-card-assign-btn {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    color: blue; /* Set icon color to blue */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.client-leads-card-assign-btn:hover {
+    opacity: 0.8; /* Optional: Add hover effect */
+}
+
+/* Style for react-select tags */
+.react-select__multi-value {
+    background-color: #4CAF50; /* Green background for selected tags */
+    color: white; /* White text color */
+}
+
+.react-select__multi-value__label {
+    color: white; /* White text color for tag labels */
+}
+
+.react-select__multi-value__remove {
+    color: white; /* White text color for remove button */
+}
+
+/* Divider style */
+.client-leads-modal-divider {
+    border: none; /* No border */
+    border-top: 1px solid #404040; /* Darker border for divider */
+    margin: 1rem 0; /* Space above and below divider */
+}
+
+/* React Select Custom Styles */
+.react-select__control {
+    background-color: #2B2B2B !important; /* Dark background for control */
+    border-color: #404040 !important; /* Border color */
+}
+
+.react-select__menu {
+    background-color: #2B2B2B !important; /* Dark background for menu */
+}
+
+.react-select__option {
+    background-color: #2B2B2B !important; /* Dark background for options */
+    color: #fff !important; /* White text for options */
+}
+
+.react-select__option--is-focused {
+    background-color: #4CAF50 !important; /* Green background on focus */
+}
+
+.react-select__option--is-selected {
+    background-color: #388E3C !important; /* Darker green for selected */
+}
+
+.react-select__multi-value {
+    background-color: #4CAF50 !important; /* Green background for selected tags */
+}
+
+.react-select__multi-value__label {
+    color: #fff !important; /* White text for tag labels */
+}
+
+.react-select__multi-value__remove {
+    color: #fff !important; /* White text for remove button */
+}
+
+.react-select__input {
+    color: #fff !important; /* White text for input */
+}
+
+.react-select__placeholder {
+    color: #808080 !important; /* Gray color for placeholder */
+}
+
+/* Scrollbar Styles */
+.client-leads-modal-content::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+}
+
+.client-leads-modal-content::-webkit-scrollbar-track {
+    background: #1F1F1F; /* Background of the scrollbar track */
+}
+
+.client-leads-modal-content::-webkit-scrollbar-thumb {
+    background: #404040; /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners for scrollbar thumb */
+}
+
+.client-leads-modal-content::-webkit-scrollbar-thumb:hover {
+    background: #4CAF50; /* Color of the scrollbar thumb on hover */
+}
+
+/* Custom styles for react-select in the assign modal */
+.react-select__single-value {
+    color: white !important; /* Change the color of the selected value to white */
+}
+
+.react-select__multi-value__label {
+    color: white !important; /* Ensure multi-value labels are also white */
+}
+
+.react-select__multi-value__remove {
+    color: white !important; /* Ensure remove button is white */
 }

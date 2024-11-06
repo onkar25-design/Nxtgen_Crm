@@ -151,8 +151,7 @@
 
 .client-management-tab-content {
     background-color: #2B2B2B; /* Dark background for tab content */
-    padding:0;
-    
+    padding: 0;
 }
 
 .client-management-divider {
@@ -172,4 +171,63 @@
 
 .client-management-edit-btn:hover {
     color: #388E3C; /* Darker green on hover */
+}
+
+/* Media query for 460px */
+@media (max-width: 460px) {
+    .client-management {
+        padding: 0.5rem; /* Reduce padding for mobile */
+    }
+
+    .client-management-pipeline-header {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    .client-management-dashboard {
+        grid-template-columns: 1fr; /* Single column layout */
+    }
+
+    .client-management-client-info {
+        grid-template-columns: 1fr; /* Single column layout */
+    }
+
+    .client-management-tabs {
+        flex-direction: column; /* Stack tabs vertically */
+    }
+
+    .client-management-tab {
+        width: 100%; /* Full width for tabs */
+        text-align: left; /* Align text to the left */
+    }
+}
+
+
+/* Media query for 768px */
+@media (min-width: 460px) and (max-width: 768px) {
+    .client-management {
+        padding: 0.5rem; /* Reduce padding for mobile */
+    }
+
+    .client-management-pipeline-header {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    .client-management-dashboard {
+        grid-template-columns: 1fr; /* Single column layout */
+    }
+
+    .client-management-client-info {
+        grid-template-columns: 1fr; /* Single column layout */
+    }
+
+    .client-management-tabs {
+        flex-direction: column; /* Stack tabs vertically */
+    }
+
+    .client-management-tab {
+        width: 100%; /* Full width for tabs */
+        text-align: left; /* Align text to the left */
+    }
 }

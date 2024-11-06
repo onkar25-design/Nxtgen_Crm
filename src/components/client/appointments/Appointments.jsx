@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Appointments.css'; // Ensure you have appropriate styles
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 import sendEmail from '../../utils/sendEmail'; // Adjust the import path as necessary
+import Swal from 'sweetalert2'; // Import SweetAlert
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -139,7 +140,7 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     try {
       // Call the sendEmail function
       console.log('Sending email to:', appointmentInfo.client_email);
-      await sendEmail(appointmentInfo.client_email, emailSubject, emailBody); // Use the client email from the form
+      await sendEmail(appointmentInfo.client_email, emailSubject, emailBody, 'template_4ymgh0h'); // Use the new template ID
     } catch (error) {
       console.error('Failed to send email:', error);
     }
@@ -179,6 +180,13 @@ function Appointments({ clientId }) { // Accept clientId as a prop
         setAppointments(updatedData); // Update state with fetched appointments
       }
       setIsAddModalOpen(false);
+
+      // Show success alert for appointment added
+      Swal.fire({
+        icon: 'success',
+        title: 'Appointment Added Successfully',
+        text: 'The appointment has been added successfully.',
+      });
     }
   };
 

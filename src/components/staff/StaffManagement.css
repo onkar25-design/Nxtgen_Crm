@@ -198,8 +198,7 @@
   box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
 
-/* Add this to src/components/staff/StaffManagement.css */
-
+/* Badge styles */
 .badge {
   display: inline-block;
   padding: 5px 10px; /* Padding for the badge */
@@ -228,5 +227,83 @@
 .badge-pending {
   background-color: red; /* Red background for pending badge */
   color: white; /* White text */
+}
+
+/* Media query for 460px */
+@media (max-width: 460px) {
+  .manageStaff-management {
+    padding: 0.5rem; /* Reduce padding for mobile */
+  }
+
+  .manageStaff-header {
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the start */
+  }
+
+  .manageStaff-header h1 {
+    font-size: 20px; /* Smaller font size for title */
+  }
+
+  .manageStaff-management input[type="text"],
+  .manageStaff-management input[type="email"] {
+    width: 100%; /* Full width for input fields */
+  }
+
+  .manageStaff-management table {
+    font-size: 14px; /* Smaller font size for table */
+  }
+
+  .manageStaff-management th,
+  .manageStaff-management td {
+    padding: 8px; /* Reduce padding for table cells */
+  }
+
+  .manageStaff-modal-content {
+    width: 90%; /* Full width for modal */
+  }
+}
+
+/* Media query for 768px */
+@media (min-width: 460px) and (max-width: 768px) {
+  .manageStaff-management {
+    padding: 0.5rem; /* Reduce padding for mobile */
+  }
+
+  .manageStaff-header {
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the start */
+  }
+
+  .manageStaff-header h1 {
+    font-size: 30px; /* Smaller font size for title */
+  }
+
+  .manageStaff-management input[type="text"],
+  .manageStaff-management input[type="email"] {
+    width: 100%; /* Full width for input fields */
+  }
+
+  .manageStaff-management table {
+    font-size: 14px; /* Smaller font size for table */
+  }
+
+  .manageStaff-management th,
+  .manageStaff-management td {
+    padding: 8px; /* Reduce padding for table cells */
+  }
+
+  .manageStaff-modal-content {
+    width: 90%; /* Full width for modal */
+  }
+}
+
+/* Add this CSS at the end of your existing styles */
+
+.table-wrapper {
+  overflow-x: auto; /* Enable horizontal scrolling */
+}
+
+.manageStaff-management table {
+  min-width: 600px; /* Set a minimum width for the table to ensure it can scroll */
 }
 

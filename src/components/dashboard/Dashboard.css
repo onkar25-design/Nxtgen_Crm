@@ -30,18 +30,6 @@
   margin-bottom: 2rem;
 }
 
-@media (min-width: 768px) {
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
 .stat-card {
   background-color: #2B2B2B;
   padding: 1.5rem;
@@ -80,22 +68,10 @@
   margin-bottom: 2rem;
 }
 
-@media (min-width: 1024px) {
-  .charts-row {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 .charts-row-large {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-}
-
-@media (min-width: 1024px) {
-  .charts-row-large {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .chart-card {
@@ -136,4 +112,72 @@
 
 .recharts-tooltip-item {
   color: #B0BEC5 !important;
+}
+
+/* Media query for 460px */
+@media (max-width: 460px) {
+  .dashboard-header h1 {
+    font-size: 1.5rem; /* Smaller font size for mobile */
+  }
+
+  .stat-card {
+    padding: 1rem; /* Reduce padding for smaller screens */
+  }
+
+  .stat-title {
+    font-size: 0.75rem; /* Smaller title font size */
+  }
+
+  .stat-value {
+    font-size: 1.25rem; /* Smaller value font size */
+  }
+
+  .chart-container {
+    height: 200px; /* Reduce chart height for smaller screens */
+  }
+}
+
+/* Media query for 768px */
+@media (min-width: 460px) and (max-width: 768px) {
+  .dashboard-header h1 {
+    font-size: 1.75rem; /* Adjust font size for medium screens */
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two columns for medium screens */
+  }
+
+  .stat-card {
+    padding: 1.25rem; /* Adjust padding for medium screens */
+  }
+
+  .stat-title {
+    font-size: 0.85rem; /* Adjust title font size */
+  }
+
+  .stat-value {
+    font-size: 1.4rem; /* Adjust value font size */
+  }
+
+  .chart-container {
+    height: 250px; /* Adjust chart height for medium screens */
+  }
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .charts-row-large {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .charts-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

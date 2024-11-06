@@ -1,77 +1,119 @@
+/* Dark theme login page styles */
 body {
-    background-color: #4CAF50; /* Green background for the login page */
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    font-family: 'Roboto', sans-serif;
-  }
-  
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* Full height for centering */
-    background: linear-gradient(314deg, #1b8b00 0%, #a2d240 74%);
-  }
-  
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #121212;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212;
+}
+
+.login-box {
+  background-color: #1e1e1e;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-company-logo {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.login-company-logo h1 {
+  margin: 0;
+  font-size: 5rem;
+}
+
+.login-company-logo span:first-child {
+  color: #7fba00;
+}
+
+.login-company-logo span:last-child {
+  color: #ffffff;
+}
+
+.MuiTextField-root {
+  background-color: #2d2d2d;
+  border-radius: 4px;
+}
+
+.MuiTextField-root .MuiOutlinedInput-root {
+  color: #ffffff;
+}
+
+.MuiTextField-root .MuiOutlinedInput-notchedOutline {
+  border-color: #404040;
+}
+
+.MuiTextField-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #505050;
+}
+
+.MuiTextField-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #7fba00;
+}
+
+.MuiInputLabel-root {
+  color: #808080;
+}
+
+.MuiInputLabel-root.Mui-focused {
+  color: #7fba00;
+}
+
+.login-button {
+  background-color: #7fba00 !important;
+  color: white !important;
+  padding: 0.8rem !important;
+  font-size: 1rem !important;
+  text-transform: none !important;
+  border-radius: 4px !important;
+  margin-top: 1.5rem !important;
+}
+
+.login-button:hover {
+  background-color: #6da000 !important;
+}
+
+.login-forgot-password-link,
+.login-signup-link {
+  color: #7fba00;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.login-forgot-password-link:hover,
+.login-signup-link:hover {
+  text-decoration: underline;
+}
+
+.login-error {
+  color: #ff5252;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
   .login-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 50px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    max-width: 500px;
-    width: 90%;
+    margin: 1rem;
+    padding: 1.5rem;
   }
   
-  .company-logo {
-    width: 100%;
-    max-width: 450px;
-    height: auto;
-    margin-bottom: 40px;
+  .login-company-logo h1 {
+    font-size: 5rem;
   }
-  
-  .login-form {
-    width: 100%;
-  }
-  
-  .login-button {
-    margin-top: 24px;
-    margin-bottom: 16px;
-  }
-  
-  .login-error {
-    color: #e57373;
-    margin-top: -15px;
-    margin-bottom: 15px;
-    font-size: 1rem;
-    text-align: center;
-  }
-  
-  @media (max-width: 768px) {
-    .login-box {
-      padding: 40px;
-      max-width: 85%;
-    }
-  
-    .company-logo {
-      max-width: 300px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .login-box {
-      padding: 30px;
-      max-width: 90%;
-    }
-  
-    .company-logo {
-      max-width: 250px;
-    }
-  
-    .login-error {
-      font-size: 0.9rem;
-    }
-  }
+}

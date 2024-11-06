@@ -15,6 +15,7 @@ import EditClientModal from './clients-management/EditClientModal'; // Import th
 import AssignedCalls from './calls/AssignedCalls'; // Import the new AssignedCalls component
 import Modal from './Modal'; // Import the Modal component
 import AppointmentsToday from './appointments/AppointmentsToday'; // Import the new AppointmentsToday component
+import Reminders from './reminders/Reminders'; // Import the new Reminders component
 
 export default function ClientManagement() {
   const [activeTab, setActiveTab] = useState('contact-info') // Default to contact-info
@@ -154,6 +155,8 @@ export default function ClientManagement() {
       case 'notes':
       case 'assigned-calls':
         return <Notes clientId={clientInfo.id} />; // Pass the client ID to the Notes component
+      case 'reminders':
+        return <Reminders clientId={clientInfo.id} />; // Pass the client ID to Reminders
       default:
         return <AssignedCalls />; // Render the AssignedCalls component
     }
@@ -346,6 +349,12 @@ export default function ClientManagement() {
           onClick={() => setActiveTab('notes')}
         >
           Notes
+        </button>
+        <button
+          className={`client-management-tab ${activeTab === 'reminders' ? 'active' : ''}`}
+          onClick={() => setActiveTab('reminders')}
+        >
+          Reminders
         </button>
       </div>
 

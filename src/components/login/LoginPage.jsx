@@ -16,8 +16,13 @@ import Swal from 'sweetalert2';
 
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#388e3c',
+      main: '#7fba00',
+    },
+    background: {
+      default: '#121212',
+      paper: '#1e1e1e',
     },
   },
 });
@@ -35,12 +40,7 @@ const LoginPage = ({ setUserName, setUserRole }) => {
         .eq('email', email)
         .single();
 
-    if (error) {
-        console.error('Error checking user existence:', error);
-        return { exists: false, error };
-    }
-
-    return { exists: !!data, error: null };
+    return { exists: !!data, error };
   };
 
   const handleLogin = async (e) => {
@@ -49,21 +49,13 @@ const LoginPage = ({ setUserName, setUserRole }) => {
 
     // Check if the user exists
     const { exists, error: checkError } = await checkUserExists(email);
-    if (checkError) {
+    if (checkError || !exists) {
         Swal.fire({
             icon: 'error',
             title: 'User Not Registered',
             text: 'The email address you entered is not registered. Please sign up.',
         });
         return; // Exit if there's an error
-    }
-    if (!exists) {
-        Swal.fire({
-            icon: 'error',
-            title: 'User Not Registered',
-            text: 'The email address you entered is not registered. Please sign up.',
-        });
-        return; // Exit if the user is not registered
     }
 
     // Proceed with login
@@ -137,7 +129,9 @@ const LoginPage = ({ setUserName, setUserRole }) => {
       <CssBaseline />
       <div className="login-container">
         <div className="login-box">
-          <img src={companyLogo} alt="Company Logo" className="company-logo" />
+          <div className="login-company-logo">
+            <h1 className="login-logo-title"><span>Nxt</span><span>Gen</span></h1>
+          </div>
           <Box component="form" onSubmit={handleLogin} noValidate className="login-form">
             <TextField
               margin="normal"
@@ -172,10 +166,10 @@ const LoginPage = ({ setUserName, setUserRole }) => {
               Sign In
             </Button>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Link to="/forgot-password" className="forgot-password-link">
+              <Link to="/forgot-password" className="login-forgot-password-link">
                 Forgot Password?
               </Link>
-              <Link to="/signup" className="signup-link">
+              <Link to="/signup" className="login-signup-link">
                 Create an Account
               </Link>
             </Box>

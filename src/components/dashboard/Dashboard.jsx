@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { BarChart as BarChartIcon, Phone, Calendar, Trophy } from 'lucide-react';
 import './Dashboard.css';
@@ -30,6 +30,7 @@ const Dashboard = () => {
   const [monthlyAppointmentsData, setMonthlyAppointmentsData] = React.useState([]);
   const [sourceData, setSourceData] = React.useState([]);
   const [monthlyData, setMonthlyData] = React.useState([]); // Define state for monthly data
+  const [columnStages, setColumnStages] = useState(['new', 'qualified', 'proposition', 'won']); // Add this line
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -86,29 +87,6 @@ const Dashboard = () => {
         { name: 'Won', value: wonLeadsCount, color: '#4ECDC4' },
         { name: 'Proposition', value: propositionLeadsCount, color: '#4CAF50' },
       ]);
-
-      // Fetch all leads to process for top employees
-      const { data: allLeads, error: allLeadsError } = await supabase
-        .from('client_leads')
-        .select('assigned_to');
-
-      if (allLeadsError) {
-        console.error('Error fetching all leads:', allLeadsError);
-      } else {
-        // Process the leads to count assigned leads per employee
-        const employeeCounts = allLeads.reduce((acc, lead) => {
-          acc[lead.assigned_to] = (acc[lead.assigned_to] || 0) + 1;
-          return acc;
-        }, {});
-
-        // Convert the counts to an array and sort it
-        const topEmployees = Object.entries(employeeCounts)
-          .map(([name, lead_count]) => ({ name, lead_count }))
-          .sort((a, b) => b.lead_count - a.lead_count)
-          .slice(0, 5); // Get top 5 employees
-
-        setTopEmployeesData(topEmployees); // Update state with fetched data
-      }
 
       // Fetch all leads to process for total leads by month
       const { data: allLeadsData, error: allLeadsDataError } = await supabase
@@ -211,6 +189,47 @@ const Dashboard = () => {
 
         setSourceData(formattedSourceData);
       }
+
+      // Fetch all columns to dynamically get their stages
+      const { data: columnsData, error: columnsError } = await supabase
+        .from('columns')
+        .select('id'); // Fetch column IDs
+
+      if (columnsError) {
+        console.error('Error fetching columns:', columnsError);
+        return;
+      }
+
+      // Update columnStages based on fetched columns
+      const stages = columnsData.map(col => col.id);
+      setColumnStages(stages);
+
+      // Fetch leads for each stage dynamically
+      const leadsCounts = await Promise.all(stages.map(async (stage) => {
+        const { count } = await supabase
+          .from('client_leads')
+          .select('*', { count: 'exact' })
+          .eq('stage', stage);
+        return { stage, count };
+      }));
+
+      // Update state for each lead count
+      leadsCounts.forEach(({ stage, count }) => {
+        if (stage === 'new') setNewLeads(count);
+        else if (stage === 'won') setWonLeads(count);
+        else if (stage === 'qualified') setQualifiedLeads(count);
+        else if (stage === 'proposition') setPropositionLeads(count);
+      });
+
+      // Update status data
+      setStatusData(leadsCounts.map(({ stage, count }) => ({
+        name: stage.charAt(0).toUpperCase() + stage.slice(1), // Capitalize stage name
+        value: count,
+        color: stage === 'new' ? '#FF6B6B' :
+               stage === 'qualified' ? '#FFD93D' :
+               stage === 'won' ? '#4ECDC4' :
+               stage === 'proposition' ? '#4CAF50' : '#95A5A6', // Default color
+      })));
     };
 
     fetchData();
@@ -324,22 +343,19 @@ const Dashboard = () => {
               </ResponsiveContainer>
             </div>
           </div>
+
           <div className="chart-card">
-            <h2>Top 5 Employees by Leads Assigned</h2>
+            <h2>Leads by Status</h2>
             <div className="chart-container">
-              {topEmployeesData.length > 0 ? (
-                <ResponsiveContainer>
-                  <BarChart data={topEmployeesData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" />
-                    <Tooltip />
-                    <Bar dataKey="lead_count" fill="#FFD700" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <p>No data available</p>
-              )}
+              <ResponsiveContainer>
+                <BarChart data={statusData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#FFD93D" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>

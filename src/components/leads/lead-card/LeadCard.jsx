@@ -126,7 +126,6 @@ function LeadCard({ card, columnId, onEdit, onDelete }) {
           <p><strong>Lead Source:</strong> {card.lead_source}</p>
           <p><strong>Lead Score:</strong> {card.lead_score}</p>
           <p><strong>Interested Products:</strong> {(card.interested_products || []).join(', ')}</p>
-          <p><strong>Assigned To:</strong> {card.assigned_to}</p>
           <p><strong>Status:</strong> {card.status}</p>
           <p><strong>Notes:</strong> {card.notes}</p>
         </div>

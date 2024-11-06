@@ -340,7 +340,7 @@ const StaffManagement = () => {
     try {
         const { error } = await supabase
             .from('users')
-            .update({ status: 'Active' }) // Update the status to 'Active'
+            .update({ status: 'active' }) // Update the status to 'active' (lowercase)
             .eq('id', id); // Specify the user by id
 
         if (error) throw error;
@@ -349,7 +349,7 @@ const StaffManagement = () => {
         Swal.fire({
             icon: 'success',
             title: 'Approved!',
-            text: 'User access has been approved and status is now Active.',
+            text: 'User access has been approved and status is now active.',
         });
 
         // Refresh the staff data to reflect the changes
@@ -541,46 +541,49 @@ const StaffManagement = () => {
           </div>
         </div>
       )}
-      <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStaffData.map((staff) => (
-            <tr key={staff.id}>
-              <td>{staff.first_name}</td>
-              <td>{staff.last_name}</td>
-              <td>{staff.email}</td>
-              <td>
-                <span className={`badge badge-${staff.role ? staff.role.toLowerCase() : 'unknown'}`}>{staff.role || 'Unknown'}</span>
-              </td>
-              <td>
-                <span className={`badge badge-${staff.status ? staff.status.toLowerCase() : 'unknown'}`}>{staff.status || 'Unknown'}</span>
-              </td>
-              <td>
-                <button className="manageStaff-action-button" onClick={() => handleViewStaff(staff)}>
-                  <FontAwesomeIcon icon={faEye} style={{ color: '#2196f3' }} />
-                </button>
-                <button className="manageStaff-action-button manageStaff-edit-button" onClick={() => handleEditStaff(staff)}>
-                  <FontAwesomeIcon icon={faEdit} style={{ color: '#28a745' }} />
-                </button>
-                {userRole === 'admin' && staff.status === 'Pending' && (
-                  <button className="manageStaff-action-button manageStaff-approve-button" onClick={() => handleApproveStaff(staff.id)}>
-                    <FontAwesomeIcon icon={faCheck} style={{ color: '#28a745' }} />
-                  </button>
-                )}
-              </td>
+      {/* Table Wrapper for Horizontal Scrolling */}
+      <div className="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredStaffData.map((staff) => (
+              <tr key={staff.id}>
+                <td>{staff.first_name}</td>
+                <td>{staff.last_name}</td>
+                <td>{staff.email}</td>
+                <td>
+                  <span className={`badge badge-${staff.role ? staff.role.toLowerCase() : 'unknown'}`}>{staff.role || 'Unknown'}</span>
+                </td>
+                <td>
+                  <span className={`badge badge-${staff.status ? staff.status.toLowerCase() : 'unknown'}`}>{staff.status || 'Unknown'}</span>
+                </td>
+                <td>
+                  <button className="manageStaff-action-button" onClick={() => handleViewStaff(staff)}>
+                    <FontAwesomeIcon icon={faEye} style={{ color: '#2196f3' }} />
+                  </button>
+                  <button className="manageStaff-action-button manageStaff-edit-button" onClick={() => handleEditStaff(staff)}>
+                    <FontAwesomeIcon icon={faEdit} style={{ color: '#28a745' }} />
+                  </button>
+                  {userRole === 'admin' && staff.status === 'Pending' && (
+                    <button className="manageStaff-action-button manageStaff-approve-button" onClick={() => handleApproveStaff(staff.id)}>
+                      <FontAwesomeIcon icon={faCheck} style={{ color: '#28a745' }} />
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

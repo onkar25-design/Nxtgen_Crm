@@ -128,3 +128,48 @@
   align-items: center;
   gap: 0.5rem; /* Spacing between icon and time */
 }
+
+/* Media query for screens 768px and below */
+@media (max-width: 768px) {
+  .activity-log-filters {
+    flex-direction: row; /* Keep filters in a single line */
+    flex-wrap: wrap; /* Allow wrapping if necessary */
+    gap: 0.5rem; /* Reduce gap */
+  }
+
+  .activity-log-select,
+  .activity-log-date-input {
+    flex: 1; /* Allow inputs to grow and take available space */
+    min-width: 120px; /* Set a minimum width for better usability */
+  }
+
+  .activity-log-header {
+    flex-direction: column; /* Stack header elements vertically */
+    align-items: flex-start; /* Align items to the start */
+  }
+
+  .activity-log-title {
+    font-size: 1.5rem; /* Smaller title font size */
+  }
+
+  .activity-log-table th,
+  .activity-log-table td {
+    padding: 8px; /* Reduce padding for table cells */
+  }
+}
+
+/* Media query for screens 460px and below */
+@media (max-width: 460px) {
+  .activity-log-title {
+    font-size: 1.2rem; /* Further reduce title font size */
+  }
+
+  .activity-log-filter-button {
+    padding: 0.5rem; /* Adjust button padding */
+  }
+
+  .activity-log-table th,
+  .activity-log-table td {
+    font-size: 12px; /* Smaller font size for table */
+  }
+}

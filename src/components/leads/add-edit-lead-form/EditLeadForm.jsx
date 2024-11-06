@@ -52,7 +52,8 @@ const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
   return (
     <div className="editleadform-overlay">
       <div className="editleadform">
-        <h2 className="editleadform-header">Edit Lead</h2> {/* Updated header class */}
+        <h2 className="editleadform-header">Edit Lead</h2>
+        <hr className="editleadform-divider" />
         <form onSubmit={handleSubmit}>
           <div className="editleadform-grid">
             <div>
@@ -82,10 +83,6 @@ const EditLeadForm = ({ initialData, onSubmit, onCancel }) => {
             <div>
               <label>Lead Source</label>
               <input name="lead_source" value={formData.lead_source} onChange={handleInputChange} placeholder="Lead Source" required />
-            </div>
-            <div>
-              <label>Assigned To</label>
-              <input name="assigned_to" value={formData.assigned_to} onChange={handleInputChange} placeholder="Assigned To" required />
             </div>
             <div>
               <label>Status</label>

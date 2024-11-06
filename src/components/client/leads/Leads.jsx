@@ -3,7 +3,8 @@ import './Leads.css'; // Create a CSS file for styling
 import Select from 'react-select'; // Import Select for multi-select fields
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesome
-import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; // Import icons
+import { faTrash, faEdit, faUser } from '@fortawesome/free-solid-svg-icons'; // Import icons
+import Swal from 'sweetalert2'; // Import SweetAlert
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -18,6 +19,22 @@ const logActivity = async (activity) => {
     console.log('Activity logged successfully'); // Log success message
   }
 };
+
+// Function to capitalize the first letter of each word
+const capitalizeEachWord = (str) => {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+// Add lead source options
+const leadSourceOptions = [
+  { value: 'Email', label: 'Email' },
+  { value: 'Website', label: 'Website' },
+  { value: 'Social Media', label: 'Social Media' },
+  { value: 'Surveys', label: 'Surveys' },
+];
 
 function Leads({ clientId, companyName }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -34,12 +51,38 @@ function Leads({ clientId, companyName }) {
     lead_source: '',
     lead_score: 1,
     interested_products: [],
-    assigned_to: '',
     status: 'New',
     notes: '',
   }); // State for lead info
   const [currentLeadId, setCurrentLeadId] = useState(null); // State to track the lead being edited
   const [expandedLeadId, setExpandedLeadId] = useState(null); // State to track expanded lead
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false); // State for assign modal
+  const [selectedLeadUserId, setSelectedLeadUserId] = useState(null); // State to track selected lead's user ID
+  const [assignedUser, setAssignedUser] = useState({ first_name: '', last_name: '' }); // State to store assigned user's details
+  const [allUsers, setAllUsers] = useState([]); // State to store all users
+  const [newUserId, setNewUserId] = useState(null); // State to store the new user ID for assignment
+
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      backgroundColor: '#333', // Set background color to dark (black)
+      borderColor: '#555', // Set border color to a lighter shade of black
+      boxShadow: 'none', // Remove box shadow
+      '&:hover': {
+        borderColor: '#777', // Change border color on hover
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#28a745' : state.isFocused ? '#28a745' : '#333', // Green for selected and focused, dark for unselected
+      color: state.isSelected ? 'white' : 'white', // White text for all options
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999, // Ensure the dropdown appears above other elements
+      backgroundColor: '#333', // Match the menu background with the control
+    }),
+  };
 
   // Fetch leads from Supabase when the component mounts or clientId changes
   useEffect(() => {
@@ -86,6 +129,20 @@ function Leads({ clientId, companyName }) {
     }
   }, [clientId]);
 
+  // Fetch all users when the component mounts
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      const { data, error } = await supabase.from('users').select('id, first_name, last_name');
+      if (error) {
+        console.error('Error fetching users:', error);
+      } else {
+        setAllUsers(data); // Set the fetched users
+      }
+    };
+
+    fetchAllUsers();
+  }, []);
+
   const handleAddLead = () => {
     setLeadInfo({
       title: '',
@@ -98,8 +155,8 @@ function Leads({ clientId, companyName }) {
       lead_source: '',
       lead_score: 1,
       interested_products: [],
-      assigned_to: '',
-      status: 'New',
+      stage: 'new', // Set default stage to 'New'
+      status: 'New', // Allow status to be selected from dropdown
       notes: '',
     });
     setIsAddModalOpen(true);
@@ -107,24 +164,59 @@ function Leads({ clientId, companyName }) {
 
   const addLead = async (e) => {
     e.preventDefault(); // Prevent default form submission
+
+    // Validate phone number (10 digits)
+    if (!/^\d{10}$/.test(leadInfo.phone)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Phone Number',
+        text: 'Phone number must be a 10-digit number.',
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(leadInfo.email)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address.',
+      });
+      return;
+    }
+
+    // Capitalize first letter of each word in name
+    const formattedLeadInfo = {
+      ...leadInfo,
+      name: capitalizeEachWord(leadInfo.name),
+    };
+
     const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
 
     const { error } = await supabase
       .from('client_leads')
-      .insert([{ ...leadInfo, client_id: clientId, user_id: user.id }]); // Insert new lead with client_id and user_id
+      .insert([{ ...formattedLeadInfo, client_id: clientId, user_id: user.id }]); // Insert new lead with client_id and user_id
 
     if (error) {
       console.error('Error adding lead:', error);
     } else {
-      setLeads([...leads, { ...leadInfo, client_id: clientId }]); // Add new lead to the state
+      setLeads([...leads, { ...formattedLeadInfo, client_id: clientId }]); // Add new lead to the state
       await logActivity({
-        activity: `Added Lead: ${leadInfo.title} (Company: ${leadInfo.company})`, // Include title and company name
+        activity: `Added Lead: ${formattedLeadInfo.title} (Company: ${formattedLeadInfo.company})`, // Include title and company name
         action: 'Add',
         activity_by: 'User',
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString(),
       });
       setIsAddModalOpen(false);
+
+      // Show success alert for lead added
+      Swal.fire({
+        icon: 'success',
+        title: 'Lead Added Successfully',
+        text: 'The lead has been added successfully.',
+      });
     }
   };
 
@@ -136,48 +228,100 @@ function Leads({ clientId, companyName }) {
 
   const updateLead = async (e) => {
     e.preventDefault(); // Prevent default form submission
+
+    // Validate phone number (10 digits)
+    if (!/^\d{10}$/.test(leadInfo.phone)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Phone Number',
+        text: 'Phone number must be a 10-digit number.',
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(leadInfo.email)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address.',
+      });
+      return;
+    }
+
+    // Capitalize first letter of each word in name
+    const formattedLeadInfo = {
+      ...leadInfo,
+      name: capitalizeEachWord(leadInfo.name),
+    };
+
     const { error } = await supabase
       .from('client_leads')
-      .update(leadInfo)
+      .update(formattedLeadInfo)
       .eq('id', currentLeadId); // Update the lead in the database
 
     if (error) {
       console.error('Error updating lead:', error);
     } else {
-      setLeads(leads.map(lead => (lead.id === currentLeadId ? leadInfo : lead))); // Update the lead in the state
+      setLeads(leads.map(lead => (lead.id === currentLeadId ? formattedLeadInfo : lead))); // Update the lead in the state
       await logActivity({
-        activity: `Edited Lead: ${leadInfo.title} (Company: ${leadInfo.company})`, // Include title and company name
+        activity: `Edited Lead: ${formattedLeadInfo.title} (Company: ${formattedLeadInfo.company})`, // Include title and company name
         action: 'Edit',
         activity_by: 'User',
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString(),
       });
       setIsEditModalOpen(false); // Close the edit modal
+
+      // Show success alert
+      Swal.fire({
+        icon: 'success',
+        title: 'Updated Successfully',
+        text: 'The lead has been updated successfully.',
+      });
     }
   };
 
   const deleteLead = async (leadId) => {
-    if (window.confirm("Are you sure you want to delete this lead?")) { // Confirmation alert
-      // Fetch the lead details before deletion
-      const leadToDelete = leads.find(lead => lead.id === leadId); // Find the lead to delete
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    });
 
-      const { error } = await supabase
-        .from('client_leads')
-        .delete()
-        .eq('id', leadId); // Delete the lead from the database
+    if (result.isConfirmed) {
+        // Fetch the lead details before deletion
+        const leadToDelete = leads.find(lead => lead.id === leadId); // Find the lead to delete
 
-      if (error) {
-        console.error('Error deleting lead:', error);
-      } else {
-        setLeads(leads.filter(lead => lead.id !== leadId)); // Remove the lead from the state
-        await logActivity({
-          activity: `Deleted Lead: ${leadToDelete.title} (Company: ${leadToDelete.company})`, // Include title and company name
-          action: 'Delete',
-          activity_by: 'User',
-          date: new Date().toISOString().split('T')[0],
-          time: new Date().toLocaleTimeString(),
-        });
-      }
+        const { error } = await supabase
+            .from('client_leads')
+            .delete()
+            .eq('id', leadId); // Delete the lead from the database
+
+        if (error) {
+            console.error('Error deleting lead:', error);
+        } else {
+            setLeads(leads.filter(lead => lead.id !== leadId)); // Remove the lead from the state
+            await logActivity({
+                activity: `Deleted Lead: ${leadToDelete.title} (Company: ${leadToDelete.company})`, // Include title and company name
+                action: 'Delete',
+                activity_by: 'User',
+                date: new Date().toISOString().split('T')[0],
+                time: new Date().toLocaleTimeString(),
+            });
+
+            // Show success alert for deletion
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'The lead has been deleted successfully.',
+            });
+        }
     }
   };
 
@@ -203,6 +347,82 @@ function Leads({ clientId, companyName }) {
     { value: 'Distribution Rights', label: 'Distribution Rights' },
   ];
 
+  // Function to handle opening the assign modal
+  const handleAssignLead = async (lead) => {
+    const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
+    // Check if the user is an admin
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user role:', error);
+      return;
+    }
+
+    // Check if the user is authorized to assign leads
+    if (userData.role !== 'admin') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Unauthorized',
+        text: 'You are not authorized to access this option.',
+      });
+      return; // Exit the function if not authorized
+    }
+
+    setCurrentLeadId(lead.id); // Set the current lead ID
+    setSelectedLeadUserId(lead.user_id); // Set the user ID of the lead
+
+    // Fetch user details from the users table
+    const { data: userDataDetails, error: userDetailsError } = await supabase
+      .from('users')
+      .select('first_name, last_name')
+      .eq('id', lead.user_id)
+      .single();
+
+    if (userDetailsError) {
+      console.error('Error fetching user details:', userDetailsError);
+    } else {
+      setAssignedUser(userDataDetails); // Set the fetched user details
+    }
+
+    setIsAssignModalOpen(true); // Open the assign modal
+  };
+
+  // Function to handle user selection
+  const handleUserChange = (selectedOption) => {
+    setNewUserId(selectedOption.value); // Store the new user ID from the selected option
+  };
+
+  // Function to assign the lead to the new user
+  const assignLeadToUser = async () => {
+    if (newUserId && currentLeadId) { // Ensure currentLeadId is not null
+        const { error } = await supabase
+            .from('client_leads')
+            .update({ user_id: newUserId }) // Update the user ID in the client_leads table
+            .eq('id', currentLeadId); // Ensure you have currentLeadId set when editing
+
+        if (error) {
+            console.error('Error assigning lead to user:', error);
+        } else {
+            setSelectedLeadUserId(newUserId); // Update the state with the new user ID
+            setIsAssignModalOpen(false); // Close the modal
+
+            // Show success alert for assignment
+            Swal.fire({
+                icon: 'success',
+                title: 'Assigned!',
+                text: 'The lead has been assigned successfully.',
+            });
+        }
+    } else {
+        console.error('Current lead ID is null or new user ID is not selected.');
+    }
+  };
+
   return (
     <div className="client-leads">
       <div className="client-leads-header">
@@ -222,6 +442,9 @@ function Leads({ clientId, companyName }) {
               </button>
               <button onClick={(e) => { e.stopPropagation(); deleteLead(lead.id); }} className="client-leads-card-delete-btn">
                 <FontAwesomeIcon icon={faTrash} />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); handleAssignLead(lead); }} className="client-leads-card-assign-btn">
+                <FontAwesomeIcon icon={faUser} /> {/* Assign button with user icon */}
               </button>
             </div>
 
@@ -250,7 +473,6 @@ function Leads({ clientId, companyName }) {
                 <p><strong>Budget:</strong> ${lead.budget}</p>
                 <p><strong>Lead Source:</strong> {lead.lead_source}</p>
                 <p><strong>Interested Products:</strong> {lead.interested_products.join(', ')}</p>
-                <p><strong>Assigned To:</strong> {lead.assigned_to}</p>
                 <p><strong>Status:</strong> {lead.status}</p>
                 <p><strong>Notes:</strong> {lead.notes}</p>
               </div>
@@ -282,24 +504,51 @@ function Leads({ clientId, companyName }) {
                   <input type="text" name="company" value={leadInfo.company} onChange={(e) => setLeadInfo({ ...leadInfo, company: e.target.value })} required />
                 </div>
                 <div>
-                  <label>Name</label>
-                  <input type="text" name="name" value={leadInfo.name} onChange={(e) => setLeadInfo({ ...leadInfo, name: e.target.value })} required />
+                  <label>Contact Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={leadInfo.name}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, name: e.target.value })}
+                    required
+                  />
                 </div>
                 <div>
-                  <label>Email</label>
-                  <input type="email" name="email" value={leadInfo.email} onChange={(e) => setLeadInfo({ ...leadInfo, email: e.target.value })} required />
+                  <label>Contact Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={leadInfo.email}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, email: e.target.value })}
+                    required
+                  />
                 </div>
                 <div>
                   <label>Phone</label>
-                  <input type="tel" name="phone" value={leadInfo.phone} onChange={(e) => setLeadInfo({ ...leadInfo, phone: e.target.value })} required />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={leadInfo.phone}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, phone: e.target.value })}
+                    required
+                  />
                 </div>
                 <div>
                   <label>Lead Source</label>
-                  <input type="text" name="lead_source" value={leadInfo.lead_source} onChange={(e) => setLeadInfo({ ...leadInfo, lead_source: e.target.value })} required />
+                  <select
+                    name="lead_source"
+                    value={leadInfo.lead_source}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, lead_source: e.target.value })}
+                    required
+                  >
+                    {leadSourceOptions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label>Lead Score</label>
-                  <select name="lead_score" value={leadInfo.lead_score} onChange={(e) => setLeadInfo({ ...leadInfo, lead_score: e.target.value })} required>
+                  <select name="lead_score" value={leadInfo.lead_score} onChange={(e) => setLeadInfo({ ...leadInfo, lead_score: e.target.value })} required className="form-field-width">
                     {[1, 2, 3, 4, 5].map(score => (
                       <option key={score} value={score}>{score}</option>
                     ))}
@@ -310,14 +559,10 @@ function Leads({ clientId, companyName }) {
                   <Select
                     isMulti
                     options={productOptions}
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, interested_products: selectedOptions.map(option => option.value) }))}
-                    className="react-select-container"
+                    value={productOptions.filter(option => leadInfo.interested_products.includes(option.value))} // Set selected options
+                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, interested_products: selectedOptions.map(option => option.value) }))} // Update state
                     classNamePrefix="react-select"
                   />
-                </div>
-                <div>
-                  <label>Assigned To</label>
-                  <input type="text" name="assigned_to" value={leadInfo.assigned_to} onChange={(e) => setLeadInfo({ ...leadInfo, assigned_to: e.target.value })} required />
                 </div>
                 <div>
                   <label>Status</label>
@@ -333,8 +578,8 @@ function Leads({ clientId, companyName }) {
                   <Select
                     isMulti
                     options={tagOptions}
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))}
-                    className="react-select-container"
+                    value={tagOptions.filter(option => leadInfo.tags.includes(option.value))} // Set selected options
+                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))} // Update state
                     classNamePrefix="react-select"
                   />
                 </div>
@@ -357,6 +602,7 @@ function Leads({ clientId, companyName }) {
         <div className="client-leads-modal">
           <div className="client-leads-modal-content">
             <h3>Edit Lead</h3>
+            <hr className="client-leads-modal-divider" />
             <form onSubmit={updateLead}>
               <div className="client-leads-form-grid">
                 <div>
@@ -372,28 +618,57 @@ function Leads({ clientId, companyName }) {
                   <input type="text" name="company" value={leadInfo.company} onChange={(e) => setLeadInfo({ ...leadInfo, company: e.target.value })} required />
                 </div>
                 <div>
-                  <label>Name</label>
-                  <input type="text" name="name" value={leadInfo.name} onChange={(e) => setLeadInfo({ ...leadInfo, name: e.target.value })} required />
+                  <label>Contact Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={leadInfo.name}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, name: e.target.value })}
+                    required
+                  />
                 </div>
                 <div>
-                  <label>Email</label>
-                  <input type="email" name="email" value={leadInfo.email} onChange={(e) => setLeadInfo({ ...leadInfo, email: e.target.value })} required />
+                  <label>Contact Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={leadInfo.email}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, email: e.target.value })}
+                    required
+                  />
                 </div>
                 <div>
                   <label>Phone</label>
-                  <input type="tel" name="phone" value={leadInfo.phone} onChange={(e) => setLeadInfo({ ...leadInfo, phone: e.target.value })} required />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={leadInfo.phone}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, phone: e.target.value })}
+                    required
+                  />
                 </div>
                 <div>
                   <label>Lead Source</label>
-                  <input type="text" name="lead_source" value={leadInfo.lead_source} onChange={(e) => setLeadInfo({ ...leadInfo, lead_source: e.target.value })} required />
+                  <select
+                    name="lead_source"
+                    value={leadInfo.lead_source}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, lead_source: e.target.value })}
+                    required
+                  >
+                    {leadSourceOptions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label>Lead Score</label>
-                  <select name="lead_score" value={leadInfo.lead_score} onChange={(e) => setLeadInfo({ ...leadInfo, lead_score: e.target.value })} required>
-                    {[1, 2, 3, 4, 5].map(score => (
-                      <option key={score} value={score}>{score}</option>
-                    ))}
-                  </select>
+                  <Select
+                    options={[1, 2, 3, 4, 5].map(score => ({ value: score, label: score }))}
+                    value={{ value: leadInfo.lead_score, label: leadInfo.lead_score }} // Set selected value
+                    onChange={(selectedOption) => setLeadInfo({ ...leadInfo, lead_score: selectedOption.value })}
+                    className="custom-select" // Apply custom styles
+                    classNamePrefix="react-select"
+                  />
                 </div>
                 <div>
                   <label>Interested Products</label>
@@ -402,17 +677,18 @@ function Leads({ clientId, companyName }) {
                     options={productOptions}
                     value={productOptions.filter(option => leadInfo.interested_products.includes(option.value))} // Set selected options
                     onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, interested_products: selectedOptions.map(option => option.value) }))}
-                    className="react-select-container"
+                    className="custom-select" // Apply custom styles
                     classNamePrefix="react-select"
                   />
                 </div>
                 <div>
-                  <label>Assigned To</label>
-                  <input type="text" name="assigned_to" value={leadInfo.assigned_to} onChange={(e) => setLeadInfo({ ...leadInfo, assigned_to: e.target.value })} required />
-                </div>
-                <div>
                   <label>Status</label>
-                  <select name="status" value={leadInfo.status} onChange={(e) => setLeadInfo({ ...leadInfo, status: e.target.value })} required>
+                  <select
+                    name="status"
+                    value={leadInfo.status}
+                    onChange={(e) => setLeadInfo({ ...leadInfo, status: e.target.value })}
+                    required
+                  >
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
                     <option value="Follow-up Needed">Follow-up Needed</option>
@@ -425,8 +701,8 @@ function Leads({ clientId, companyName }) {
                     isMulti
                     options={tagOptions}
                     value={tagOptions.filter(option => leadInfo.tags.includes(option.value))} // Set selected options
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))} // Update tags in leadInfo
-                    className="react-select-container"
+                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))}
+                    className="custom-select" // Apply custom styles
                     classNamePrefix="react-select"
                   />
                 </div>
@@ -440,6 +716,30 @@ function Leads({ clientId, companyName }) {
                 <button type="button" onClick={() => setIsEditModalOpen(false)} className="client-leads-cancel-btn">Cancel</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Assigning Leads */}
+      {isAssignModalOpen && (
+        <div className="client-leads-modal">
+          <div className="client-leads-modal-content">
+            <h3>Assign Lead</h3>
+            <hr className="client-leads-modal-divider" />
+            <p>Currently assigned to: {assignedUser.first_name} {assignedUser.last_name}</p>
+            <Select
+              options={allUsers.map(user => ({
+                value: user.id,
+                label: `${user.first_name} ${user.last_name}`
+              }))}
+              onChange={handleUserChange}
+              classNamePrefix="react-select"
+              styles={customSelectStyles}
+            />
+            <div className="client-leads-form-actions">
+              <button type="button" onClick={assignLeadToUser} className="client-leads-submit-btn">Assign</button>
+              <button type="button" onClick={() => setIsAssignModalOpen(false)} className="client-leads-cancel-btn">Close</button>
+            </div>
           </div>
         </div>
       )}

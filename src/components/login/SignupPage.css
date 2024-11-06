@@ -1,42 +1,106 @@
+/* Dark theme signup page styles */
 .signup-container {
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(314deg, #1b8b00 0%, #a2d240 74%);
+  min-height: 100vh;
+  background-color: #121212;
 }
 
 .signup-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 50px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
-  width: 90%;
+  background-color: #1e1e1e;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 800px;
+  margin: 1rem;
+}
+
+.signup-company-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.signup-company-logo h1 {
+  margin: 0;
+  font-size: 5rem;
+}
+
+.signup-company-logo span:first-child {
+  color: #7fba00;
+}
+
+.signup-company-logo span:last-child {
+  color: #ffffff;
 }
 
 .signup-form {
   width: 100%;
 }
 
+.MuiTextField-root {
+  background-color: #2d2d2d;
+  border-radius: 4px;
+}
+
+.MuiTextField-root .MuiOutlinedInput-root {
+  color: #ffffff;
+}
+
+.MuiTextField-root .MuiOutlinedInput-notchedOutline {
+  border-color: #404040;
+}
+
+.MuiTextField-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #505050;
+}
+
+.MuiTextField-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #7fba00;
+}
+
+.MuiInputLabel-root {
+  color: #808080;
+}
+
+.MuiInputLabel-root.Mui-focused {
+  color: #7fba00;
+}
+
 .signup-button {
-  margin-top: 24px;
-  margin-bottom: 16px;
+  background-color: #7fba00 !important;
+  color: white !important;
+  padding: 0.8rem !important;
+  font-size: 1rem !important;
+  text-transform: none !important;
+  border-radius: 4px !important;
+  margin-top: 1.5rem !important;
+}
+
+.signup-button:hover {
+  background-color: #6da000 !important;
+}
+
+.signup-back-to-login-button {
+  color: #7fba00 !important;
+  margin-top: 1rem !important;
+}
+
+.signup-back-to-login-button:hover {
+  background-color: rgba(127, 186, 0, 0.08) !important;
 }
 
 .signup-error {
-  color: #e57373;
-  margin-top: -15px;
-  margin-bottom: 15px;
-  font-size: 1rem;
+  color: #ff5252;
   text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
 }
 
-.back-to-login-button {
-  margin-top: 16px;
+@media (max-width: 600px) {
+  .signup-box {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
 }
-
-/* Add any additional styles you need */

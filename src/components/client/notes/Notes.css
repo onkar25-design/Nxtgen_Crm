@@ -151,16 +151,16 @@
     color: #4CAF50; /* Green color for edit icon */
     cursor: pointer;
     margin-left: 10px; /* Space between text and edit icon */
-    width: 20px; /* Set a fixed width for the icon */
-    height: 20px; /* Set a fixed height for the icon */
+    width: 16px; /* Smaller width */
+    height: 16px; /* Smaller height */
 }
 
 .notes-delete-icon {
     color: #f44336; /* Red color for delete icon */
     cursor: pointer;
     margin-left: 10px; /* Space between edit and delete icons */
-    width: 20px; /* Set a fixed width for the icon */
-    height: 20px; /* Set a fixed height for the icon */
+    width: 16px; /* Smaller width */
+    height: 16px; /* Smaller height */
 }
 
 .notes-info-edit-btn,

@@ -1,0 +1,132 @@
+.reminders {
+    padding: 5px;
+    background-color: #1F1F1F; /* Dark background to match Supabase theme */
+    color: #FFFFFF; /* White text color for better contrast */
+}
+
+.reminders h2 {
+    margin-bottom: 10px;
+    color: #B0BEC5; /* Light gray color */
+}
+
+.reminders p {
+    color: #B0BEC5; /* Light gray color for text */
+}
+
+.reminders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reminders-add-btn {
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.reminders-add-btn:hover {
+    background-color: #388E3C; /* Darker green on hover */
+}
+
+.reminder-card {
+    background-color: #2B2B2B; /* Dark background for the card */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin-bottom: 15px; /* Space between cards */
+}
+
+.reminders-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.reminders-modal-content {
+    background: #2B2B2B; /* Dark background for modal */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
+}
+
+.reminders-modal-content h3 {
+    margin-bottom: 20px; /* Space below the title */
+    color: #FFFFFF; /* White color for title */
+}
+
+.reminders-modal-content label {
+    display: block;
+    margin-bottom: 10px; /* Space between labels */
+    font-weight: bold; /* Make labels bold */
+    color: #B0BEC5; /* Light gray color for labels */
+}
+
+.reminders-modal-content input,
+.reminders-modal-content select,
+.reminders-modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    background-color: #2B2B2B; /* Dark background for inputs */
+    color: #FFFFFF; /* White text color for inputs */
+}
+
+.reminders-modal-content textarea {
+    min-height: 150px; /* Increased minimum height for the textarea */
+    height: 200px; /* Set a fixed height for the textarea */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+/* Button styles in modal */
+.reminders-modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px; /* Space above buttons */
+}
+
+.reminders-submit-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.reminders-submit-btn:hover {
+    background: #388E3C; /* Darker green on hover */
+}
+
+.reminders-cancel-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.reminders-cancel-btn:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+} 

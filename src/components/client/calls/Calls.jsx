@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Calls.css'; // Ensure you have appropriate styles
 import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 import sendEmail from '../../utils/sendEmail'; // Import sendEmail function
+import Swal from 'sweetalert2'; // Import SweetAlert
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -139,7 +140,7 @@ function Calls({ clientId }) { // Accept clientId as a prop
     try {
       // Call the sendEmail function
       console.log('Sending email to:', callInfo.client_email); // Ensure client_email is set in callInfo
-      await sendEmail(callInfo.client_email, emailSubject, emailBody); // Use the client email from the form
+      await sendEmail(callInfo.client_email, emailSubject, emailBody, 'template_4ymgh0h'); // Use the new template ID
     } catch (error) {
       console.error('Failed to send email:', error);
     }
@@ -167,6 +168,13 @@ function Calls({ clientId }) { // Accept clientId as a prop
         time: new Date().toLocaleTimeString()
       });
       setIsAddModalOpen(false); // Close the modal after adding
+
+      // Show success alert for call added
+      Swal.fire({
+        icon: 'success',
+        title: 'Call Added Successfully',
+        text: 'The call has been added successfully.',
+      });
     }
   };
 
