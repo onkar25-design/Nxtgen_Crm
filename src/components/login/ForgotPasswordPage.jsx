@@ -62,9 +62,12 @@ const ForgotPasswordPage = () => {
             return;
         }
 
+        // Update the redirect URL to your Netlify site
+        const netlifyRedirectUrl = 'https://nxtgencrm.netlify.app/reset-password'; // Use your actual Netlify URL
+
         // Proceed to send the password reset email
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/reset-password`,
+            redirectTo: netlifyRedirectUrl,
         });
 
         if (error) throw error;

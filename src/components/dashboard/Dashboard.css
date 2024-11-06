@@ -138,7 +138,7 @@
 }
 
 /* Media query for 768px */
-@media (min-width: 450px) and (max-width: 768px) {
+@media (min-width: 430px) and (max-width: 768px) {
   .dashboard-header h1 {
     font-size: 1.75rem; /* Adjust font size for medium screens */
   }
