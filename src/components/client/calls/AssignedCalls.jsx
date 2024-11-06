@@ -76,9 +76,9 @@ const AssignedCalls = () => {
           <tbody>
             {assignedCalls.map(call => (
               <tr key={call.id}>
-                <td>{call.date}</td> {/* Assuming 'date' is a field in your calls table */}
-                <td>{call.clients.company_name}</td> {/* Accessing company_name from the joined clients table */}
-                <td>{call.subject}</td> {/* Assuming 'subject' is a field in your calls table */}
+                <td>{call.date}</td>
+                <td>{call.clients.company_name}</td>
+                <td>{call.subject}</td>
                 <td>{call.time}</td>
               </tr>
             ))}

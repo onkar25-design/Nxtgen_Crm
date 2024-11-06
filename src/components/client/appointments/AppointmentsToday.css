@@ -7,6 +7,7 @@
   width: 100%; /* Full width of the modal */
   border-collapse: collapse; /* Remove space between table cells */
   margin-top: 20px; /* Space above the table */
+  overflow-x: auto; /* Allow horizontal scrolling on small screens */
 }
 
 .appointments-table th,
@@ -27,4 +28,40 @@
 
 .appointments-table tr:hover {
   background-color: #5A5A5A; /* Highlight row on hover */
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 768px) {
+  .appointments-table {
+    display: block; /* Make the table block for better responsiveness */
+    overflow-x: auto; /* Allow horizontal scrolling */
+    white-space: nowrap; /* Prevent text from wrapping */
+  }
+
+  .appointments-table th,
+  .appointments-table td {
+    padding: 8px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Adjust font size */
+  }
+
+  .appointments-table th {
+    font-size: 16px; /* Slightly larger font for headers */
+  }
+}
+
+/* Additional Media Query for 450px */
+@media (max-width: 450px) {
+  .appointments-table th,
+  .appointments-table td {
+    padding: 6px; /* Further reduce padding for very small screens */
+    font-size: 12px; /* Smaller font size for better fit */
+  }
+
+  .appointments-table th {
+    font-size: 14px; /* Adjust header font size */
+  }
+
+  .appointments-table {
+    font-size: 12px; /* Overall font size for the table */
+  }
 }
