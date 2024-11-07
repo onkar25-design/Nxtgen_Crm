@@ -39,6 +39,32 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
   });
   const [editIndex, setEditIndex] = useState(null);
   const [companyName, setCompanyName] = useState(''); // Add state for company name
+  const [userId, setUserId] = useState(null); // State for user ID
+  const [userName, setUserName] = useState(''); // State for user full name
+
+  // Fetch user ID and user name when the component mounts
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Error fetching user:', userError);
+      } else {
+        setUserId(user.id);
+        const { data: userData, error: userDetailsError } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+        if (userDetailsError) {
+          console.error('Error fetching user details:', userDetailsError);
+        } else {
+          setUserName(`${userData.first_name} ${userData.last_name}`);
+        }
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   // Fetch contacts and company name from Supabase when the component mounts or clientId changes
   useEffect(() => {
@@ -46,7 +72,7 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
         .select('company_name')
-        .eq('id', clientId) // Fetch company name by client ID
+        .eq('id', clientId); // Fetch company name by client ID
 
       if (clientError) {
         console.error('Error fetching client:', clientError);
@@ -88,7 +114,19 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
   };
 
   const handleDeleteContact = async (index) => {
-    if (window.confirm('Are you sure you want to delete this contact?')) {
+    // Use SweetAlert for confirmation before deletion
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
       const { error } = await supabase
         .from('contacts')
         .delete()
@@ -103,11 +141,16 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
         await logActivity({ 
           activity: `Deleted Contact: ${deletedContact.name} (Client: ${companyName})`, // Update activity log
           action: 'Delete', 
-          activity_by: 'User', 
+          activity_by: userName, // Use full name for activity_by
+          user_id: userId, // Include user ID
           date: new Date().toISOString().split('T')[0], 
           time: new Date().toLocaleTimeString() 
         });
-        alert('Contact deleted successfully.');
+        Swal.fire({
+          icon: 'success',
+          title: 'Contact Deleted',
+          text: 'Contact deleted successfully.',
+        });
       }
     }
   };
@@ -157,11 +200,17 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
       await logActivity({ 
         activity: `Added Contact: ${formattedContactInfo.name} (Client: ${companyName})`, // Update activity log
         action: 'Add', 
-        activity_by: 'User', 
+        activity_by: userName, // Use full name for activity_by
+        user_id: userId, // Include user ID
         date: new Date().toISOString().split('T')[0], 
         time: new Date().toLocaleTimeString() 
       });
       setIsAddModalOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Contact Added',
+        text: 'Contact added successfully.',
+      });
     }
   };
 
@@ -211,11 +260,17 @@ function ContactInfo({ clientId }) { // Accept clientId as a prop
       await logActivity({ 
         activity: `Edited Contact: ${formattedContactInfo.name} (Client: ${companyName})`, // Update activity log
         action: 'Edit', 
-        activity_by: 'User', 
+        activity_by: userName, // Use full name for activity_by
+        user_id: userId, // Include user ID
         date: new Date().toISOString().split('T')[0], 
         time: new Date().toLocaleTimeString() 
       });
       setIsEditModalOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Contact Updated',
+        text: 'Contact updated successfully.',
+      });
     }
   };
 
