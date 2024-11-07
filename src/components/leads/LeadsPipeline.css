@@ -186,7 +186,7 @@
     left: 0; /* Align to the left */
     right: 0; /* Stretch to the right */
     bottom: 0; /* Stretch to the bottom */
-    overflow: hidden; /* Prevent scrolling */
+    overflow: hidden; /* Prevent scrolling of the entire pipeline */
     padding: 10px; /* Adjust padding for mobile */
   }
 
@@ -198,6 +198,7 @@
   .leads-pipeline-columns-container {
     flex-direction: column; /* Stack columns vertically */
     overflow-y: auto; /* Allow vertical scrolling within the container */
+    height: calc(100% - 60px); /* Adjust height to allow for header space */
   }
 
   .leads-pipeline-column {
