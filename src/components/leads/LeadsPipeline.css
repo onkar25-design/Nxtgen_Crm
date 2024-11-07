@@ -49,7 +49,7 @@
 }
 
 .leads-pipeline-icon-btn:hover {
-  background-color: #388E3C; /* Darker green on hover */
+  color: #43A047; /* Darker shade on hover */
 }
 
 /* New styles for the delete button */

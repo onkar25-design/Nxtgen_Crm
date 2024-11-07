@@ -6,6 +6,7 @@ import { faPlus, faTrash, faThList } from '@fortawesome/free-solid-svg-icons'; /
 import './LeadsPipeline.css';
 import NewLeadForm from './add-edit-lead-form/NewLeadForm'; // Import the NewLeadForm component
 import { supabase } from '../../../supabaseClient'; // Import Supabase client
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const initialColumns = [
   {
@@ -137,47 +138,94 @@ function LeadsPipeline() {
     });
   };
 
-  async function addColumn() {
+  const addColumn = async () => {
     if (newColumnTitle.trim() === '') return;
 
     const newColumn = {
-        id: newColumnTitle.toLowerCase().replace(/\s+/g, '-'),
-        title: newColumnTitle,
-        order: selectedColumnToInsertAfter ? 
-            columns.find(col => col.id === selectedColumnToInsertAfter).order + 1 : 
-            columns.length + 1,
+      id: newColumnTitle.toLowerCase().replace(/\s+/g, '-'),
+      title: newColumnTitle,
+      order: selectedColumnToInsertAfter ? 
+        columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
+        columns.length + 1,
     };
-
-    // Adjust order of existing columns
-    setColumns(prevColumns => {
-        const updatedColumns = prevColumns.map(col => {
-            if (selectedColumnToInsertAfter && col.id !== newColumn.id) {
-                const insertIndex = prevColumns.findIndex(c => c.id === selectedColumnToInsertAfter);
-                if (prevColumns.indexOf(col) > insertIndex) {
-                    return { ...col, order: col.order + 1 }; // Increment order for columns after the new column
-                }
-            }
-            return col;
-        });
-
-        // Add the new column to the updated columns
-        updatedColumns.splice(newColumn.order - 1, 0, newColumn); // Insert at the correct position
-        return updatedColumns;
-    });
 
     const { data, error } = await supabase.from('columns').insert([newColumn]);
     if (error) {
-        console.error('Error adding column:', error);
+      console.error('Error adding column:', error);
+    } else {
+      const insertIndex = selectedColumnToInsertAfter ? 
+        columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
+        columns.length;
+
+      setColumns(prevColumns => {
+        const updatedColumns = [...prevColumns];
+        updatedColumns.splice(insertIndex, 0, newColumn);
+        return updatedColumns;
+      });
     }
 
     setNewColumnTitle('');
     setSelectedColumnToInsertAfter('');
     setShowAddColumnModal(false);
-  }
+  };
 
   const deleteColumn = async (columnId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this column?");
-    if (confirmDelete) {
+    // Get the logged-in user
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Check the user's role
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (userError) {
+      console.error('Error fetching user role:', userError);
+      return;
+    }
+
+    // If the user is staff, show unauthorized message
+    if (userData.role === 'staff') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Unauthorized',
+        text: 'You are not authorized to delete this column.',
+      });
+      return; // Prevent deletion
+    }
+
+    // Check for leads in the column before allowing deletion
+    const { data: leadsData, error: leadsError } = await supabase
+      .from('client_leads')
+      .select('id')
+      .eq('stage', columnId); // Check for leads in the specific stage
+
+    if (leadsError) {
+      console.error('Error checking leads:', leadsError);
+      return;
+    }
+
+    if (leadsData.length > 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Cannot Delete',
+        text: 'Cannot delete this column because it contains leads.',
+      });
+      return; // Prevent deletion
+    }
+
+    const confirmDelete = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    });
+
+    if (confirmDelete.isConfirmed) {
       const { data, error } = await supabase.from('columns').delete().eq('id', columnId);
       if (error) {
         console.error('Error deleting column:', error);
@@ -185,6 +233,7 @@ function LeadsPipeline() {
       }
 
       setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
+      Swal.fire('Deleted!', 'Your column has been deleted.', 'success');
     }
   };
 
