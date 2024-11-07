@@ -49,13 +49,21 @@ const SignupPage = () => {
     // Validate password
     const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
-        setError('Password must be at least 8 characters long and include at least one special character.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Password',
+          text: 'Password must be at least 8 characters long and include at least one special character.',
+        });
         return;
     }
 
     // Validate phone number
     if (!/^\d{10}$/.test(phone)) {
-        setError('Phone number must be exactly 10 digits.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Phone Number',
+          text: 'Phone number must be exactly 10 digits.',
+        });
         return;
     }
 
@@ -94,22 +102,21 @@ const SignupPage = () => {
 
         const { error: insertError } = await supabase
           .from('users')
-          .insert([
-            {
-              id: data.user.id,
-              email: data.user.email,
-              role: 'staff',
-              first_name: formattedFirstName,
-              last_name: formattedLastName,
-              phone,
-              designation,
-              address: address,
-              status: 'Pending'
-            }
-          ]);
+          .insert([{
+            id: data.user.id,
+            email: data.user.email,
+            role: 'staff',
+            first_name: formattedFirstName,
+            last_name: formattedLastName,
+            phone,
+            designation,
+            address: address,
+            status: 'Pending'
+          }]);
 
         if (insertError) throw insertError;
 
+        // SweetAlert for successful sign-up
         Swal.fire({
           icon: 'success',
           title: 'Sign Up Successful!',
@@ -119,7 +126,12 @@ const SignupPage = () => {
       }
     } catch (error) {
       console.error('Sign-up error:', error);
-      setError(error.message);
+      // SweetAlert for error
+      Swal.fire({
+        icon: 'error',
+        title: 'Sign Up Error',
+        text: error.message,
+      });
     }
   };
 
@@ -275,11 +287,6 @@ const SignupPage = () => {
             >
               Sign Up
             </Button>
-            {error && (
-              <Typography className="signup-error">
-                {error}
-              </Typography>
-            )}
             <Button
               onClick={() => navigate('/login')}
               fullWidth
