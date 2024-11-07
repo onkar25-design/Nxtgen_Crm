@@ -36,7 +36,7 @@ const ForgotPasswordPage = () => {
         // Check if the email is registered
         const { data, error: fetchError } = await supabase
             .from('users')
-            .select('email')
+            .select('email, status') // Fetch status along with email
             .eq('email', email)
             .single();
 
@@ -53,11 +53,11 @@ const ForgotPasswordPage = () => {
             throw fetchError; // Throw other fetch errors
         }
 
-        if (!data) {
+        if (!data || data.status !== 'active') { // Check if user is not active
             Swal.fire({
                 icon: 'error',
                 title: 'Email Not Registered',
-                text: 'This email is not registered. Please check and try again.',
+                text: 'This email is not registered or not active. Please check and try again.',
             });
             return;
         }
