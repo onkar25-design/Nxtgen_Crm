@@ -49,7 +49,7 @@
 }
 
 .leads-pipeline-icon-btn:hover {
-  color: #43A047; /* Darker shade on hover */
+  background-color: #388E3C; /* Darker green on hover */
 }
 
 /* New styles for the delete button */
@@ -180,28 +180,29 @@
 
 /* New styles for mobile view */
 @media (max-width: 600px) {
-  .leads-pipeline-columns-container {
-    flex-direction: column; /* Stack columns vertically */
-    
-  }
-
-  .leads-pipeline-column {
-    width: 80%; /* Set a smaller width for columns in mobile view */
-    max-width: 350px; /* Optional: Set a maximum width for better control */
-    margin-bottom: 10px; /* Space between stacked columns */
+  .leads-pipeline {
+    position: fixed; /* Fix the position */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    right: 0; /* Stretch to the right */
+    bottom: 0; /* Stretch to the bottom */
+    overflow: hidden; /* Prevent scrolling */
+    padding: 10px; /* Adjust padding for mobile */
   }
 
   .leads-pipeline-header {
-    flex-direction: column; /* Stack title and actions vertically */
+    flex-direction: column; /* Stack header elements */
     align-items: flex-start; /* Align items to the start */
   }
 
-  .leads-pipeline-header-actions {
-    flex-direction: row; /* Keep actions in one line */
-    width: 100%; /* Full width for actions */
-    justify-content: flex-start; /* Align items to the start */
-    margin-top: 10px; /* Space above actions */
-    gap: 10px; /* Space between elements */
+  .leads-pipeline-columns-container {
+    flex-direction: column; /* Stack columns vertically */
+    overflow-y: auto; /* Allow vertical scrolling within the container */
+  }
+
+  .leads-pipeline-column {
+    width: 100%; /* Full width for columns */
+    margin-bottom: 10px; /* Space between columns */
   }
 
   .leads-pipeline-search-input {
