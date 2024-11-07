@@ -126,6 +126,20 @@ function Appointments({ clientId }) { // Accept clientId as a prop
     e.preventDefault();
     const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
 
+    // Fetch user details from the users table
+    const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single(); // Fetch the user details
+
+    if (userError) {
+        console.error('Error fetching user details:', userError);
+        return; // Exit if there's an error
+    }
+
+    const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
+
     // Replace placeholders in the description with actual values
     const filledDescription = appointmentInfo.description
       .replace('{APPOINTMENT_DATE}', appointmentInfo.date)
@@ -163,7 +177,8 @@ function Appointments({ clientId }) { // Accept clientId as a prop
       await logActivity({ 
         activity: `Added Appointment with ${appointmentInfo.appointment_with} (Client: ${companyName})`, // Include company name
         action: 'Add', 
-        activity_by: 'User', 
+        user_id: user.id, // Pass user ID to user_id
+        activity_by: userName, // Use full name for activity_by
         date: new Date().toISOString().split('T')[0], 
         time: new Date().toLocaleTimeString() 
       });

@@ -4,6 +4,20 @@ import sendEmail from '../../utils/sendEmail'; // Adjust the import path as nece
 import Swal from 'sweetalert2'; // Import SweetAlert
 import './Reminders.css'; // Import the CSS file
 
+// Function to log activity
+const logActivity = async (activity) => {
+  console.log('Logging activity:', activity); // Log the activity being logged
+  const { error } = await supabase
+    .from('activity_log') // Assuming you have an 'activity_log' table
+    .insert([activity]);
+
+  if (error) {
+    console.error('Error logging activity:', error);
+  } else {
+    console.log('Activity logged successfully'); // Log success message
+  }
+};
+
 function Reminders({ clientId }) {
   const [reminders, setReminders] = useState([]);
   const [reminderInfo, setReminderInfo] = useState({
@@ -16,8 +30,9 @@ function Reminders({ clientId }) {
   const [userId, setUserId] = useState(null); // State for user ID
   const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for view modal visibility
   const [selectedReminder, setSelectedReminder] = useState(null); // State to hold the selected reminder
+  const [companyName, setCompanyName] = useState(''); // State for company name
 
-  // Fetch reminders and user ID when the component mounts or clientId changes
+  // Fetch reminders, user ID, and company name when the component mounts or clientId changes
   useEffect(() => {
     const fetchRemindersAndUserId = async () => {
       // Fetch user ID
@@ -42,16 +57,17 @@ function Reminders({ clientId }) {
         setReminders(data); // Update state with fetched reminders
       }
 
-      // Fetch client email
+      // Fetch client email and company name
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
-        .select('email') // Fetch client email
+        .select('company_name, email') // Fetch company name and email
         .eq('id', clientId)
         .single();
 
       if (clientError) {
-        console.error('Error fetching client email:', clientError);
+        console.error('Error fetching client data:', clientError);
       } else {
+        setCompanyName(clientData?.company_name || ''); // Set company name
         setReminderInfo((prev) => ({
           ...prev,
           client_email: clientData?.email || '', // Set client email
@@ -66,30 +82,63 @@ function Reminders({ clientId }) {
 
   const handleAddReminder = async (e) => {
     e.preventDefault(); // Prevent default form submission
+
+    // Fetch the logged-in user again to get the user ID
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+        console.error('Error fetching user:', userError);
+        return; // Exit if there's an error
+    }
+
+    // Fetch user details to get first and last name
+    const { data: userData, error: userDetailsError } = await supabase
+        .from('users')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single(); // Fetch the user details
+
+    if (userDetailsError) {
+        console.error('Error fetching user details:', userDetailsError);
+        return; // Exit if there's an error
+    }
+
+    const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
+
     const newReminder = {
-      ...reminderInfo,
-      client_id: clientId,
-      user_id: userId, // Include user ID
+        ...reminderInfo,
+        client_id: clientId,
+        user_id: user.id, // Include user ID
     };
 
     const { error } = await supabase
-      .from('reminders')
-      .insert([newReminder]); // Insert new reminder into the database
+        .from('reminders')
+        .insert([newReminder]); // Insert new reminder into the database
 
     if (error) {
-      console.error('Error adding reminder:', error);
+        console.error('Error adding reminder:', error);
     } else {
-      setReminders([...reminders, newReminder]); // Update state with new reminder
-      await sendEmailReminder(newReminder); // Send email reminder
-      setReminderInfo({ subject: '', description: reminderInfo.description, frequency: '1 month', client_email: '' }); // Reset form
-      setIsAddModalOpen(false); // Close modal
+        setReminders([...reminders, newReminder]); // Update state with new reminder
+        await sendEmailReminder(newReminder); // Send email reminder
 
-      // Show success alert for reminder added
-      Swal.fire({
-        icon: 'success',
-        title: 'Reminder Added Successfully',
-        text: 'The reminder has been added successfully.',
-      });
+        // Log the activity for the new reminder
+        await logActivity({
+            activity: `Added Reminder: ${newReminder.subject} (Client: ${companyName})`, // Include company name
+            action: 'Add',
+            user_id: user.id, // Pass user ID to user_id
+            activity_by: userName, // Use full name for activity_by
+            date: new Date().toISOString().split('T')[0],
+            time: new Date().toLocaleTimeString()
+        });
+
+        setReminderInfo({ subject: '', description: reminderInfo.description, frequency: '1 month', client_email: '' }); // Reset form
+        setIsAddModalOpen(false); // Close modal
+
+        // Show success alert for reminder added
+        Swal.fire({
+            icon: 'success',
+            title: 'Reminder Added Successfully',
+            text: 'The reminder has been added successfully.',
+        });
     }
   };
 

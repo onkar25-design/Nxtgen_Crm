@@ -6,11 +6,15 @@ import './Notes.css'; // Create a CSS file for styling
 import Swal from 'sweetalert2'; // Import SweetAlert
 
 // Function to log activity
-const logActivity = async (activity) => {
+const logActivity = async (activity, userId, userName) => {
   console.log('Logging activity:', activity); // Log the activity being logged
   const { error } = await supabase
     .from('activity_log') // Assuming you have an 'activity_log' table
-    .insert([activity]);
+    .insert([{ 
+      ...activity, 
+      user_id: userId, // Include user_id in the activity log
+      activity_by: userName // Use userName for activity_by
+    }]); 
 
   if (error) {
     console.error('Error logging activity:', error);
@@ -77,41 +81,70 @@ function Notes({ clientId }) { // Accept clientId as a prop
   };
 
   const handleDeleteNote = async (id) => {
+    const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
+    // Fetch user details from the users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('first_name, last_name')
+      .eq('id', user.id)
+      .single(); // Fetch the user details
+
+    if (userError) {
+      console.error('Error fetching user details:', userError);
+      return; // Exit if there's an error
+    }
+
+    const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
+
     const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!'
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
     });
 
     if (result.isConfirmed) {
-        const { error } = await supabase
-            .from('notes')
-            .delete()
-            .eq('id', id);
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', id);
 
-        if (error) {
-            console.error('Error deleting note:', error);
-        } else {
-            setNotes(notes.filter(note => note.id !== id));
-            await logActivity({ 
-                activity: `Deleted Note: ${currentNote.title} (Client: ${companyName})`,
-                action: 'Delete', 
-                activity_by: 'User', 
-                date: new Date().toISOString().split('T')[0], 
-                time: new Date().toLocaleTimeString() 
-            });
-            Swal.fire('Deleted!', 'Your note has been deleted.', 'success'); // Success alert
-        }
+      if (error) {
+        console.error('Error deleting note:', error);
+      } else {
+        setNotes(notes.filter(note => note.id !== id));
+        await logActivity({ 
+          activity: `Deleted Note: ${currentNote.title} (Client: ${companyName})`,
+          action: 'Delete', 
+          date: new Date().toISOString().split('T')[0], 
+          time: new Date().toLocaleTimeString() 
+        }, user.id, userName); // Pass user.id and userName to logActivity
+        Swal.fire('Deleted!', 'Your note has been deleted.', 'success'); // Success alert
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
+    // Fetch user details from the users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('first_name, last_name')
+      .eq('id', user.id)
+      .single(); // Fetch the user details
+
+    if (userError) {
+      console.error('Error fetching user details:', userError);
+      return; // Exit if there's an error
+    }
+
+    const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
 
     if (currentNote.id) {
       // Update existing note
@@ -131,10 +164,9 @@ function Notes({ clientId }) { // Accept clientId as a prop
         await logActivity({ 
           activity: `Edited Note: ${currentNote.title} (Client: ${companyName})`,
           action: 'Edit', 
-          activity_by: 'User', 
           date: new Date().toISOString().split('T')[0], 
           time: new Date().toLocaleTimeString() 
-        });
+        }, user.id, userName); // Pass user.id and userName to logActivity
         Swal.fire('Updated!', 'Your note has been updated successfully.', 'success'); // Success alert for update
       }
     } else {
@@ -156,10 +188,9 @@ function Notes({ clientId }) { // Accept clientId as a prop
         await logActivity({ 
           activity: `Added Note: ${currentNote.title} (Client: ${companyName})`,
           action: 'Add', 
-          activity_by: 'User', 
           date: new Date().toISOString().split('T')[0], 
           time: new Date().toLocaleTimeString() 
-        });
+        }, user.id, userName); // Pass user.id and userName to logActivity
         Swal.fire('Added!', 'Your note has been added successfully.', 'success'); // Success alert for add
       }
     }

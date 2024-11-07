@@ -127,6 +127,20 @@ function Calls({ clientId }) { // Accept clientId as a prop
       return; // Exit if there's an error
     }
 
+    // Fetch user details to get first and last name
+    const { data: userData, error: userDetailsError } = await supabase
+        .from('users')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single(); // Fetch the user details
+
+    if (userDetailsError) {
+        console.error('Error fetching user details:', userDetailsError);
+        return; // Exit if there's an error
+    }
+
+    const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
+
     // Replace placeholders in the description with actual values
     const filledDescription = callInfo.description
       .replace('{CALL_DATE}', callInfo.date)
@@ -152,18 +166,19 @@ function Calls({ clientId }) { // Accept clientId as a prop
       user_id: user.id, // Set the user_id to the logged-in user's ID
     };
 
-    const { error } = await supabase
+    const { error: insertError } = await supabase
       .from('calls')
       .insert([newCall]); // Insert new call into the database
 
-    if (error) {
-      console.error('Error adding call:', error);
+    if (insertError) {
+      console.error('Error adding call:', insertError);
     } else {
       setCalls([...calls, newCall]); // Add new call to the state
       await logActivity({
-        activity: `Added Call with ${callInfo.call_with} (Client: ${companyName})`, // Include company name
+        activity: `Added Call with ${callInfo.call_with} (Client: ${companyName})`, // Include company name instead of email
         action: 'Add',
-        activity_by: 'User',
+        user_id: user.id, // Pass user ID to user_id
+        activity_by: userName, // Use full name for activity_by
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString()
       });

@@ -137,36 +137,43 @@ function LeadsPipeline() {
     });
   };
 
-  const addColumn = async () => {
+  async function addColumn() {
     if (newColumnTitle.trim() === '') return;
 
     const newColumn = {
-      id: newColumnTitle.toLowerCase().replace(/\s+/g, '-'),
-      title: newColumnTitle,
-      order: selectedColumnToInsertAfter ? 
-        columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
-        columns.length + 1,
+        id: newColumnTitle.toLowerCase().replace(/\s+/g, '-'),
+        title: newColumnTitle,
+        order: selectedColumnToInsertAfter ? 
+            columns.find(col => col.id === selectedColumnToInsertAfter).order + 1 : 
+            columns.length + 1,
     };
+
+    // Adjust order of existing columns
+    setColumns(prevColumns => {
+        const updatedColumns = prevColumns.map(col => {
+            if (selectedColumnToInsertAfter && col.id !== newColumn.id) {
+                const insertIndex = prevColumns.findIndex(c => c.id === selectedColumnToInsertAfter);
+                if (prevColumns.indexOf(col) > insertIndex) {
+                    return { ...col, order: col.order + 1 }; // Increment order for columns after the new column
+                }
+            }
+            return col;
+        });
+
+        // Add the new column to the updated columns
+        updatedColumns.splice(newColumn.order - 1, 0, newColumn); // Insert at the correct position
+        return updatedColumns;
+    });
 
     const { data, error } = await supabase.from('columns').insert([newColumn]);
     if (error) {
-      console.error('Error adding column:', error);
-    } else {
-      const insertIndex = selectedColumnToInsertAfter ? 
-        columns.findIndex(col => col.id === selectedColumnToInsertAfter) + 1 : 
-        columns.length;
-
-      setColumns(prevColumns => {
-        const updatedColumns = [...prevColumns];
-        updatedColumns.splice(insertIndex, 0, newColumn);
-        return updatedColumns;
-      });
+        console.error('Error adding column:', error);
     }
 
     setNewColumnTitle('');
     setSelectedColumnToInsertAfter('');
     setShowAddColumnModal(false);
-  };
+  }
 
   const deleteColumn = async (columnId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this column?");
@@ -336,17 +343,31 @@ function Column({ column, moveCard, onEdit, onDelete }) {
     drop: (item) => moveCard(item.id, item.columnId, column.id),
   });
 
+  const [isOpen, setIsOpen] = useState(false); // State to manage open/close
+
+  // Function to handle click and toggle open state only on mobile
+  const handleHeaderClick = () => {
+    if (window.innerWidth <= 600) { // Only toggle on mobile view
+      setIsOpen(prev => !prev);
+    }
+  };
+
   return (
-    <div ref={drop} className="leads-pipeline-column">
-      <div className="leads-pipeline-column-header">
+    <div ref={drop} className={`leads-pipeline-column ${isOpen ? 'open' : ''}`}>
+      <div className="leads-pipeline-column-header" onClick={handleHeaderClick}>
         <h2>{column.title}</h2>
       </div>
-      {column.cards && column.cards.length > 0 ? (
-        column.cards.map(card => (
-          <LeadCard key={card.id} card={card} columnId={column.id} onEdit={onEdit} onDelete={onDelete} />
-        ))
-      ) : (
-        <p>No leads in this column.</p>
+      {/* Always show content on larger screens */}
+      {(isOpen || window.innerWidth > 600) && (
+        <div className="leads-pipeline-column-content">
+          {column.cards && column.cards.length > 0 ? (
+            column.cards.map(card => (
+              <LeadCard key={card.id} card={card} columnId={column.id} onEdit={onEdit} onDelete={onDelete} />
+            ))
+          ) : (
+            <p>No leads in this column.</p>
+          )}
+        </div>
       )}
     </div>
   );

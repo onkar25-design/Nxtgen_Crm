@@ -177,3 +177,88 @@
   margin: 10px 0; 
   margin-bottom: 20px;/* Space above and below the divider */
 }
+
+/* New styles for mobile view */
+@media (max-width: 600px) {
+  .leads-pipeline-columns-container {
+    flex-direction: column; /* Stack columns vertically */
+    
+  }
+
+  .leads-pipeline-column {
+    width: 80%; /* Set a smaller width for columns in mobile view */
+    max-width: 350px; /* Optional: Set a maximum width for better control */
+    margin-bottom: 10px; /* Space between stacked columns */
+  }
+
+  .leads-pipeline-header {
+    flex-direction: column; /* Stack title and actions vertically */
+    align-items: flex-start; /* Align items to the start */
+  }
+
+  .leads-pipeline-header-actions {
+    flex-direction: row; /* Keep actions in one line */
+    width: 100%; /* Full width for actions */
+    justify-content: flex-start; /* Align items to the start */
+    margin-top: 10px; /* Space above actions */
+    gap: 10px; /* Space between elements */
+  }
+
+  .leads-pipeline-search-input {
+    width: 70%; /* Adjust width for search input in mobile */
+    max-width: 250px; /* Optional: Set a maximum width for better control */
+  }
+
+  .leads-pipeline-icon-btn {
+    width: 40px; /* Adjust button size for mobile */
+    height: 40px; /* Adjust button size for mobile */
+  }
+}
+
+/* For larger screens, ensure columns are displayed normally */
+@media (min-width: 601px) {
+  .leads-pipeline-columns-container {
+    flex-direction: row; /* Display columns in a row */
+  }
+
+  .leads-pipeline-column-content {
+    display: block; /* Show column content by default */
+  }
+}
+
+/* Media query for 400px */
+@media (max-width: 430px) {
+  .leads-pipeline-columns-container {
+    flex-direction: column; /* Stack columns vertically */
+    
+  }
+
+  .leads-pipeline-column {
+    width: 80%; /* Set a smaller width for columns in mobile view */
+    max-width: 350px; /* Optional: Set a maximum width for better control */
+    margin-bottom: 10px; /* Space between stacked columns */
+  }
+
+  .leads-pipeline-header {
+    flex-direction: column; /* Stack title and actions vertically */
+    align-items: flex-start; /* Align items to the start */
+  }
+
+  .leads-pipeline-header-actions {
+    flex-direction: row; /* Keep actions in one line */
+    width: 100%; /* Full width for actions */
+    justify-content: flex-start; /* Align items to the start */
+    margin-top: 10px; /* Space above actions */
+    gap: 10px; /* Space between elements */
+  }
+
+  .leads-pipeline-search-input {
+    width: 70%; /* Adjust width for search input in mobile */
+    max-width: 250px; /* Optional: Set a maximum width for better control */
+  }
+
+  .leads-pipeline-icon-btn {
+    width: 40px; /* Adjust button size for mobile */
+    height: 40px; /* Adjust button size for mobile */
+  }
+}

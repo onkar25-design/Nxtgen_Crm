@@ -28,7 +28,7 @@
 }
 
 .signup-company-logo span:first-child {
-  color: #7fba00;
+  color: #4CAF50;
 }
 
 .signup-company-logo span:last-child {
@@ -69,7 +69,7 @@
 }
 
 .signup-button {
-  background-color: #7fba00 !important;
+  background-color: #4CAF50 !important;
   color: white !important;
   padding: 0.8rem !important;
   font-size: 1rem !important;
@@ -79,11 +79,11 @@
 }
 
 .signup-button:hover {
-  background-color: #6da000 !important;
+  background-color: #43A047 !important;
 }
 
 .signup-back-to-login-button {
-  color: #7fba00 !important;
+  color: #4CAF50 !important;
   margin-top: 1rem !important;
 }
 

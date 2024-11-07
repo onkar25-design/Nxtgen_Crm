@@ -38,7 +38,7 @@ body {
 }
 
 .login-company-logo span:first-child {
-  color: #7fba00;
+  color: #4CAF50;
 }
 
 .login-company-logo span:last-child {
@@ -75,7 +75,7 @@ body {
 }
 
 .login-button {
-  background-color: #7fba00 !important;
+  background-color: #4CAF50 !important;
   color: white !important;
   padding: 0.8rem !important;
   font-size: 1rem !important;
@@ -85,12 +85,12 @@ body {
 }
 
 .login-button:hover {
-  background-color: #6da000 !important;
+  background-color: #43A047 !important;
 }
 
 .login-forgot-password-link,
 .login-signup-link {
-  color: #7fba00;
+  color: #4CAF50;
   text-decoration: none;
   font-size: 0.9rem;
 }

@@ -16,8 +16,9 @@ export default function ActivityLog() {
     const fetchActivities = async () => {
       const { data, error } = await supabase
         .from('activity_log')
-        .select('*')
-        .order('date', { ascending: false }); // Order by date in descending order
+        .select('activity, action, date, time, activity_by')
+        .order('date', { ascending: false }) // Order by date in descending order
+        .order('time', { ascending: false }); // Order by time in descending order
 
       if (error) {
         console.error('Error fetching activities:', error);

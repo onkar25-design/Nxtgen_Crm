@@ -5,6 +5,8 @@ import { supabase } from '../../../../supabaseClient'; // Import Supabase client
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesome
 import { faTrash, faEdit, faUser } from '@fortawesome/free-solid-svg-icons'; // Import icons
 import Swal from 'sweetalert2'; // Import SweetAlert
+import AddLeadModal from './AddLeadModal'; // Import the new AddLeadModal component
+import EditLeadModalForm from './EditLeadModalForm'; // Import the EditLeadModalForm component
 
 // Function to log activity
 const logActivity = async (activity) => {
@@ -194,6 +196,20 @@ function Leads({ clientId, companyName }) {
 
     const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
 
+    // Fetch user details to get first and last name
+    const { data: userData, error: userDetailsError } = await supabase
+      .from('users')
+      .select('first_name, last_name')
+      .eq('id', user.id)
+      .single(); // Fetch the user details
+
+    if (userDetailsError) {
+      console.error('Error fetching user details:', userDetailsError);
+      return; // Exit if there's an error
+    }
+
+    const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
+
     const { error } = await supabase
       .from('client_leads')
       .insert([{ ...formattedLeadInfo, client_id: clientId, user_id: user.id }]); // Insert new lead with client_id and user_id
@@ -205,7 +221,8 @@ function Leads({ clientId, companyName }) {
       await logActivity({
         activity: `Added Lead: ${formattedLeadInfo.title} (Company: ${formattedLeadInfo.company})`, // Include title and company name
         action: 'Add',
-        activity_by: 'User',
+        user_id: user.id, // Pass user ID to user_id
+        activity_by: userName, // Use full name for activity_by
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString(),
       });
@@ -265,10 +282,27 @@ function Leads({ clientId, companyName }) {
       console.error('Error updating lead:', error);
     } else {
       setLeads(leads.map(lead => (lead.id === currentLeadId ? formattedLeadInfo : lead))); // Update the lead in the state
+      const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
+      // Fetch user details to get first and last name
+      const { data: userData, error: userDetailsError } = await supabase
+        .from('users')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single(); // Fetch the user details
+
+      if (userDetailsError) {
+        console.error('Error fetching user details:', userDetailsError);
+        return; // Exit if there's an error
+      }
+
+      const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
+
       await logActivity({
         activity: `Edited Lead: ${formattedLeadInfo.title} (Company: ${formattedLeadInfo.company})`, // Include title and company name
         action: 'Edit',
-        activity_by: 'User',
+        user_id: user.id, // Pass user ID to user_id
+        activity_by: userName, // Use full name for activity_by
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString(),
       });
@@ -307,10 +341,27 @@ function Leads({ clientId, companyName }) {
             console.error('Error deleting lead:', error);
         } else {
             setLeads(leads.filter(lead => lead.id !== leadId)); // Remove the lead from the state
+            const { data: { user } } = await supabase.auth.getUser(); // Get the logged-in user
+
+            // Fetch user details to get first and last name
+            const { data: userData, error: userDetailsError } = await supabase
+                .from('users')
+                .select('first_name, last_name')
+                .eq('id', user.id)
+                .single(); // Fetch the user details
+
+            if (userDetailsError) {
+                console.error('Error fetching user details:', userDetailsError);
+                return; // Exit if there's an error
+            }
+
+            const userName = `${userData.first_name} ${userData.last_name}`; // Combine first and last name
+
             await logActivity({
                 activity: `Deleted Lead: ${leadToDelete.title} (Company: ${leadToDelete.company})`, // Include title and company name
                 action: 'Delete',
-                activity_by: 'User',
+                user_id: user.id, // Pass user ID to user_id
+                activity_by: userName, // Use full name for activity_by
                 date: new Date().toISOString().split('T')[0],
                 time: new Date().toLocaleTimeString(),
             });
@@ -483,242 +534,29 @@ function Leads({ clientId, companyName }) {
         <p>No leads available. Please add a lead.</p>
       )}
 
-      {/* Modal for Adding Leads */}
-      {isAddModalOpen && (
-        <div className="client-leads-modal">
-          <div className="client-leads-modal-content">
-            <h3 className="client-leads-modal-title">Add Lead Information</h3>
-            <hr className="client-leads-modal-divider" />
-            <form onSubmit={addLead}>
-              <div className="client-leads-form-grid">
-                <div>
-                  <label>Title</label>
-                  <input type="text" name="title" value={leadInfo.title} onChange={(e) => setLeadInfo({ ...leadInfo, title: e.target.value })} required />
-                </div>
-                <div>
-                  <label>Budget</label>
-                  <input type="number" name="budget" value={leadInfo.budget} onChange={(e) => setLeadInfo({ ...leadInfo, budget: e.target.value })} required />
-                </div>
-                <div>
-                  <label>Company</label>
-                  <input type="text" name="company" value={leadInfo.company} onChange={(e) => setLeadInfo({ ...leadInfo, company: e.target.value })} required />
-                </div>
-                <div>
-                  <label>Contact Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={leadInfo.name}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Contact Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={leadInfo.email}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, email: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={leadInfo.phone}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, phone: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Lead Source</label>
-                  <select
-                    name="lead_source"
-                    value={leadInfo.lead_source}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, lead_source: e.target.value })}
-                    required
-                  >
-                    {leadSourceOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label>Lead Score</label>
-                  <select name="lead_score" value={leadInfo.lead_score} onChange={(e) => setLeadInfo({ ...leadInfo, lead_score: e.target.value })} required className="form-field-width">
-                    {[1, 2, 3, 4, 5].map(score => (
-                      <option key={score} value={score}>{score}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label>Interested Products</label>
-                  <Select
-                    isMulti
-                    options={productOptions}
-                    value={productOptions.filter(option => leadInfo.interested_products.includes(option.value))} // Set selected options
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, interested_products: selectedOptions.map(option => option.value) }))} // Update state
-                    classNamePrefix="react-select"
-                  />
-                </div>
-                <div>
-                  <label>Status</label>
-                  <select name="status" value={leadInfo.status} onChange={(e) => setLeadInfo({ ...leadInfo, status: e.target.value })} required>
-                    <option value="New">New</option>
-                    <option value="Contacted">Contacted</option>
-                    <option value="Follow-up Needed">Follow-up Needed</option>
-                    <option value="Closed">Closed</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Tags</label>
-                  <Select
-                    isMulti
-                    options={tagOptions}
-                    value={tagOptions.filter(option => leadInfo.tags.includes(option.value))} // Set selected options
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))} // Update state
-                    classNamePrefix="react-select"
-                  />
-                </div>
-              </div>
-              <div>
-                <label>Notes</label>
-                <textarea name="notes" value={leadInfo.notes} onChange={(e) => setLeadInfo({ ...leadInfo, notes: e.target.value })} rows={3}></textarea>
-              </div>
-              <div className="client-leads-form-actions">
-                <button type="submit" className="client-leads-submit-btn">Add Lead</button>
-                <button type="button" onClick={() => setIsAddModalOpen(false)} className="client-leads-cancel-btn">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Replace the existing modal code with the AddLeadModal component */}
+      <AddLeadModal
+        isAddModalOpen={isAddModalOpen}
+        setIsAddModalOpen={setIsAddModalOpen}
+        addLead={addLead}
+        leadInfo={leadInfo}
+        setLeadInfo={setLeadInfo}
+        leadSourceOptions={leadSourceOptions}
+        productOptions={productOptions}
+        tagOptions={tagOptions}
+      />
 
-      {/* Modal for Editing Leads */}
-      {isEditModalOpen && (
-        <div className="client-leads-modal">
-          <div className="client-leads-modal-content">
-            <h3>Edit Lead</h3>
-            <hr className="client-leads-modal-divider" />
-            <form onSubmit={updateLead}>
-              <div className="client-leads-form-grid">
-                <div>
-                  <label>Title</label>
-                  <input type="text" name="title" value={leadInfo.title} onChange={(e) => setLeadInfo({ ...leadInfo, title: e.target.value })} required />
-                </div>
-                <div>
-                  <label>Budget</label>
-                  <input type="number" name="budget" value={leadInfo.budget} onChange={(e) => setLeadInfo({ ...leadInfo, budget: e.target.value })} required />
-                </div>
-                <div>
-                  <label>Company</label>
-                  <input type="text" name="company" value={leadInfo.company} onChange={(e) => setLeadInfo({ ...leadInfo, company: e.target.value })} required />
-                </div>
-                <div>
-                  <label>Contact Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={leadInfo.name}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Contact Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={leadInfo.email}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, email: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={leadInfo.phone}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, phone: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Lead Source</label>
-                  <select
-                    name="lead_source"
-                    value={leadInfo.lead_source}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, lead_source: e.target.value })}
-                    required
-                  >
-                    {leadSourceOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label>Lead Score</label>
-                  <Select
-                    options={[1, 2, 3, 4, 5].map(score => ({ value: score, label: score }))}
-                    value={{ value: leadInfo.lead_score, label: leadInfo.lead_score }} // Set selected value
-                    onChange={(selectedOption) => setLeadInfo({ ...leadInfo, lead_score: selectedOption.value })}
-                    className="custom-select" // Apply custom styles
-                    classNamePrefix="react-select"
-                  />
-                </div>
-                <div>
-                  <label>Interested Products</label>
-                  <Select
-                    isMulti
-                    options={productOptions}
-                    value={productOptions.filter(option => leadInfo.interested_products.includes(option.value))} // Set selected options
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, interested_products: selectedOptions.map(option => option.value) }))}
-                    className="custom-select" // Apply custom styles
-                    classNamePrefix="react-select"
-                  />
-                </div>
-                <div>
-                  <label>Status</label>
-                  <select
-                    name="status"
-                    value={leadInfo.status}
-                    onChange={(e) => setLeadInfo({ ...leadInfo, status: e.target.value })}
-                    required
-                  >
-                    <option value="New">New</option>
-                    <option value="Contacted">Contacted</option>
-                    <option value="Follow-up Needed">Follow-up Needed</option>
-                    <option value="Closed">Closed</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Tags</label>
-                  <Select
-                    isMulti
-                    options={tagOptions}
-                    value={tagOptions.filter(option => leadInfo.tags.includes(option.value))} // Set selected options
-                    onChange={(selectedOptions) => setLeadInfo(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))}
-                    className="custom-select" // Apply custom styles
-                    classNamePrefix="react-select"
-                  />
-                </div>
-              </div>
-              <div>
-                <label>Notes</label>
-                <textarea name="notes" value={leadInfo.notes} onChange={(e) => setLeadInfo({ ...leadInfo, notes: e.target.value })} rows={3}></textarea>
-              </div>
-              <div className="client-leads-form-actions">
-                <button type="submit" className="client-leads-submit-btn">Update Lead</button>
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="client-leads-cancel-btn">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Replace the existing edit modal code with the EditLeadModalForm component */}
+      <EditLeadModalForm
+        isEditModalOpen={isEditModalOpen}
+        setIsEditModalOpen={setIsEditModalOpen}
+        updateLead={updateLead}
+        leadInfo={leadInfo}
+        setLeadInfo={setLeadInfo}
+        leadSourceOptions={leadSourceOptions}
+        productOptions={productOptions}
+        tagOptions={tagOptions}
+      />
 
       {/* Modal for Assigning Leads */}
       {isAssignModalOpen && (
