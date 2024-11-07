@@ -23,7 +23,6 @@ function Reminders({ clientId }) {
   const [reminderInfo, setReminderInfo] = useState({
     subject: '',
     description: `Dear Client,\n\nWe hope this message finds you well. It’s been a while since we last connected, and we just wanted to reach out to see how you’re doing and if there’s anything we can assist you with.\n\nWhether you have questions, need guidance, or simply want to catch up, please feel free to contact us at 1234567890. We’d love to hear from you and look forward to supporting you in any way we can.`,
-    frequency: '1 month', // Default frequency
     client_email: '', // New field for client email
   });
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); // State for modal visibility
@@ -108,6 +107,7 @@ function Reminders({ clientId }) {
         ...reminderInfo,
         client_id: clientId,
         user_id: user.id, // Include user ID
+        created_at: new Date().toISOString(), // Set created_at for the reminder
     };
 
     const { error } = await supabase
@@ -117,21 +117,22 @@ function Reminders({ clientId }) {
     if (error) {
         console.error('Error adding reminder:', error);
     } else {
-        setReminders([...reminders, newReminder]); // Update state with new reminder
+        setReminders((prev) => [...prev, newReminder]); // Update state with new reminder
         await sendEmailReminder(newReminder); // Send email reminder
 
         // Log the activity for the new reminder
         await logActivity({
-            activity: `Added Reminder: ${newReminder.subject} (Client: ${companyName})`, // Include company name
+            activity: `Added Reminder: ${newReminder.subject} (Client: ${companyName})`,
             action: 'Add',
-            user_id: user.id, // Pass user ID to user_id
-            activity_by: userName, // Use full name for activity_by
+            user_id: user.id,
+            activity_by: userData.first_name + ' ' + userData.last_name,
             date: new Date().toISOString().split('T')[0],
             time: new Date().toLocaleTimeString()
         });
 
-        setReminderInfo({ subject: '', description: reminderInfo.description, frequency: '1 month', client_email: '' }); // Reset form
-        setIsAddModalOpen(false); // Close modal
+        // Reset form and close modal
+        setReminderInfo({ subject: '', description: reminderInfo.description, client_email: '' });
+        setIsAddModalOpen(false);
 
         // Show success alert for reminder added
         Swal.fire({
@@ -173,7 +174,6 @@ function Reminders({ clientId }) {
         reminders.map((reminder, index) => (
           <div key={index} className="reminder-card" onClick={() => handleSelectReminder(reminder)}>
             <h3>{reminder.subject}</h3>
-            <p>Frequency: {reminder.frequency}</p>
           </div>
         ))
       ) : (
@@ -216,17 +216,6 @@ function Reminders({ clientId }) {
                   required
                 />
               </label>
-              <label>
-                Frequency:
-                <select
-                  value={reminderInfo.frequency}
-                  onChange={(e) => setReminderInfo({ ...reminderInfo, frequency: e.target.value })}
-                >
-                  <option value="1 month">Every Month</option>
-                  <option value="3 months">Every 3 Months</option>
-                  <option value="6 months">Every 6 Months</option>
-                </select>
-              </label>
               <div className="reminders-modal-buttons">
                 <button type="submit" className="reminders-submit-btn">Submit</button>
                 <button type="button" className="reminders-cancel-btn" onClick={() => setIsAddModalOpen(false)}>Close</button>
@@ -248,7 +237,6 @@ function Reminders({ clientId }) {
               <p><strong>Description:</strong> {selectedReminder.description.split('\n').map((line, index) => (
                 <span key={index}>{line}<br /></span>
               ))}</p>
-              <p><strong>Frequency:</strong> {selectedReminder.frequency}</p>
             </div>
             <div className="reminders-modal-buttons">
               <button type="button" className="reminders-submit-btn" onClick={() => setIsViewModalOpen(false)}>Close</button>
