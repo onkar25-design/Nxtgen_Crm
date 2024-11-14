@@ -87,7 +87,10 @@ function Sidebar({ userName, userRole }) {
           </Link>
 
           <div 
-            className={`nxtgen-nav-item ${location.pathname.startsWith('/management') ? 'active' : ''}`}
+            className={`nxtgen-nav-item ${
+              (location.pathname.startsWith('/management') && 
+               location.pathname !== '/management/activity') ? 'active' : ''
+            }`}
             onClick={() => setIsManagementOpen(!isManagementOpen)}
           >
             <FontAwesomeIcon icon={faUsersCog} className="nxtgen-icon" />
