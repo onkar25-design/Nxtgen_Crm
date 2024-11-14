@@ -161,7 +161,7 @@
 /* Media query for screens 460px and below */
 @media (max-width: 460px) {
   .activity-log-title {
-    font-size: 1.2rem; /* Further reduce title font size */
+    font-size: 2rem; /* Further reduce title font size */
   }
 
   .activity-log-filter-button {

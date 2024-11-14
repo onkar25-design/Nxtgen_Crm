@@ -39,6 +39,7 @@ const onEdit = (card) => {
 
 function LeadsPipeline() {
   const [columns, setColumns] = useState(initialColumns);
+  const [activeColumnId, setActiveColumnId] = useState(columns[0].id);
   const [showAddColumnModal, setShowAddColumnModal] = useState(false);
   const [showDeleteColumnDropdown, setShowDeleteColumnDropdown] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState('');
@@ -108,6 +109,11 @@ function LeadsPipeline() {
   }, []);
 
   const moveCard = async (cardId, fromColumn, toColumn) => {
+    if (fromColumn === toColumn) {
+      // If the card is moved within the same column, do nothing
+      return;
+    }
+
     setColumns(prevColumns => {
       const updatedColumns = prevColumns.map(col => {
         const cards = col.cards || [];
@@ -337,6 +343,17 @@ function LeadsPipeline() {
           </div>
         </div>
       </div>
+      <div className="leads-pipeline-tabs">
+        {columns.map(column => (
+          <div
+            key={column.id}
+            className={`leads-pipeline-tab ${activeColumnId === column.id ? 'active' : ''}`}
+            onClick={() => setActiveColumnId(column.id)}
+          >
+            {column.title}
+          </div>
+        ))}
+      </div>
       <div className="leads-pipeline-columns-container">
         {filteredColumns.map(column => (
           <Column
@@ -345,6 +362,7 @@ function LeadsPipeline() {
             moveCard={moveCard}
             onEdit={onEdit}
             onDelete={onDelete}
+            className={activeColumnId === column.id ? 'active' : ''}
           />
         ))}
       </div>
@@ -386,38 +404,26 @@ function LeadsPipeline() {
   );
 }
 
-function Column({ column, moveCard, onEdit, onDelete }) {
+function Column({ column, moveCard, onEdit, onDelete, className }) {
   const [, drop] = useDrop({
     accept: 'card',
     drop: (item) => moveCard(item.id, item.columnId, column.id),
   });
 
-  const [isOpen, setIsOpen] = useState(false); // State to manage open/close
-
-  // Function to handle click and toggle open state only on mobile
-  const handleHeaderClick = () => {
-    if (window.innerWidth <= 600) { // Only toggle on mobile view
-      setIsOpen(prev => !prev);
-    }
-  };
-
   return (
-    <div ref={drop} className={`leads-pipeline-column ${isOpen ? 'open' : ''}`}>
-      <div className="leads-pipeline-column-header" onClick={handleHeaderClick}>
+    <div ref={drop} className={`leads-pipeline-column ${className}`}>
+      <div className="leads-pipeline-column-header">
         <h2>{column.title}</h2>
       </div>
-      {/* Always show content on larger screens */}
-      {(isOpen || window.innerWidth > 600) && (
-        <div className="leads-pipeline-column-content">
-          {column.cards && column.cards.length > 0 ? (
-            column.cards.map(card => (
-              <LeadCard key={card.id} card={card} columnId={column.id} onEdit={onEdit} onDelete={onDelete} />
-            ))
-          ) : (
-            <p>No leads in this column.</p>
-          )}
-        </div>
-      )}
+      <div className="leads-pipeline-column-content">
+        {column.cards && column.cards.length > 0 ? (
+          column.cards.map(card => (
+            <LeadCard key={card.id} card={card} columnId={column.id} onEdit={onEdit} onDelete={onDelete} />
+          ))
+        ) : (
+          <p>No leads in this column.</p>
+        )}
+      </div>
     </div>
   );
 }

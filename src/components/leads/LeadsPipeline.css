@@ -41,11 +41,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
+  padding: 0; /* Remove padding */
   border-radius: 50%;
   transition: background-color 0.3s ease, transform 0.2s ease;
   width: 30px;
   height: 30px;
+  min-width: 30px; /* Add min-width to prevent oval shape */
+  min-height: 30px; /* Add min-height to prevent oval shape */
 }
 
 .leads-pipeline-icon-btn:hover {
@@ -62,8 +64,14 @@
 }
 
 /* Dropdown menu styles */
+.leads-pipeline-delete-column-dropdown {
+  position: relative; /* Ensure the dropdown is positioned relative to this container */
+}
+
 .leads-pipeline-dropdown-menu {
-  position: absolute; 
+  position: absolute; /* Change to absolute positioning */
+  top: calc(100% + 5px); /* Position it below the button with a margin */
+  right: 0; /* Align to the left of the button */
   background-color: #2B2B2B; /* Dark background to match theme */
   border: 1px solid #4CAF50; /* Green border to match theme */
   border-radius: 4px; 
@@ -178,89 +186,166 @@
   margin-bottom: 20px;/* Space above and below the divider */
 }
 
-/* New styles for mobile view */
-@media (max-width: 600px) {
-  .leads-pipeline {
-    position: fixed; /* Fix the position */
-    top: 0; /* Align to the top */
-    left: 0; /* Align to the left */
-    right: 0; /* Stretch to the right */
-    bottom: 0; /* Stretch to the bottom */
-    overflow: hidden; /* Prevent scrolling of the entire pipeline */
-    padding: 10px; /* Adjust padding for mobile */
-  }
-
-  .leads-pipeline-header {
-    flex-direction: column; /* Stack header elements */
-    align-items: flex-start; /* Align items to the start */
-  }
-
-  .leads-pipeline-columns-container {
-    flex-direction: column; /* Stack columns vertically */
-    overflow-y: auto; /* Allow vertical scrolling within the container */
-    height: calc(100% - 60px); /* Adjust height to allow for header space */
-  }
-
-  .leads-pipeline-column {
-    width: 100%; /* Full width for columns */
-    margin-bottom: 10px; /* Space between columns */
-  }
-
-  .leads-pipeline-search-input {
-    width: 70%; /* Adjust width for search input in mobile */
-    max-width: 250px; /* Optional: Set a maximum width for better control */
-  }
-
-  .leads-pipeline-icon-btn {
-    width: 40px; /* Adjust button size for mobile */
-    height: 40px; /* Adjust button size for mobile */
-  }
-}
-
-/* For larger screens, ensure columns are displayed normally */
+/* Media Queries - sorted from largest to smallest breakpoint */
 @media (min-width: 601px) {
   .leads-pipeline-columns-container {
-    flex-direction: row; /* Display columns in a row */
+    flex-direction: row;
   }
 
   .leads-pipeline-column-content {
-    display: block; /* Show column content by default */
+    display: block;
   }
 }
 
-/* Media query for 400px */
-@media (max-width: 430px) {
-  .leads-pipeline-columns-container {
-    flex-direction: column; /* Stack columns vertically */
-    
-  }
-
-  .leads-pipeline-column {
-    width: 80%; /* Set a smaller width for columns in mobile view */
-    max-width: 350px; /* Optional: Set a maximum width for better control */
-    margin-bottom: 10px; /* Space between stacked columns */
+@media (max-width: 600px) {
+  .leads-pipeline {
+    min-width: auto;
+    padding: 10px;
   }
 
   .leads-pipeline-header {
-    flex-direction: column; /* Stack title and actions vertically */
-    align-items: flex-start; /* Align items to the start */
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding-bottom: 10px;
   }
 
   .leads-pipeline-header-actions {
-    flex-direction: row; /* Keep actions in one line */
-    width: 100%; /* Full width for actions */
-    justify-content: flex-start; /* Align items to the start */
-    margin-top: 10px; /* Space above actions */
-    gap: 10px; /* Space between elements */
+    width: 100%;
+    justify-content: space-between;
+    padding: 0;
   }
 
   .leads-pipeline-search-input {
-    width: 70%; /* Adjust width for search input in mobile */
-    max-width: 250px; /* Optional: Set a maximum width for better control */
+    width: calc(100% - 20px);
+    margin-bottom: 10px;
+  }
+
+  .leads-pipeline-tabs {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    overflow-x: auto;
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  }
+
+  /* Hide the scrollbar but keep functionality */
+  .leads-pipeline-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .leads-pipeline-tab {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .leads-pipeline-tab.active {
+    background-color: #388E3C;
+  }
+
+  .leads-pipeline-columns-container {
+    flex-direction: column;
+    overflow-y: hidden;
+    height: auto;
+  }
+
+  .leads-pipeline-column {
+    display: none;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .leads-pipeline-column.active {
+    display: block;
   }
 
   .leads-pipeline-icon-btn {
-    width: 40px; /* Adjust button size for mobile */
-    height: 40px; /* Adjust button size for mobile */
+    width: 35px;
+    height: 35px;
+    min-width: 35px; /* Ensure square shape */
+    min-height: 35px; /* Ensure square shape */
+  }
+}
+
+@media (max-width: 430px) {
+  .leads-pipeline-header {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding-bottom: 10px;
+  }
+
+  .leads-pipeline-header-actions {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0;
+  }
+
+  .leads-pipeline-search-input {
+    width: calc(100% - 20px);
+  }
+
+  .leads-pipeline-tabs {
+    display: flex;
+    justify-content: flex-start;
+    gap: 5px;
+    overflow-x: auto;
+    width: calc(100% - 20px);
+    margin-bottom: 10px;
+  }
+
+  .leads-pipeline-column {
+    width: calc(100% - 20px);
+    margin-top: 10px;
+  }
+
+  .leads-pipeline-icon-btn {
+    width: 35px;
+    height: 35px;
+    min-width: 35px; /* Ensure square shape */
+    min-height: 35px; /* Ensure square shape */
+  }
+}
+
+/* Hide tabs on larger screens */
+.leads-pipeline-tabs {
+  display: none; /* Hide tabs by default */
+}
+
+/* Show tabs only in mobile view */
+@media (max-width: 600px) {
+  .leads-pipeline-tabs {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    overflow-x: auto;
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+    -ms-overflow-style: none;
+  }
+
+  .leads-pipeline-tab {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    width: 400px; /* Set fixed width for tabs */
+    text-align: center; /* Center text */
+  }
+
+  .leads-pipeline-tab.active {
+    background-color: #388E3C;
   }
 }

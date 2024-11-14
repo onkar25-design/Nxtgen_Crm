@@ -117,28 +117,31 @@
 /* Media query for 460px */
 @media (max-width: 460px) {
   .dashboard-header h1 {
-    font-size: 1.5rem; /* Smaller font size for mobile */
+    font-size: 1.75rem; /* Adjust font size for medium screens */
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two columns for medium screens */
   }
 
   .stat-card {
-    padding: 1rem; /* Reduce padding for smaller screens */
+    padding: 1.25rem; /* Adjust padding for medium screens */
   }
 
   .stat-title {
-    font-size: 0.75rem; /* Smaller title font size */
+    font-size: 0.85rem; /* Adjust title font size */
   }
 
   .stat-value {
-    font-size: 1.25rem; /* Smaller value font size */
+    font-size: 1.4rem; /* Adjust value font size */
   }
 
   .chart-container {
-    height: 200px; /* Reduce chart height for smaller screens */
+    height: 250px; /* Adjust chart height for medium screens */
   }
 }
 
-/* Media query for 768px */
-@media (min-width: 400px) and (max-width: 768px) {
+@media (max-width: 768px) {
   .dashboard-header h1 {
     font-size: 1.75rem; /* Adjust font size for medium screens */
   }

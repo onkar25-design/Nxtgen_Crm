@@ -18,7 +18,8 @@
     display: none;
     position: fixed;
     top: 1rem;
-    left: 1rem;
+    left: auto;
+    right: 1rem;
     z-index: 1001;
     background: #4CAF50;
     border: none;

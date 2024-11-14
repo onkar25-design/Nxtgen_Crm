@@ -3,7 +3,7 @@ import Select from 'react-select';
 import './NewLeadForm.css';
 import { supabase } from '../../../../supabaseClient'; // Supabase client import
 
-const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
+const NewLeadForm = ({ onSubmit, onCancel, initialData }) => { // Removed userId from props
   const [formData, setFormData] = useState({
     title: '',
     budget: 0, 
@@ -15,12 +15,40 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
     leadSource: '',
     leadScore: 1,
     interestedProducts: [],
-    assignedTo: '',
-    status: 'New',
+    status: 'New', // Default status is 'New'
+    stage: 'new', // Default stage is 'New'
     notes: '',
+    clientId: null, // Add clientId to formData
   });
 
+  const [companyOptions, setCompanyOptions] = useState([]); // State for company options
+
+  // Define lead source options locally
+  const leadSourceOptions = [
+    { value: 'Email', label: 'Email' },
+    { value: 'Website', label: 'Website' },
+    { value: 'Social Media', label: 'Social Media' },
+    { value: 'Surveys', label: 'Surveys' },
+  ];
+
   useEffect(() => {
+    const fetchCompanies = async () => {
+      const { data, error } = await supabase
+        .from('clients') // Fetch from clients table
+        .select('id, company_name'); // Select id and company_name
+
+      if (error) {
+        console.error('Error fetching companies:', error);
+      } else {
+        setCompanyOptions(data.map(company => ({
+          value: company.id,
+          label: company.company_name,
+        }))); // Map to the format required by react-select
+      }
+    };
+
+    fetchCompanies(); // Call the function to fetch companies
+
     if (initialData) {
       setFormData(initialData); // Populate form with initial data
     }
@@ -31,58 +59,48 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleCompanyChange = (selectedOption) => {
+    setFormData(prev => ({ ...prev, clientId: selectedOption.value, company: selectedOption.label })); // Set clientId and company name
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Fetch client ID based on company name
-    const clientIdFromCompany = await getClientIdByCompany(formData.company);
-    
-    // If a client ID is found, include it in the lead data
-    if (clientIdFromCompany) {
-      formData.clientId = clientIdFromCompany; // Set the client ID in formData
-    } else {
-      formData.clientId = null; // Or handle the case where no client is found
-    }
+    // Ensure budget is a float and leadScore is an integer
+    const formattedData = {
+        ...formData,
+        budget: parseFloat(formData.budget), // Convert budget to float
+        leadScore: parseInt(formData.leadScore, 10), // Ensure leadScore is an integer
+    };
 
-    const result = await submitLeadToSupabase(formData);
+    // Log the values to check their types and values
+    console.log('Budget:', formattedData.budget, 'Type:', typeof formattedData.budget);
+    console.log('Lead Score:', formattedData.leadScore, 'Type:', typeof formattedData.leadScore);
+    console.log('Formatted Form Data Before Submission:', formattedData); // Log the formatted form data
+
+    const result = await submitLeadToSupabase(formattedData);
     if (result) {
-      onSubmit(formData); // Trigger the parent component's submission
+      onSubmit(formattedData); // Trigger the parent component's submission
     }
-  };
-
-  const getClientIdByCompany = async (companyName) => {
-    const { data, error } = await supabase
-      .from('clients') // Assuming the table name is 'clients'
-      .select('id')
-      .eq('company_name', companyName) // Match the company name
-      .single(); // Get a single record
-
-    if (error) {
-      console.error('Error fetching client ID:', error);
-      return null; // Return null if there's an error
-    }
-
-    return data ? data.id : null; // Return the client ID or null if not found
   };
 
   const submitLeadToSupabase = async (leadData) => {
     const { data, error } = await supabase
       .from('client_leads')  // Change the table name to 'client_leads'
-      .insert([
-        {
-          client_id: leadData.clientId, // Ensure to include client_id if needed
+      .insert([{
+          client_id: leadData.clientId, // Store client ID
           title: leadData.title,
-          budget: leadData.budget,
-          company: leadData.company,
+          budget: leadData.budget, // Use the formatted budget
+          company: leadData.company, // Insert the company name
           tags: leadData.tags,
           name: leadData.name,
           email: leadData.email,
           phone: leadData.phone,
           lead_source: leadData.leadSource,
-          lead_score: leadData.leadScore,
+          lead_score: leadData.leadScore, // Use the formatted leadScore
           interested_products: leadData.interestedProducts,
-          assigned_to: leadData.assignedTo,
           status: leadData.status,
+          stage: leadData.stage, // Insert stage
           notes: leadData.notes,
         }
       ]);
@@ -130,24 +148,20 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
             </div>
             <div>
               <label>Company</label>
-              <input type="text" name="company" value={formData.company} onChange={handleChange} required />
-            </div>
-            <div>
-              <label>Tags</label>
               <Select
-                isMulti
-                options={tagOptions}
-                onChange={(selectedOptions) => setFormData(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))}
+                options={companyOptions}
+                onChange={handleCompanyChange} // Handle company selection
                 className="newleadform-react-select-container"
                 classNamePrefix="newleadform-react-select"
+                isClearable
               />
             </div>
             <div>
-              <label>Name</label>
+              <label>Contact Name</label>
               <input type="text" name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div>
-              <label>Email</label>
+              <label>Contact Email</label>
               <input type="email" name="email" value={formData.email} onChange={handleChange} required />
             </div>
             <div>
@@ -156,7 +170,13 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
             </div>
             <div>
               <label>Lead Source</label>
-              <input type="text" name="leadSource" value={formData.leadSource} onChange={handleChange} required />
+              <Select
+                options={leadSourceOptions} // Use the defined leadSourceOptions from local declaration
+                onChange={(selectedOption) => setFormData(prev => ({ ...prev, leadSource: selectedOption.value }))} // Update leadSource in formData
+                className="newleadform-react-select-container"
+                classNamePrefix="newleadform-react-select"
+                isClearable
+              />
             </div>
             <div>
               <label>Lead Score</label>
@@ -177,10 +197,6 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
               />
             </div>
             <div>
-              <label>Assigned To</label>
-              <input type="text" name="assignedTo" value={formData.assignedTo} onChange={handleChange} required />
-            </div>
-            <div>
               <label>Status</label>
               <select name="status" value={formData.status} onChange={handleChange} required>
                 <option value="New">New</option>
@@ -189,10 +205,20 @@ const NewLeadForm = ({ onSubmit, onCancel, initialData, clientId }) => {
                 <option value="Closed">Closed</option>
               </select>
             </div>
-          </div>
-          <div>
-            <label>Notes</label>
-            <textarea name="notes" value={formData.notes} onChange={handleChange} rows={3}></textarea>
+            <div>
+              <label>Tags</label>
+              <Select
+                isMulti
+                options={tagOptions}
+                onChange={(selectedOptions) => setFormData(prev => ({ ...prev, tags: selectedOptions.map(option => option.value) }))}
+                className="newleadform-react-select-container"
+                classNamePrefix="newleadform-react-select"
+              />
+            </div>
+            <div>
+              <label>Notes</label>
+              <textarea name="notes" value={formData.notes} onChange={handleChange} rows={3}></textarea>
+            </div>
           </div>
           <div className="form-actions">
             <button type="submit" className="submit-btn">{initialData ? 'Update Lead' : 'Add Lead'}</button>

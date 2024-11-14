@@ -264,7 +264,7 @@
 }
 
 /* Media query for 768px */
-@media (min-width: 460px) and (max-width: 768px) {
+@media (max-width: 768px) {
   .manageStaff-management {
     padding: 0.5rem; /* Reduce padding for mobile */
   }
